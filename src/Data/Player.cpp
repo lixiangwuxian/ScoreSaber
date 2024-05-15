@@ -14,7 +14,7 @@ namespace ScoreSaber::Data
     Player::Player(const rapidjson::Value&& value)
     {
         id = value["id"].GetString();
-        name = to_utf16(value["name"].GetString());
+        name = to_utf8(value["name"].GetString());
         profilePicture = value["profilePicture"].GetString();
         country = value["country"].GetString();
         pp = value["pp"].GetDouble();
@@ -46,7 +46,7 @@ namespace ScoreSaber::Data
     Player::Player(const rapidjson::GenericValue<rapidjson::UTF16<char16_t>>&& value)
     {
         id = to_utf8(value[u"id"].GetString());
-        name = std::u16string(value[u"name"].GetString());
+        name = to_utf8(value[u"name"].GetString());
         profilePicture = to_utf8(value[u"profilePicture"].GetString());
         country = to_utf8(value[u"country"].GetString());
         pp = value[u"pp"].GetDouble();
@@ -77,7 +77,7 @@ namespace ScoreSaber::Data
     Player::Player(rapidjson::GenericObject<true, rapidjson::Value> value)
     {
         id = value["id"].GetString();
-        name = to_utf16(value["name"].GetString());
+        name = to_utf8(value["name"].GetString());
         profilePicture = value["profilePicture"].GetString();
         country = value["country"].GetString();
         pp = value["pp"].GetDouble();
@@ -109,7 +109,7 @@ namespace ScoreSaber::Data
     Player::Player(rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF16<char16_t>>> value)
     {
         id = to_utf8(value[u"id"].GetString());
-        name = std::u16string(value[u"name"].GetString());
+        name = to_utf8(value[u"name"].GetString());
         profilePicture = to_utf8(value[u"profilePicture"].GetString());
         country = to_utf8(value[u"country"].GetString());
         pp = value[u"pp"].GetDouble();

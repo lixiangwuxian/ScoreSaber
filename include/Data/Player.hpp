@@ -20,7 +20,7 @@ namespace ScoreSaber::Data
         Player(rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF16<char16_t>>> value);
 
         std::string id;
-        std::u16string name;
+        std::string name;
         std::string profilePicture;
         std::string country;
         double pp;
@@ -34,4 +34,4 @@ namespace ScoreSaber::Data
         bool banned;
         bool inactive;
     };
-}
+} // namespace ScoreSaber::Data
