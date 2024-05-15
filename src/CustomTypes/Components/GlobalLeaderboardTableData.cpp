@@ -44,6 +44,7 @@ custom_types::Helpers::Coroutine GetDocument(ScoreSaber::CustomTypes::Components
     if (!webRequest->get_isNetworkError())
     {
         // Some of the players have utf16 characters in their names, so parse this as a utf16 document
+        // wtf is utf16 characters... utf16 is a character encoding scheme, not a character
 
         auto s = std::u16string(csstrtostr(webRequest->get_downloadHandler()->get_text()));
 

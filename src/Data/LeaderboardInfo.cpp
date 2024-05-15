@@ -23,10 +23,10 @@ namespace ScoreSaber::Data
         : difficulty(doc["difficulty"].GetObject())
     {
         id = doc["id"].GetInt();
-        songHash = to_utf16(doc["songHash"].GetString());
-        songName = to_utf16(doc["songName"].GetString());
-        songSubName = to_utf16(doc["songSubName"].GetString());
-        songAuthorName = to_utf16(doc["songAuthorName"].GetString());
+        songHash = doc["songHash"].GetString();
+        songName = doc["songName"].GetString();
+        songSubName = doc["songSubName"].GetString();
+        songAuthorName = doc["songAuthorName"].GetString();
         maxScore = doc["maxScore"].GetInt();
         createdDate = doc["createdDate"].GetString();
         auto rankedDateItr = doc.FindMember("rankedDate");
@@ -75,10 +75,10 @@ namespace ScoreSaber::Data
         : difficulty(doc[u"difficulty"].GetObject())
     {
         id = doc[u"id"].GetInt();
-        songHash = std::u16string(doc[u"songHash"].GetString());
-        songName = std::u16string(doc[u"songName"].GetString());
-        songSubName = std::u16string(doc[u"songSubName"].GetString());
-        songAuthorName = std::u16string(doc[u"songAuthorName"].GetString());
+        songHash = std::string(to_utf8(doc[u"songHash"].GetString()));
+        songName = std::string(to_utf8(doc[u"songName"].GetString()));
+        songSubName = std::string(to_utf8(doc[u"songSubName"].GetString()));
+        songAuthorName = std::string(to_utf8(doc[u"songAuthorName"].GetString()));
         maxScore = doc[u"maxScore"].GetInt();
         createdDate = to_utf8(doc[u"createdDate"].GetString());
         auto rankedDateItr = doc.FindMember(u"rankedDate");
@@ -127,10 +127,10 @@ namespace ScoreSaber::Data
         : difficulty(value["difficulty"].GetObject())
     {
         id = value["id"].GetInt();
-        songHash = to_utf16(value["songHash"].GetString());
-        songName = to_utf16(value["songName"].GetString());
-        songSubName = to_utf16(value["songSubName"].GetString());
-        songAuthorName = to_utf16(value["songAuthorName"].GetString());
+        songHash = (value["songHash"].GetString());
+        songName = (value["songName"].GetString());
+        songSubName = (value["songSubName"].GetString());
+        songAuthorName = (value["songAuthorName"].GetString());
         maxScore = value["maxScore"].GetInt();
         createdDate = value["createdDate"].GetString();
         auto rankedDateItr = value.FindMember("rankedDate");
@@ -185,10 +185,10 @@ namespace ScoreSaber::Data
         : difficulty(value[u"difficulty"].GetObject())
     {
         id = value[u"id"].GetInt();
-        songHash = std::u16string(value[u"songHash"].GetString());
-        songName = std::u16string(value[u"songName"].GetString());
-        songSubName = std::u16string(value[u"songSubName"].GetString());
-        songAuthorName = std::u16string(value[u"songAuthorName"].GetString());
+        songHash = std::string(to_utf8(value[u"songHash"].GetString()));
+        songName = std::string(to_utf8(value[u"songName"].GetString()));
+        songSubName = std::string(to_utf8(value[u"songSubName"].GetString()));
+        songAuthorName = std::string(to_utf8(value[u"songAuthorName"].GetString()));
         maxScore = value[u"maxScore"].GetInt();
         createdDate = to_utf8(value[u"createdDate"].GetString());
         auto rankedDateItr = value.FindMember(u"rankedDate");
@@ -243,10 +243,10 @@ namespace ScoreSaber::Data
         : difficulty(value["difficulty"].GetObject())
     {
         id = value["id"].GetInt();
-        songHash = to_utf16(value["songHash"].GetString());
-        songName = to_utf16(value["songName"].GetString());
-        songSubName = to_utf16(value["songSubName"].GetString());
-        songAuthorName = to_utf16(value["songAuthorName"].GetString());
+        songHash = value["songHash"].GetString();
+        songName = value["songName"].GetString();
+        songSubName = value["songSubName"].GetString();
+        songAuthorName = value["songAuthorName"].GetString();
         maxScore = value["maxScore"].GetInt();
         createdDate = value["createdDate"].GetString();
         auto rankedDateItr = value.FindMember("rankedDate");
@@ -301,10 +301,10 @@ namespace ScoreSaber::Data
         : difficulty(value[u"difficulty"].GetObject())
     {
         id = value[u"id"].GetInt();
-        songHash = std::u16string(value[u"songHash"].GetString());
-        songName = std::u16string(value[u"songName"].GetString());
-        songSubName = std::u16string(value[u"songSubName"].GetString());
-        songAuthorName = std::u16string(value[u"songAuthorName"].GetString());
+        songHash = std::string(to_utf8(value[u"songHash"].GetString()));
+        songName = std::string(to_utf8(value[u"songName"].GetString()));
+        songSubName = std::string(to_utf8(value[u"songSubName"].GetString()));
+        songAuthorName = std::string(to_utf8(value[u"songAuthorName"].GetString()));
         maxScore = value[u"maxScore"].GetInt();
         createdDate = to_utf8(value[u"createdDate"].GetString());
         auto rankedDateItr = value.FindMember(u"rankedDate");
@@ -361,10 +361,10 @@ namespace ScoreSaber::Data
         // This is the one that gets called
 
         id = value["id"].GetInt();
-        songHash = to_utf16(value["songHash"].GetString());
-        songName = to_utf16(value["songName"].GetString());
-        songSubName = to_utf16(value["songSubName"].GetString());
-        songAuthorName = to_utf16(value["songAuthorName"].GetString());
+        songHash = (value["songHash"].GetString());
+        songName = (value["songName"].GetString());
+        songSubName = (value["songSubName"].GetString());
+        songAuthorName = (value["songAuthorName"].GetString());
         maxScore = value["maxScore"].GetInt();
         createdDate = value["createdDate"].GetString();
         auto rankedDateItr = value.FindMember("rankedDate");
@@ -419,10 +419,10 @@ namespace ScoreSaber::Data
         : difficulty(value[u"difficulty"].GetObject())
     {
         id = value[u"id"].GetInt();
-        songHash = std::u16string(value[u"songHash"].GetString());
-        songName = std::u16string(value[u"songName"].GetString());
-        songSubName = std::u16string(value[u"songSubName"].GetString());
-        songAuthorName = std::u16string(value[u"songAuthorName"].GetString());
+        songHash = std::string(to_utf8(value[u"songHash"].GetString()));
+        songName = std::string(to_utf8(value[u"songName"].GetString()));
+        songSubName = std::string(to_utf8(value[u"songSubName"].GetString()));
+        songAuthorName = std::string(to_utf8(value[u"songAuthorName"].GetString()));
         maxScore = value[u"maxScore"].GetInt();
         createdDate = to_utf8(value[u"createdDate"].GetString());
         auto rankedDateItr = value.FindMember(u"rankedDate");

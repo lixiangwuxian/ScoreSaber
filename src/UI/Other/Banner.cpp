@@ -23,8 +23,8 @@
 #include "UnityEngine/UI/LayoutElement.hpp"
 #include "UnityEngine/WaitForSeconds.hpp"
 #include "Utils/UIUtils.hpp"
-#include "logging.hpp"
 #include "custom-types/shared/delegate.hpp"
+#include "logging.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
 #include "questui/shared/CustomTypes/Components/MainThreadScheduler.hpp"
@@ -40,19 +40,21 @@ using namespace QuestUI;
 using namespace QuestUI::BeatSaberUI;
 using namespace ScoreSaber::Data::Private;
 
-#define SetPreferredSize(identifier, width, height)                                         \
-    auto layout##identifier = identifier->get_gameObject()->GetComponent<LayoutElement*>(); \
-    if (!layout##identifier)                                                                \
-        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();  \
-    layout##identifier->set_preferredWidth(width);                                          \
+#define SetPreferredSize(identifier, width, height)                                           \
+    auto layout##identifier = identifier->get_gameObject() -> GetComponent<LayoutElement*>(); \
+    if (!layout##identifier)                                                                  \
+        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();    \
+    layout##identifier->set_preferredWidth(width);                                            \
     layout##identifier->set_preferredHeight(height)
 
 namespace ScoreSaber::UI::Other
 {
     Sprite* GetGameSprite(StringW name)
     {
-        for (auto x : Resources::FindObjectsOfTypeAll<Sprite*>()) {
-            if (x->get_name() == name) {
+        for (auto x : Resources::FindObjectsOfTypeAll<Sprite*>())
+        {
+            if (x->get_name() == name)
+            {
                 return x;
             }
         }
@@ -121,7 +123,7 @@ namespace ScoreSaber::UI::Other
         SetButtonSprites(btn, scoresaber_inactive, scoresaber_active);
         auto btnImageView = btn->get_gameObject()->GetComponentInChildren<ImageView*>();
         btnImageView->skew = 0.18f;
-        AddHoverHint(btn->get_gameObject(), "Opens the ScoreSaber main menu");
+        AddHoverHint(btn->get_gameObject(), "开启ScoreSaber主菜单");
         auto btnLayout = buttonVertical->get_gameObject()->AddComponent<LayoutElement*>();
         btnLayout->set_preferredWidth(buttonSize);
 
@@ -148,12 +150,11 @@ namespace ScoreSaber::UI::Other
         // settings button setup
         auto setbtn = CreateClickableImage(settingsVertical->get_transform(), GetGameSprite("SettingsIcon"), Vector2(0, 0), Vector2(6, 6), std::bind(&Banner::OpenSettingsFlowCoordinator, this));
         setbtn->set_preserveAspect(true);
-        AddHoverHint(setbtn->get_gameObject(), "Opens the ScoreSaber Settings menu");
+        AddHoverHint(setbtn->get_gameObject(), "开启ScoreSaber设置菜单");
         auto setbtnLayout = settingsVertical->get_gameObject()->AddComponent<LayoutElement*>();
         setbtnLayout->set_preferredWidth(6);
         auto setbtnRectTransform = settingsVertical->get_rectTransform();
         setbtnRectTransform->set_anchoredPosition({35.0f, 0.0f});
-
 
         auto promptRoot = BeatSaberUI::CreateHorizontalLayoutGroup(get_transform());
         promptRoot->set_childAlignment(TextAnchor::UpperLeft);
@@ -260,7 +261,8 @@ namespace ScoreSaber::UI::Other
         std::string status, bool showIndicator, float dismiss,
         std::function<void()> callback)
     {
-        if (!Settings::showStatusText) {
+        if (!Settings::showStatusText)
+        {
             co_return;
         }
 
@@ -308,19 +310,22 @@ namespace ScoreSaber::UI::Other
 
     void Banner::set_prompt(std::string text, int dismissTime)
     {
-        if (!Settings::showStatusText) {
+        if (!Settings::showStatusText)
+        {
             return;
         }
 
         promptText->set_text(text);
         if (dismissTime != -1)
         {
-            HMTask::New_ctor(custom_types::MakeDelegate<System::Action*>((std::function<void()>)[dismissTime, this] {
-                std::this_thread::sleep_for(std::chrono::seconds(dismissTime));
-                QuestUI::MainThreadScheduler::Schedule([=]() {
-                    this->promptText->set_text(std::string());
-                });
-            }), nullptr)->Run();
+            HMTask::New_ctor(custom_types::MakeDelegate<System::Action*>((std::function<void()>)[ dismissTime, this ] {
+                                 std::this_thread::sleep_for(std::chrono::seconds(dismissTime));
+                                 QuestUI::MainThreadScheduler::Schedule([=]() {
+                                     this->promptText->set_text(std::string());
+                                 });
+                             }),
+                             nullptr)
+                ->Run();
         }
     }
 
@@ -338,30 +343,33 @@ namespace ScoreSaber::UI::Other
 
     void Banner::set_ranking(int rank, float pp)
     {
-        if (Settings::showLocalPlayerRank) {
-            set_topText(string_format("<b><color=#FFDE1A>Global Ranking: </color></b>#%d<size=3> (<color=#6772E5>%.2fpp</color></size>)", rank, pp));
-        } else {
-            set_topText("<b>Hidden</b>");
+        if (Settings::showLocalPlayerRank)
+        {
+            set_topText(string_format("<b><color=#FFDE1A>全球排名: </color></b>#%d<size=3> (<color=#6772E5>%.2fpp</color></size>)", rank, pp));
+        }
+        else
+        {
+            set_topText("<b>已隐藏</b>");
         }
         set_loading(false);
     }
 
     void Banner::set_status(std::string_view status, int scoreboardId)
     {
-        set_bottomText(string_format("<b><color=#FFDE1A>Ranked Status:</color></b> %s", status.data()));
+        set_bottomText(string_format("<b><color=#FFDE1A>Ranked 状态:</color></b> %s", status.data()));
         this->scoreboardId = scoreboardId;
         set_loading(false);
     }
 
-    void Banner::set_topText(std::u16string_view newText)
+    void Banner::set_topText(std::string_view newText)
     {
-        topText->set_text(u"<i>" + std::u16string(newText) + u"</i>");
+        topText->set_text("<i>" + newText + "</i>");
         topText->get_gameObject()->SetActive(true);
     }
 
-    void Banner::set_bottomText(std::u16string_view newText)
+    void Banner::set_bottomText(std::string_view newText)
     {
-        bottomText->set_text(u"<i>" + std::u16string(newText) + u"</i>");
+        bottomText->set_text("<i>" + newText + "</i>");
         bottomText->get_gameObject()->SetActive(true);
     }
 } // namespace ScoreSaber::UI::Other

@@ -14,7 +14,7 @@ namespace ScoreSaber::Data
         auto nameItr = value.FindMember("name");
         if (nameItr != value.MemberEnd())
         {
-            name = std::make_optional(to_utf16(std::string(nameItr->value.GetString())));
+            name = std::make_optional(std::string(nameItr->value.GetString()));
         }
 
         profilePicture = value["profilePicture"].GetString();
@@ -48,7 +48,7 @@ namespace ScoreSaber::Data
         auto nameItr = value.FindMember(u"name");
         if (nameItr != value.MemberEnd())
         {
-            name = std::make_optional(to_utf16(std::string(to_utf8(nameItr->value.GetString()))));
+            name = std::make_optional(std::string(to_utf8(nameItr->value.GetString())));
         }
 
         profilePicture = to_utf8(value[u"profilePicture"].GetString());
@@ -81,7 +81,7 @@ namespace ScoreSaber::Data
         auto nameItr = value.FindMember("name");
         if (nameItr != value.MemberEnd())
         {
-            name = std::make_optional(to_utf16(std::string(nameItr->value.GetString())));
+            name = std::make_optional(std::string(nameItr->value.GetString()));
         }
 
         profilePicture = value["profilePicture"].GetString();
@@ -115,7 +115,7 @@ namespace ScoreSaber::Data
         auto nameItr = value.FindMember(u"name");
         if (nameItr != value.MemberEnd())
         {
-            name = std::make_optional(to_utf16(std::string(to_utf8(nameItr->value.GetString()))));
+            name = std::make_optional(std::string(to_utf8(nameItr->value.GetString())));
         }
 
         profilePicture = to_utf8(value[u"profilePicture"].GetString());
@@ -136,4 +136,4 @@ namespace ScoreSaber::Data
         if (roleItr != value.MemberEnd() && roleItr->value.IsString())
             role = std::make_optional(std::string(to_utf8(roleItr->value.GetString())));
     }
-}
+} // namespace ScoreSaber::Data

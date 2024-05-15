@@ -14,7 +14,7 @@ namespace ScoreSaber::Data
     Player::Player(const rapidjson::Value&& value)
     {
         id = value["id"].GetString();
-        name = to_utf8(value["name"].GetString());
+        name = value["name"].GetString();
         profilePicture = value["profilePicture"].GetString();
         country = value["country"].GetString();
         pp = value["pp"].GetDouble();
@@ -77,7 +77,7 @@ namespace ScoreSaber::Data
     Player::Player(rapidjson::GenericObject<true, rapidjson::Value> value)
     {
         id = value["id"].GetString();
-        name = to_utf8(value["name"].GetString());
+        name = value["name"].GetString();
         profilePicture = value["profilePicture"].GetString();
         country = value["country"].GetString();
         pp = value["pp"].GetDouble();

@@ -47,10 +47,8 @@ DECLARE_CLASS_CODEGEN(
     void Prompt(std::string status, bool loadingIndicator, float dismiss,
                 std::function<void()> callback);
 
-    void set_topText(std::u16string_view newText);
-    void set_topText(std::string_view newText) { set_topText(to_utf16(newText)); };
-    void set_bottomText(std::u16string_view newText);
-    void set_bottomText(std::string_view newText) { set_bottomText(to_utf16(newText)); };
+    void set_topText(std::string_view newText);
+    void set_bottomText(std::string_view newText);
 
     private
     : bool rainbow = false;

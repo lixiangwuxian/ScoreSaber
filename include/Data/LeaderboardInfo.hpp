@@ -25,10 +25,10 @@ namespace ScoreSaber::Data
         LeaderboardInfo(rapidjson::GenericObject<false, rapidjson::GenericValue<rapidjson::UTF16<char16_t>>> value);
 
         int id;
-        std::u16string songHash;
-        std::u16string songName;
-        std::u16string songSubName;
-        std::u16string songAuthorName;
+        std::string songHash;
+        std::string songName;
+        std::string songSubName;
+        std::string songAuthorName;
         Difficulty difficulty;
         int maxScore;
         std::string createdDate;
@@ -47,4 +47,4 @@ namespace ScoreSaber::Data
         std::optional<Score> playerScore;
         std::vector<Difficulty> difficulties;
     };
-}
+} // namespace ScoreSaber::Data

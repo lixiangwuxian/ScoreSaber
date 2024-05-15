@@ -13,10 +13,10 @@ namespace ScoreSaber::Data
         LeaderboardPlayer(rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF16<char16_t>>> value);
 
         std::optional<std::string> id;
-        std::optional<std::u16string> name;
+        std::optional<std::string> name;
         std::string profilePicture;
         std::optional<std::string> country;
         std::optional<int> permissions;
         std::optional<std::string> role;
     };
-}
+} // namespace ScoreSaber::Data

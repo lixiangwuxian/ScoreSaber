@@ -35,7 +35,7 @@ DECLARE_CLASS_CODEGEN(ScoreSaber::UI::Other, ScoreInfoModal, UnityEngine::MonoBe
 
                       void Setup();
 
-                      void set_player(std::u16string player);
+                      void set_player(std::string player);
                       void set_device_hmd(std::string_view device);
                       void set_score(long score, double percent);
                       void set_pp(double pp);

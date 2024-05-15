@@ -1,9 +1,9 @@
 #pragma once
 #include "beatsaber-hook/shared/config/rapidjson-utils.hpp"
 
+#include "Data/Score.hpp"
 #include "GlobalNamespace/OVRPlugin_Controller.hpp"
 #include "GlobalNamespace/OVRPlugin_SystemHeadset.hpp"
-#include "Data/Score.hpp"
 #include "beatsaber-hook/shared/utils/typedefs.h"
 #include "custom-types/shared/register.hpp"
 #include "custom-types/shared/types.hpp"
@@ -22,11 +22,11 @@ namespace StringUtils
     std::string GetRoleColor(std::string role);
 
     std::string FormatScore(std::string percent);
-    std::u16string FormatScore(double s);
+    std::string FormatScore(double s);
 
     std::string FormatPP(std::string pp, rapidjson::GenericObject<true, rapidjson::Value> score);
-    std::u16string FormatPP(const ::ScoreSaber::Data::Score&& score);
-    std::u16string FormatPP(const ::ScoreSaber::Data::Score& score);
+    std::string FormatPP(const ::ScoreSaber::Data::Score&& score);
+    std::string FormatPP(const ::ScoreSaber::Data::Score& score);
 
     std::string Colorize(std::string s, std::string color);
     std::u16string Colorize(std::u16string s, std::string color);

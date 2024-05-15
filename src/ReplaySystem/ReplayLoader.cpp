@@ -23,8 +23,8 @@
 #include "System/Action_2.hpp"
 
 #include "custom-types/shared/delegate.hpp"
-#include "questui/shared/CustomTypes/Components/MainThreadScheduler.hpp"
 #include "logging.hpp"
+#include "questui/shared/CustomTypes/Components/MainThreadScheduler.hpp"
 #include "static.hpp"
 #include <custom-types/shared/delegate.hpp>
 
@@ -37,13 +37,14 @@ namespace ScoreSaber::ReplaySystem::ReplayLoader
 
     std::shared_ptr<ScoreSaber::Data::Private::ReplayFile> LoadedReplay;
     GlobalNamespace::IDifficultyBeatmap* CurrentLevel;
-    std::u16string CurrentPlayerName;
+    std::string CurrentPlayerName;
     std::string CurrentModifiers;
     ScoreSaber::ReplaySystem::Playback::NotePlayer* NotePlayerInstance;
 
     bool IsPlaying;
-    
-    void OnSoftRestart() {
+
+    void OnSoftRestart()
+    {
         playerDataModel = nullptr;
         menuTransitionsHelper = nullptr;
         LoadedReplay = nullptr;
@@ -85,14 +86,15 @@ namespace ScoreSaber::ReplaySystem::ReplayLoader
             ReplayEndCallback);
 
         auto previewBeatmapLevel = reinterpret_cast<GlobalNamespace::IPreviewBeatmapLevel*>(beatmap->get_level());
-        menuTransitionsHelper->StartStandardLevel("Replay", beatmap, previewBeatmapLevel,
+        menuTransitionsHelper->StartStandardLevel("回放", beatmap, previewBeatmapLevel,
                                                   playerData->overrideEnvironmentSettings,
                                                   playerData->colorSchemesSettings->GetOverrideColorScheme(), BeatmapUtils::GetModifiersFromStrings(LoadedReplay->metadata->Modifiers),
-                                                  playerSettings, nullptr, "Exit Replay", false, false, nullptr, replayEndDelegate, nullptr);
+                                                  playerSettings, nullptr, "退出回放", false, false, nullptr, replayEndDelegate, nullptr);
         IsPlaying = true;
     }
 
-    void Load(const std::vector<char> &replayData, GlobalNamespace::IDifficultyBeatmap* beatmap, std::string modifiers, std::u16string playerName) {
+    void Load(const std::vector<char>& replayData, GlobalNamespace::IDifficultyBeatmap* beatmap, std::string modifiers, std::string playerName)
+    {
         CurrentLevel = beatmap;
         CurrentPlayerName = playerName;
         CurrentModifiers = modifiers;
@@ -109,50 +111,52 @@ namespace ScoreSaber::ReplaySystem::ReplayLoader
         std::string localPath = ScoreSaber::Static::REPLAY_DIR + "/" + replayFileName + ".dat";
 
         CurrentLevel = beatmap;
-        CurrentPlayerName = score.leaderboardPlayerInfo.name.value_or(u"unknown");
+        CurrentPlayerName = score.leaderboardPlayerInfo.name.value_or("unknown");
         CurrentModifiers = score.modifiers;
 
-        HMTask::New_ctor(custom_types::MakeDelegate<System::Action*>((std::function<void()>)[localPath, replayFileName, leaderboardId, score, finished]() {
-            if (fileexists(localPath))
-            {
-                INFO("Trying to load local replay: %s", localPath.c_str());
-                std::ifstream replayFile(localPath, ios::binary);
-                std::vector<char> replayData((std::istreambuf_iterator<char>(replayFile)), std::istreambuf_iterator<char>());
-                LoadedReplay = ScoreSaber::Data::Private::ReplayReader::Read(replayData);
-                if (LoadedReplay != nullptr)
-                {
-                    finished(true);
-                }
-                else
-                {
-                    finished(false);
-                }
-            }
-            else
-            {
-                std::string url = string_format("%s/api/game/telemetry/downloadReplay?playerId=%s&leaderboardId=%d", ScoreSaber::Static::BASE_URL.c_str(), score.leaderboardPlayerInfo.id.value().c_str(), leaderboardId);
-                std::vector<char> replayData;
-                INFO("Starting replay download");
-                long response = WebUtils::DownloadReplaySync(url, replayData, 64);
-                if (response == 200)
-                {
-                    LoadedReplay = ScoreSaber::Data::Private::ReplayReader::Read(replayData);
-                    if (LoadedReplay != nullptr)
-                    {
-                        finished(true);
-                    }
-                    else
-                    {
-                        finished(false);
-                    }
-                }
-                else
-                {
-                    ERROR("Got HTTP error %ld", response);
-                    finished(false);
-                }
-            }
-        }), nullptr)->Run();
+        HMTask::New_ctor(custom_types::MakeDelegate<System::Action*>((std::function<void()>)[ localPath, replayFileName, leaderboardId, score, finished ]() {
+                             if (fileexists(localPath))
+                             {
+                                 INFO("尝试加载本地回放: %s", localPath.c_str());
+                                 std::ifstream replayFile(localPath, ios::binary);
+                                 std::vector<char> replayData((std::istreambuf_iterator<char>(replayFile)), std::istreambuf_iterator<char>());
+                                 LoadedReplay = ScoreSaber::Data::Private::ReplayReader::Read(replayData);
+                                 if (LoadedReplay != nullptr)
+                                 {
+                                     finished(true);
+                                 }
+                                 else
+                                 {
+                                     finished(false);
+                                 }
+                             }
+                             else
+                             {
+                                 std::string url = string_format("%s/api/game/telemetry/downloadReplay?playerId=%s&leaderboardId=%d", ScoreSaber::Static::BASE_URL.c_str(), score.leaderboardPlayerInfo.id.value().c_str(), leaderboardId);
+                                 std::vector<char> replayData;
+                                 INFO("开始下载回放");
+                                 long response = WebUtils::DownloadReplaySync(url, replayData, 64);
+                                 if (response == 200)
+                                 {
+                                     LoadedReplay = ScoreSaber::Data::Private::ReplayReader::Read(replayData);
+                                     if (LoadedReplay != nullptr)
+                                     {
+                                         finished(true);
+                                     }
+                                     else
+                                     {
+                                         finished(false);
+                                     }
+                                 }
+                                 else
+                                 {
+                                     ERROR("发生HTTP错误 %ld", response);
+                                     finished(false);
+                                 }
+                             }
+                         }),
+                         nullptr)
+            ->Run();
     }
 
 } // namespace ScoreSaber::ReplaySystem::ReplayLoader

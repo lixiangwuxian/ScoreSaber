@@ -164,8 +164,8 @@ void PanelView::Show()
             "disabled)",
             true, Vector2(5.0f, 45.0f));
 */
-    BeginCoroutine(SetPrompt("Connecting to ScoreSaber", true, 5.0f, [=]() { BeginCoroutine(SetPrompt(
-                                                                                 StringUtils::Colorize("Successfully Connected to ScoreSaber", "green"),
+    BeginCoroutine(SetPrompt("正在连接ScoreSaber服务器", true, 5.0f, [=]() { BeginCoroutine(SetPrompt(
+                                                                                 StringUtils::Colorize("成功连接到了ScoreSaber服务器", "green"),
                                                                                  false, 2.0f, nullptr)); }));
 }
 
@@ -173,7 +173,8 @@ custom_types::Helpers::Coroutine PanelView::SetPrompt(
     std::string status, bool showIndicator, float dismiss,
     std::function<void()> callback)
 {
-    if (!Settings::showStatusText) {
+    if (!Settings::showStatusText)
+    {
         co_return;
     }
 

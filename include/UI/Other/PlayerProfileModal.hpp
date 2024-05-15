@@ -36,8 +36,8 @@ DECLARE_CLASS_CODEGEN(ScoreSaber::UI::Other, PlayerProfileModal, UnityEngine::Mo
 
                       void Hide();
                       void Setup();
-                      void set_player(std::u16string_view playername);
-                      void set_header(std::u16string_view header);
+                      void set_player(std::string_view playername);
+                      void set_header(std::string_view header);
                       void set_globalRanking(int globalRanking);
                       void set_performancePoints(float performancePoints);
                       void set_averageRankedAccuracy(float averageRankedAccuracy);

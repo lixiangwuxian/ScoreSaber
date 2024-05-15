@@ -10,7 +10,7 @@ ScoreSaberUploadData::~ScoreSaberUploadData()
 {
 }
 
-ScoreSaberUploadData::ScoreSaberUploadData(u16string playerName, string playerId, int score, string leaderboardId,
+ScoreSaberUploadData::ScoreSaberUploadData(string playerName, string playerId, int score, string leaderboardId,
                                            string songName, string songSubName, string levelAuthorName, string songAuthorName, int bpm, int difficulty,
                                            string infoHash, vector<string> modifiers, string gameMode, int badCutsCount, int missedCount, int maxCombo,
                                            bool fullCombo, string deviceHmdIdentifier, string deviceControllerLeftIdentifier, string deviceControllerRightIdentifier)

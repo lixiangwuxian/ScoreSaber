@@ -31,11 +31,11 @@ using namespace UnityEngine::UI;
 using namespace QuestUI;
 using namespace QuestUI::BeatSaberUI;
 
-#define SetPreferredSize(identifier, width, height)                                         \
-    auto layout##identifier = identifier->get_gameObject()->GetComponent<LayoutElement*>(); \
-    if (!layout##identifier)                                                                \
-        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();  \
-    layout##identifier->set_preferredWidth(width);                                          \
+#define SetPreferredSize(identifier, width, height)                                           \
+    auto layout##identifier = identifier->get_gameObject() -> GetComponent<LayoutElement*>(); \
+    if (!layout##identifier)                                                                  \
+        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();    \
+    layout##identifier->set_preferredWidth(width);                                            \
     layout##identifier->set_preferredHeight(height)
 
 #define BeginCoroutine(method)                                               \
@@ -127,7 +127,7 @@ namespace ScoreSaber::UI::Other
         bgImage->set_color(Color(85 / 255.0f, 94 / 255.0f, 188 / 255.0f, 1));
         bgImage->curvedCanvasSettingsHelper->Reset();
 
-        headerText = UIUtils::CreateClickableText(headerHorizon->get_transform(), u"Profile Placeholder", {0, 0}, {0, 0}, std::bind(&PlayerProfileModal::OpenPlayerUrl, this));
+        headerText = UIUtils::CreateClickableText(headerHorizon->get_transform(), u"占位档案", {0, 0}, {0, 0}, std::bind(&PlayerProfileModal::OpenPlayerUrl, this));
         SetPreferredSize(headerText, 90, -1);
         headerHorizon->set_childAlignment(TextAnchor::MiddleCenter);
         headerText->set_alignment(TMPro::TextAlignmentOptions::Center);
@@ -177,17 +177,17 @@ namespace ScoreSaber::UI::Other
         imageLayout->set_preferredWidth(1.0f);
 
         // data setup
-        CreateText(dataVertical->get_transform(), "Global Player Ranking");
-        globalRanking = CreateText(dataVertical->get_transform(), "#Placeholder");
-        CreateText(dataVertical->get_transform(), "Performance Points");
-        performancePoints = CreateText(dataVertical->get_transform(), "Placeholder pp");
-        CreateText(dataVertical->get_transform(), "Average Ranked Accuracy");
-        averageRankedAccuracy = CreateText(dataVertical->get_transform(), "Placeholder%");
-        CreateText(dataVertical->get_transform(), "Total Score");
-        totalScore = CreateText(dataVertical->get_transform(), "Placeholder");
+        CreateText(dataVertical->get_transform(), "全球排名");
+        globalRanking = CreateText(dataVertical->get_transform(), "#占位");
+        CreateText(dataVertical->get_transform(), "表现分");
+        performancePoints = CreateText(dataVertical->get_transform(), "占位 pp");
+        CreateText(dataVertical->get_transform(), "Ranked谱面平均准确率");
+        averageRankedAccuracy = CreateText(dataVertical->get_transform(), "占位%");
+        CreateText(dataVertical->get_transform(), "总分");
+        totalScore = CreateText(dataVertical->get_transform(), "占位");
 
         badgeRoutines = List<UnityEngine::Coroutine*>::New_ctor();
-        set_player(u"Placeholder");
+        set_player("占位");
         set_globalRanking(0);
         set_performancePoints(420.69f);
         set_averageRankedAccuracy(69.69f);
@@ -236,14 +236,14 @@ namespace ScoreSaber::UI::Other
         }
     }
 
-    void PlayerProfileModal::set_player(std::u16string_view header)
+    void PlayerProfileModal::set_player(std::string_view header)
     {
-        set_header(std::u16string(header) + u"'s Profile");
+        set_header(std::string(header) + "的个人资料");
     }
 
-    void PlayerProfileModal::set_header(std::u16string_view header)
+    void PlayerProfileModal::set_header(std::string_view header)
     {
-        headerText->set_text(u"<i>" + std::u16string(header) + u"</i>");
+        headerText->set_text("<i>" + std::string(header) + "</i>");
     }
 
     void PlayerProfileModal::set_globalRanking(int globalRanking)

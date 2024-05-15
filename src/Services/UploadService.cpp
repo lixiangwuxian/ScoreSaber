@@ -13,11 +13,11 @@
 #include "GlobalNamespace/IPreviewBeatmapLevel.hpp"
 #include "GlobalNamespace/MultiplayerLevelCompletionResults.hpp"
 #include "GlobalNamespace/MultiplayerPlayerResultsData.hpp"
-#include "GlobalNamespace/PlatformLeaderboardsModel_ScoresScope.hpp"
-#include "GlobalNamespace/PracticeViewController.hpp"
 #include "GlobalNamespace/OVRPlugin.hpp"
 #include "GlobalNamespace/OVRPlugin_Controller.hpp"
 #include "GlobalNamespace/OVRPlugin_SystemHeadset.hpp"
+#include "GlobalNamespace/PlatformLeaderboardsModel_ScoresScope.hpp"
+#include "GlobalNamespace/PracticeViewController.hpp"
 #include "ReplaySystem/Recorders/MainRecorder.hpp"
 #include "ReplaySystem/ReplayLoader.hpp"
 #include "Services/FileService.hpp"
@@ -32,8 +32,8 @@
 #include "Utils/StringUtils.hpp"
 #include "Utils/WebUtils.hpp"
 #include "Utils/md5.h"
-#include "logging.hpp"
 #include "custom-types/shared/delegate.hpp"
+#include "logging.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/QuestUI.hpp"
 #include "static.hpp"
@@ -52,26 +52,24 @@ namespace ScoreSaber::Services::UploadService
 {
     bool uploading;
 
-    
     void Three(GlobalNamespace::StandardLevelScenesTransitionSetupDataSO* standardLevelScenesTransitionSetupDataSO, GlobalNamespace::LevelCompletionResults* levelCompletionResults)
     {
         Five(standardLevelScenesTransitionSetupDataSO->gameMode, standardLevelScenesTransitionSetupDataSO->difficultyBeatmap, levelCompletionResults, standardLevelScenesTransitionSetupDataSO->practiceSettings != nullptr);
     }
-    
+
     void Four(GlobalNamespace::MultiplayerLevelScenesTransitionSetupDataSO* multiplayerLevelScenesTransitionSetupDataSO, GlobalNamespace::MultiplayerResultsData* multiplayerResultsData)
     {
-        if(multiplayerLevelScenesTransitionSetupDataSO->difficultyBeatmap == nullptr)
+        if (multiplayerLevelScenesTransitionSetupDataSO->difficultyBeatmap == nullptr)
             return;
-        if(multiplayerResultsData->localPlayerResultData->multiplayerLevelCompletionResults->levelCompletionResults == nullptr)
+        if (multiplayerResultsData->localPlayerResultData->multiplayerLevelCompletionResults->levelCompletionResults == nullptr)
             return;
-        if(multiplayerResultsData->localPlayerResultData->multiplayerLevelCompletionResults->playerLevelEndReason == GlobalNamespace::MultiplayerLevelCompletionResults::MultiplayerPlayerLevelEndReason::HostEndedLevel)
+        if (multiplayerResultsData->localPlayerResultData->multiplayerLevelCompletionResults->playerLevelEndReason == GlobalNamespace::MultiplayerLevelCompletionResults::MultiplayerPlayerLevelEndReason::HostEndedLevel)
             return;
-        if(multiplayerResultsData->localPlayerResultData->multiplayerLevelCompletionResults->levelCompletionResults->levelEndStateType != LevelCompletionResults::LevelEndStateType::Cleared)
+        if (multiplayerResultsData->localPlayerResultData->multiplayerLevelCompletionResults->levelCompletionResults->levelEndStateType != LevelCompletionResults::LevelEndStateType::Cleared)
             return;
 
         Five(multiplayerLevelScenesTransitionSetupDataSO->gameMode, multiplayerLevelScenesTransitionSetupDataSO->difficultyBeatmap, multiplayerResultsData->localPlayerResultData->multiplayerLevelCompletionResults->levelCompletionResults, false);
     }
-
 
     void Five(StringW gameMode, GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap, GlobalNamespace::LevelCompletionResults* levelCompletionResults, bool practicing)
     {
@@ -97,19 +95,25 @@ namespace ScoreSaber::Services::UploadService
         {
             auto level = difficultyBeatmap->get_level()->i_IPreviewBeatmapLevel();
             INFO("Starting upload process for %s:%s", ((string)(level->get_levelID())).c_str(), ((string)(level->get_songName())).c_str());
-            if (practicing) {
+            if (practicing)
+            {
                 ReplayService::WriteSerializedReplay();
                 return;
             }
-            if (levelCompletionResults->levelEndAction != LevelCompletionResults::LevelEndAction::None) {
-                if (levelCompletionResults->levelEndAction == LevelCompletionResults::LevelEndAction::Restart) {
+            if (levelCompletionResults->levelEndAction != LevelCompletionResults::LevelEndAction::None)
+            {
+                if (levelCompletionResults->levelEndAction == LevelCompletionResults::LevelEndAction::Restart)
+                {
                     INFO("Level was restarted before it was finished, don't write replay");
-                } else {
+                }
+                else
+                {
                     ReplayService::WriteSerializedReplay();
                 }
                 return;
             }
-            if (levelCompletionResults->levelEndStateType != LevelCompletionResults::LevelEndStateType::Cleared) {
+            if (levelCompletionResults->levelEndStateType != LevelCompletionResults::LevelEndStateType::Cleared)
+            {
                 ReplayService::WriteSerializedReplay();
                 return;
             }
@@ -141,109 +145,112 @@ namespace ScoreSaber::Services::UploadService
 
     void Seven(IDifficultyBeatmap* beatmap, int modifiedScore, int multipliedScore, std::string uploadPacket, std::string replayFileName)
     {
-        HMTask::New_ctor(custom_types::MakeDelegate<System::Action*>((std::function<void()>)[beatmap, modifiedScore, multipliedScore, uploadPacket, replayFileName] {
-            ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(true, false);
+        HMTask::New_ctor(custom_types::MakeDelegate<System::Action*>((std::function<void()>)[ beatmap, modifiedScore, multipliedScore, uploadPacket, replayFileName ] {
+                             ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(true, false);
 
-            LeaderboardService::GetLeaderboardData(
-                beatmap, PlatformLeaderboardsModel::ScoresScope::Global, 1, [=](Data::InternalLeaderboard internalLeaderboard) {
-                    bool ranked = true;
-                    if (internalLeaderboard.leaderboard.has_value())
-                    {
-                        ranked = internalLeaderboard.leaderboard.value().leaderboardInfo.ranked;
-                        if (internalLeaderboard.leaderboard.value().leaderboardInfo.playerScore.has_value())
-                        {
-                            if (modifiedScore < internalLeaderboard.leaderboard.value().leaderboardInfo.playerScore.value().modifiedScore)
-                            {
-                                ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false, "<color=#fc8181>Didn't beat score, not uploading</color>");
-                                uploading = false;
-                                return;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        INFO("Failed to get leaderboards ranked status");
-                    }
+                             LeaderboardService::GetLeaderboardData(
+                                 beatmap, PlatformLeaderboardsModel::ScoresScope::Global, 1, [=](Data::InternalLeaderboard internalLeaderboard) {
+                                     bool ranked = true;
+                                     if (internalLeaderboard.leaderboard.has_value())
+                                     {
+                                         ranked = internalLeaderboard.leaderboard.value().leaderboardInfo.ranked;
+                                         if (internalLeaderboard.leaderboard.value().leaderboardInfo.playerScore.has_value())
+                                         {
+                                             if (modifiedScore < internalLeaderboard.leaderboard.value().leaderboardInfo.playerScore.value().modifiedScore)
+                                             {
+                                                 ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false, "<color=#fc8181>Didn't beat score, not uploading</color>");
+                                                 uploading = false;
+                                                 return;
+                                             }
+                                         }
+                                     }
+                                     else
+                                     {
+                                         INFO("Failed to get leaderboards ranked status");
+                                     }
 
-                    bool done = false;
-                    bool failed = false;
-                    int attempts = 0;
+                                     bool done = false;
+                                     bool failed = false;
+                                     int attempts = 0;
 
-                    auto [beatmapDataBasicInfo, readonlyBeatmapData] = BeatmapUtils::getBeatmapData(beatmap);
-                    int maxScore = ScoreModel::ComputeMaxMultipliedScoreForBeatmap(readonlyBeatmapData);
+                                     auto [beatmapDataBasicInfo, readonlyBeatmapData] = BeatmapUtils::getBeatmapData(beatmap);
+                                     int maxScore = ScoreModel::ComputeMaxMultipliedScoreForBeatmap(readonlyBeatmapData);
 
-                    if(multipliedScore > maxScore) {
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false, "<color=#fc8181>Failed to upload (score was impossible)</color>");
-                        INFO("Score was better than possible, not uploading!");
-                    }
+                                     if (multipliedScore > maxScore)
+                                     {
+                                         ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false, "<color=#fc8181>Failed to upload (score was impossible)</color>");
+                                         INFO("Score was better than possible, not uploading!");
+                                     }
 
-                    std::this_thread::sleep_for(std::chrono::milliseconds(1200));
-                    std::string url = BASE_URL + "/api/game/upload";
-                    std::string postData = "data=" + uploadPacket;
+                                     std::this_thread::sleep_for(std::chrono::milliseconds(1200));
+                                     std::string url = BASE_URL + "/api/game/upload";
+                                     std::string postData = "data=" + uploadPacket;
 
-                    while (!done)
-                    {
-                        uploading = true;
-                        INFO("Uploading score...");
-                        auto [responseCode, response] = WebUtils::PostWithReplaySync(url, ReplayService::CurrentSerializedReplay, uploadPacket, 30000);
-                        INFO("Server response:\nHTTP code %ld\nContent: %s", responseCode, response.c_str());
-                        if (responseCode == 200)
-                        {
-                            INFO("Score uploaded successfully");
-                            done = true;
-                        }
-                        else if (responseCode == 403)
-                        {
-                            INFO("Player banned, score didn't upload");
-                            done = true;
-                            failed = true;
-                        }
+                                     while (!done)
+                                     {
+                                         uploading = true;
+                                         INFO("Uploading score...");
+                                         auto [responseCode, response] = WebUtils::PostWithReplaySync(url, ReplayService::CurrentSerializedReplay, uploadPacket, 30000);
+                                         INFO("Server response:\nHTTP code %ld\nContent: %s", responseCode, response.c_str());
+                                         if (responseCode == 200)
+                                         {
+                                             INFO("Score uploaded successfully");
+                                             done = true;
+                                         }
+                                         else if (responseCode == 403)
+                                         {
+                                             INFO("Player banned, score didn't upload");
+                                             done = true;
+                                             failed = true;
+                                         }
 
-                        if (!done)
-                        {
-                            if (attempts < 4)
-                            {
-                                // Failed but retry
-                                ERROR("Score failed to upload, retrying");
-                                attempts++;
-                                std::this_thread::sleep_for(2000ms);
-                            }
-                            else
-                            {
-                                done = true;
-                                failed = true;
-                            }
-                        }
+                                         if (!done)
+                                         {
+                                             if (attempts < 4)
+                                             {
+                                                 // Failed but retry
+                                                 ERROR("Score failed to upload, retrying");
+                                                 attempts++;
+                                                 std::this_thread::sleep_for(2000ms);
+                                             }
+                                             else
+                                             {
+                                                 done = true;
+                                                 failed = true;
+                                             }
+                                         }
 
-                    } // We out the loop now
+                                     } // We out the loop now
 
-                    if (done && !failed)
-                    {
-                        // Score uploaded successfully
-                        // Save local replay
-                        INFO("Score uploaded");
-                        SaveReplay(ReplayService::CurrentSerializedReplay, replayFileName);
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, true);
-                    }
+                                     if (done && !failed)
+                                     {
+                                         // Score uploaded successfully
+                                         // Save local replay
+                                         INFO("Score uploaded");
+                                         SaveReplay(ReplayService::CurrentSerializedReplay, replayFileName);
+                                         ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, true);
+                                     }
 
-                    if (failed)
-                    {
-                        ERROR("Failed to upload score");
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false);
-                        // Failed to upload score, tell user
-                    }
+                                     if (failed)
+                                     {
+                                         ERROR("Failed to upload score");
+                                         ScoreSaber::UI::Other::ScoreSaberLeaderboardView::SetUploadState(false, false);
+                                         // Failed to upload score, tell user
+                                     }
 
-                    uploading = false;
-                },
-                false);
-        }), nullptr)->Run();
+                                     uploading = false;
+                                 },
+                                 false);
+                         }),
+                         nullptr)
+            ->Run();
     }
 
     void SaveReplay(const std::vector<char>& replay, std::string replayFileName)
     {
         if (!Settings::saveLocalReplays)
             return;
-            
+
         std::string filePath = ScoreSaber::Static::REPLAY_DIR + "/" + replayFileName + ".dat";
         std::ofstream file(filePath, ios::binary);
         file.write(replay.data(), replay.size());
@@ -266,7 +273,7 @@ namespace ScoreSaber::Services::UploadService
         std::string levelAuthorName = previewBeatmapLevel->get_levelAuthorName();
         int bpm = previewBeatmapLevel->get_beatsPerMinute();
 
-        std::u16string playerName = ScoreSaber::Services::PlayerService::playerInfo.localPlayerData.name;
+        std::string playerName = ScoreSaber::Services::PlayerService::playerInfo.localPlayerData.name;
         std::string playerId = ScoreSaber::Services::PlayerService::playerInfo.localPlayerData.id;
 
         auto modifiers = GetModifierList(gameplayModifiers, energy);

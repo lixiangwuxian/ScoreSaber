@@ -2,8 +2,8 @@
 #include "UI/Other/ScoreSaberLeaderboardView.hpp"
 
 #include "Data/InternalLeaderboard.hpp"
-#include "Data/Score.hpp"
 #include "Data/Private/Settings.hpp"
+#include "Data/Score.hpp"
 
 #include "GlobalNamespace/HMTask.hpp"
 #include "GlobalNamespace/IDifficultyBeatmap.hpp"
@@ -40,10 +40,10 @@
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "UI/FlowCoordinators/ScoreSaberFlowCoordinator.hpp"
 
-#include "UI/Other/PanelView.hpp"
-#include "UI/Other/ProfilePictureView.hpp"
 #include "System/Action.hpp"
 #include "System/Threading/CancellationTokenSource.hpp"
+#include "UI/Other/PanelView.hpp"
+#include "UI/Other/ProfilePictureView.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Rect.hpp"
 #include "UnityEngine/Resources.hpp"
@@ -102,7 +102,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
     int _leaderboardPage = 1;
     bool _filterAroundCountry = false;
     std::string _currentLeaderboardRefreshId;
-    
+
     bool _allowReplayWatching = true;
 
     void OnSoftRestart()
@@ -126,7 +126,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
     }
 
     void EarlyDidActivate(PlatformLeaderboardViewController* self, bool firstActivation, bool addedToHeirarchy,
-                     bool screenSystemEnabling)
+                          bool screenSystemEnabling)
     {
         _leaderboardPage = 1;
     }
@@ -177,7 +177,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
             auto playerProfileModal = ::ScoreSaber::UI::Other::PlayerProfileModal::Create(self->get_transform());
             ScoreSaberBanner->playerProfileModal = playerProfileModal;
 
-            ScoreSaberBanner->Prompt("Signing into ScoreSaber...", false, 5.0f, nullptr);
+            ScoreSaberBanner->Prompt("登录ScoreSaber中...", false, 5.0f, nullptr);
             auto newGo = GameObject::New_ctor();
             auto t = newGo->get_transform();
             t->get_transform()->SetParent(self->get_transform(), false);
@@ -195,13 +195,14 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
             auto nullSprite = BSML::Utilities::ImageResources::GetBlankSprite();
 
             _ImageHolders.clear();
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10; ++i)
+            {
                 auto rowHorizontal = CreateHorizontalLayoutGroup(pfpVertical->get_transform());
                 rowHorizontal->set_childForceExpandHeight(true);
                 rowHorizontal->set_childAlignment(TextAnchor::MiddleCenter);
 
                 auto rowStack = UIUtils::CreateStackLayoutGroup(rowHorizontal->get_transform());
-                
+
                 auto image = CreateImage(rowStack->get_transform(), nullSprite, {0.0f, 0.0f}, {4.75f, 4.75f});
                 image->set_preserveAspect(true);
                 auto imageLayout = image->get_gameObject()->GetComponent<UnityEngine::UI::LayoutElement*>();
@@ -227,13 +228,14 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
             auto mat_UINoGlowRoundEdge = ArrayUtil::First(Resources::FindObjectsOfTypeAll<Material*>(), [](Material* x) { return to_utf8(csstrtostr(x->get_name())) == "UINoGlowRoundEdge"; });
 
             _cellClickingImages.clear();
-            for (int i = 0; i < 10; ++i) {
+            for (int i = 0; i < 10; ++i)
+            {
                 auto rowHorizontal = CreateHorizontalLayoutGroup(clickVertical->get_transform());
                 rowHorizontal->set_childForceExpandHeight(true);
                 rowHorizontal->set_childAlignment(TextAnchor::MiddleCenter);
 
                 auto rowStack = UIUtils::CreateStackLayoutGroup(rowHorizontal->get_transform());
-                
+
                 auto image = CreateImage(rowStack->get_transform(), nullSprite, {0.0f, 0.0f}, {72.0f, 5.75f});
                 image->set_material(mat_UINoGlowRoundEdge);
                 image->set_preserveAspect(true);
@@ -248,14 +250,14 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
                 switch (loginStatus)
                 {
                     case PlayerService::LoginStatus::Success: {
-                        ScoreSaberBanner->Prompt("<color=#89fc81>Successfully signed in to ScoreSaber</color>", false, 5.0f,
+                        ScoreSaberBanner->Prompt("<color=#89fc81>成功登录ScoreSaber服务</color>", false, 5.0f,
                                                  nullptr);
-                                                 INFO("Refresh 1");
+                        INFO("Refresh 1");
                         _platformLeaderboardViewController->Refresh(true, true);
                         break;
                     }
                     case PlayerService::LoginStatus::Error: {
-                        ScoreSaberBanner->Prompt("<color=#fc8181>Authentication failed</color>", false, 5.0f, nullptr);
+                        ScoreSaberBanner->Prompt("<color=#fc8181>验证失败</color>", false, 5.0f, nullptr);
                         break;
                     }
                 }
@@ -278,10 +280,10 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
         }
 
         ::Array<IconSegmentedControl::DataItem*>* array = ::Array<IconSegmentedControl::DataItem*>::New({
-            IconSegmentedControl::DataItem::New_ctor(globalLeaderboardIcon, "Global"),
-            IconSegmentedControl::DataItem::New_ctor(aroundPlayerLeaderboardIcon, "Around You"),
-            IconSegmentedControl::DataItem::New_ctor(friendsLeaderboardIcon, "Friends"),
-            IconSegmentedControl::DataItem::New_ctor(countryLeaderboardIcon, mode == "region" ? "Region" : "Country"),
+            IconSegmentedControl::DataItem::New_ctor(globalLeaderboardIcon, "全球"),
+            IconSegmentedControl::DataItem::New_ctor(aroundPlayerLeaderboardIcon, "附近"),
+            IconSegmentedControl::DataItem::New_ctor(friendsLeaderboardIcon, "好友"),
+            IconSegmentedControl::DataItem::New_ctor(countryLeaderboardIcon, mode == "region" ? "区域" : "国家"), // lmao
         });
 
         scopeSegmentedControl->SetData(array);
@@ -297,7 +299,8 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
 
     void ByeImages()
     {
-        for (auto &holder : _ImageHolders) {
+        for (auto& holder : _ImageHolders)
+        {
             holder.ClearSprite();
         }
     }
@@ -316,17 +319,21 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
             return;
         }
 
-        if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer && !_filterAroundCountry) {
+        if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer && !_filterAroundCountry)
+        {
             _pageUpButton->set_interactable(false);
             _pageDownButton->set_interactable(false);
-        } else {
+        }
+        else
+        {
             _pageUpButton->set_interactable(true);
             _pageDownButton->set_interactable(true);
         }
 
         ByeImages();
 
-        if (cancellationToken) {
+        if (cancellationToken)
+        {
             cancellationToken->Cancel();
             cancellationToken->Dispose();
         }
@@ -334,7 +341,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
 
         if (PlayerService::playerInfo.loginStatus == PlayerService::LoginStatus::Error)
         {
-            SetErrorState(loadingControl, "ScoreSaber authentication failed, please restart Beat Saber", false);
+            SetErrorState(loadingControl, "ScoreSaber账户验证失败, 需要重启BeatSaber方可再次验证", false);
             ByeImages();
             return;
         }
@@ -346,68 +353,72 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
 
         _currentLeaderboardRefreshId = refreshId;
 
-        HMTask::New_ctor(custom_types::MakeDelegate<System::Action*>((std::function<void()>)[difficultyBeatmap, scope, loadingControl, tableView, refreshId]() {
-            std::this_thread::sleep_for(std::chrono::milliseconds(500));
-            if (_currentLeaderboardRefreshId == refreshId)
-            {
-                LeaderboardService::GetLeaderboardData(
-                    difficultyBeatmap, scope, _leaderboardPage,
-                    [=](Data::InternalLeaderboard internalLeaderboard) {
-                        QuestUI::MainThreadScheduler::Schedule([=]() {
-                            if (_currentLeaderboardRefreshId != refreshId) {
-                                return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
-                            }
-                            if (internalLeaderboard.leaderboard.has_value())
-                            {
-                                SetRankedStatus(internalLeaderboard.leaderboard->leaderboardInfo);
-                                int playerScoreIndex = GetPlayerScoreIndex(internalLeaderboard.leaderboard.value().scores);
-                                if (internalLeaderboard.leaderboardItems->get_Count() != 0)
-                                {
-                                    if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer && playerScoreIndex == -1 && !_filterAroundCountry)
-                                    {
-                                        SetErrorState(loadingControl, "You haven't set a score on this leaderboard", true);
-                                    }
-                                    else
-                                    {
-                                        tableView->SetScores(internalLeaderboard.leaderboardItems, playerScoreIndex);
-                                        for (int i = 0; i < internalLeaderboard.profilePictures.size(); ++i) {
-                                            _ImageHolders[i].SetProfileImage(internalLeaderboard.profilePictures[i], i, cancellationToken->get_Token());
-                                        }
-                                        loadingControl->ShowText(System::String::_get_Empty(), false);
-                                        loadingControl->Hide();
-                                        leaderboardScoreInfoButtonHandler->set_scoreCollection(internalLeaderboard.leaderboard.value().scores, internalLeaderboard.leaderboard->leaderboardInfo.id);
-                                    }
-                                }
-                                else
-                                {
-                                    if (_leaderboardPage > 1)
-                                    {
-                                        SetErrorState(loadingControl, "No scores on this page");
-                                    }
-                                    else
-                                    {
-                                        SetErrorState(loadingControl, "No scores on this leaderboard, be the first!");
-                                    }
-                                    ByeImages();
-                                }
-                            }
-                            else
-                            {
-                                if (internalLeaderboard.leaderboardItems->get_Item(0) != nullptr)
-                                {
-                                    SetErrorState(loadingControl, internalLeaderboard.leaderboardItems->get_Item(0)->get_playerName(), false);
-                                }
-                                else
-                                {
-                                    SetErrorState(loadingControl, "No scores on this leaderboard, be the first! 0x1");
-                                }
-                                ByeImages();
-                            }
-                        });
-                    },
-                    _filterAroundCountry);
-            }
-        }), nullptr)->Run();
+        HMTask::New_ctor(custom_types::MakeDelegate<System::Action*>((std::function<void()>)[ difficultyBeatmap, scope, loadingControl, tableView, refreshId ]() {
+                             std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                             if (_currentLeaderboardRefreshId == refreshId)
+                             {
+                                 LeaderboardService::GetLeaderboardData(
+                                     difficultyBeatmap, scope, _leaderboardPage,
+                                     [=](Data::InternalLeaderboard internalLeaderboard) {
+                                         QuestUI::MainThreadScheduler::Schedule([=]() {
+                                             if (_currentLeaderboardRefreshId != refreshId)
+                                             {
+                                                 return; // we need to check this again, since some time may have passed due to waiting for leaderboard data
+                                             }
+                                             if (internalLeaderboard.leaderboard.has_value())
+                                             {
+                                                 SetRankedStatus(internalLeaderboard.leaderboard->leaderboardInfo);
+                                                 int playerScoreIndex = GetPlayerScoreIndex(internalLeaderboard.leaderboard.value().scores);
+                                                 if (internalLeaderboard.leaderboardItems->get_Count() != 0)
+                                                 {
+                                                     if (scope == PlatformLeaderboardsModel::ScoresScope::AroundPlayer && playerScoreIndex == -1 && !_filterAroundCountry)
+                                                     {
+                                                         SetErrorState(loadingControl, "您还未在榜上提交分数", true);
+                                                     }
+                                                     else
+                                                     {
+                                                         tableView->SetScores(internalLeaderboard.leaderboardItems, playerScoreIndex);
+                                                         for (int i = 0; i < internalLeaderboard.profilePictures.size(); ++i)
+                                                         {
+                                                             _ImageHolders[i].SetProfileImage(internalLeaderboard.profilePictures[i], i, cancellationToken->get_Token());
+                                                         }
+                                                         loadingControl->ShowText(System::String::_get_Empty(), false);
+                                                         loadingControl->Hide();
+                                                         leaderboardScoreInfoButtonHandler->set_scoreCollection(internalLeaderboard.leaderboard.value().scores, internalLeaderboard.leaderboard->leaderboardInfo.id);
+                                                     }
+                                                 }
+                                                 else
+                                                 {
+                                                     if (_leaderboardPage > 1)
+                                                     {
+                                                         SetErrorState(loadingControl, "此页没有分数");
+                                                     }
+                                                     else
+                                                     {
+                                                         SetErrorState(loadingControl, "榜上目前空空如也，来做第一位吧!");
+                                                     }
+                                                     ByeImages();
+                                                 }
+                                             }
+                                             else
+                                             {
+                                                 if (internalLeaderboard.leaderboardItems->get_Item(0) != nullptr)
+                                                 {
+                                                     SetErrorState(loadingControl, internalLeaderboard.leaderboardItems->get_Item(0)->get_playerName(), false);
+                                                 }
+                                                 else
+                                                 {
+                                                     SetErrorState(loadingControl, "榜上目前空空如也，来做第一位吧! 0x1");
+                                                 }
+                                                 ByeImages();
+                                             }
+                                         });
+                                     },
+                                     _filterAroundCountry);
+                             }
+                         }),
+                         nullptr)
+            ->Run();
     }
 
     void SetRankedStatus(Data::LeaderboardInfo leaderboardInfo)
@@ -420,7 +431,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
             }
             else
             {
-                ScoreSaberBanner->set_status("Ranked (modifiers disabled)", leaderboardInfo.id);
+                ScoreSaberBanner->set_status("Ranked (禁用修改项)", leaderboardInfo.id);
             }
             return;
         }
@@ -456,7 +467,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
         loadingControl->Hide();
         loadingControl->ShowText(errorText, showRefreshButton);
     }
-    
+
     void RefreshLeaderboard()
     {
         if (_activated)
@@ -512,7 +523,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
             {
                 _platformLeaderboardViewController->loadingControl->ShowLoading(System::String::_get_Empty());
                 ScoreSaberBanner->set_loading(true);
-                ScoreSaberBanner->set_prompt("Uploading score...", -1);
+                ScoreSaberBanner->set_prompt("上传分数中...", -1);
                 // ScoreSaberBanner->Prompt("Uploading Score", true, 5.0f, nullptr);
             }
             else
@@ -521,7 +532,7 @@ namespace ScoreSaber::UI::Other::ScoreSaberLeaderboardView
 
                 if (success)
                 {
-                    ScoreSaberBanner->set_prompt("<color=#89fc81>Score uploaded successfully</color>", 5);
+                    ScoreSaberBanner->set_prompt("<color=#89fc81>分数上传成功</color>", 5);
                     PlayerService::UpdatePlayerInfo(true);
                 }
                 else

@@ -25,7 +25,7 @@ namespace ScoreSaber::UI::FlowCoordinators
     {
         if (firstActivation)
         {
-            SetTitle("ScoreSaber Settings", ViewController::AnimationType::In);
+            SetTitle("ScoreSaber设置", ViewController::AnimationType::In);
             set_showBackButton(true);
             mainSettingsViewController = CreateViewController<ScoreSaber::UI::ViewControllers::MainSettingsViewController*>();
 
@@ -42,4 +42,4 @@ namespace ScoreSaber::UI::FlowCoordinators
         PlayerService::UpdatePlayerInfo(true);
         ScoreSaberLeaderboardView::RefreshLeaderboard();
     }
-}
+} // namespace ScoreSaber::UI::FlowCoordinators

@@ -60,7 +60,7 @@ namespace ScoreSaber::Services::LeaderboardService
 
         std::string gameMode = "Solo" + difficultyBeatmap->get_parentDifficultyBeatmapSet()->get_beatmapCharacteristic()->serializedName;
         int difficulty = BeatmapDifficultyMethods::DefaultRating(difficultyBeatmap->get_difficulty());
-        
+
         bool hasPage = true;
 
         if (!filterAroundCountry)
@@ -88,17 +88,22 @@ namespace ScoreSaber::Services::LeaderboardService
             {
                 c = tolower(c);
             }
-            if(mode == "region") {
+            if (mode == "region")
+            {
                 url = string_format("%s/around-region/%s/mode/%s/difficulty/%d?page=%d", url.c_str(), levelHash.c_str(), gameMode.c_str(), difficulty, page);
-            } else {
-                if(mode != "country") {
+            }
+            else
+            {
+                if (mode != "country")
+                {
                     ERROR("Invalid location filter mode, falling back to country");
                 }
                 url = string_format("%s/around-country/%s/mode/%s/difficulty/%d?page=%d", url.c_str(), levelHash.c_str(), gameMode.c_str(), difficulty, page);
             }
         }
 
-        if (Settings::hideNAScoresFromLeaderboard) {
+        if (Settings::hideNAScoresFromLeaderboard)
+        {
             if (hasPage)
                 url += "&hideNA=1";
             else
@@ -170,9 +175,9 @@ namespace ScoreSaber::Services::LeaderboardService
                 for (auto& score : currentLeaderboard.scores)
                 {
                     auto& leaderboardPlayerInfo = score.leaderboardPlayerInfo;
-                    std::u16string formattedScore = FormatScore(((double)score.modifiedScore / (double)maxScore) * 100.0);
-                    std::u16string formattedPP = FormatPP(score);
-                    std::u16string result = Resize(leaderboardPlayerInfo.name.value() + formattedScore + formattedPP, 75);
+                    std::string formattedScore = FormatScore(((double)score.modifiedScore / (double)maxScore) * 100.0);
+                    std::string formattedPP = FormatPP(score);
+                    std::string result = Resize(leaderboardPlayerInfo.name.value() + formattedScore + formattedPP, 75);
                     scores->Add(LeaderboardTableView::ScoreData::New_ctor(score.modifiedScore, result, score.rank, false));
                     profilePictures.push_back(leaderboardPlayerInfo.profilePicture);
                 }

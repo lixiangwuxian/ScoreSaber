@@ -47,16 +47,16 @@ using namespace TMPro;
 using namespace System;
 using namespace StringUtils;
 
-#define SetPreferredSize(identifier, width, height)                                         \
-    auto layout##identifier = identifier->get_gameObject()->GetComponent<LayoutElement*>(); \
-    if (!layout##identifier)                                                                \
-        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();  \
-    layout##identifier->set_preferredWidth(width);                                          \
+#define SetPreferredSize(identifier, width, height)                                           \
+    auto layout##identifier = identifier->get_gameObject() -> GetComponent<LayoutElement*>(); \
+    if (!layout##identifier)                                                                  \
+        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();    \
+    layout##identifier->set_preferredWidth(width);                                            \
     layout##identifier->set_preferredHeight(height)
 
-#define SetFitMode(identifier, horizontal, vertical)                                            \
-    auto fitter##identifier = identifier->get_gameObject()->GetComponent<ContentSizeFitter*>(); \
-    fitter##identifier->set_verticalFit(vertical);                                              \
+#define SetFitMode(identifier, horizontal, vertical)                                              \
+    auto fitter##identifier = identifier->get_gameObject() -> GetComponent<ContentSizeFitter*>(); \
+    fitter##identifier->set_verticalFit(vertical);                                                \
     fitter##identifier->set_horizontalFit(horizontal)
 
 #define CreateDefaultTextAndSetSize(identifier, size)                  \
@@ -90,15 +90,42 @@ std::string FormatNumber(int number)
 // but ill have to make do for now
 std::string GetDevice(int id)
 {
-    if (id == 0) { return "Unknown"; }
-    if (id == 1) { return "Oculus Rift CV1"; }
-    if (id == 2) { return "HTC VIVE"; }
-    if (id == 4) { return "HTC VIVE Pro"; }
-    if (id == 8) { return "Windows Mixed Reality"; }
-    if (id == 16) { return "Oculus Rift S"; }
-    if (id == 32) { return "Oculus Quest"; }
-    if (id == 64) { return "Valve Index"; }
-    if (id == 128) { return "HTC VIVE Cosmos"; }
+    if (id == 0)
+    {
+        return "Unknown";
+    }
+    if (id == 1)
+    {
+        return "Oculus Rift CV1";
+    }
+    if (id == 2)
+    {
+        return "HTC VIVE";
+    }
+    if (id == 4)
+    {
+        return "HTC VIVE Pro";
+    }
+    if (id == 8)
+    {
+        return "Windows Mixed Reality";
+    }
+    if (id == 16)
+    {
+        return "Oculus Rift S";
+    }
+    if (id == 32)
+    {
+        return "Oculus Quest";
+    }
+    if (id == 64)
+    {
+        return "Valve Index";
+    }
+    if (id == 128)
+    {
+        return "HTC VIVE Cosmos";
+    }
     return "Unknown";
 }
 
@@ -192,9 +219,12 @@ namespace ScoreSaber::UI::Other
             set_player(score.leaderboardPlayerInfo.name.value());
         }
 
-        if (score.deviceHmd) {
+        if (score.deviceHmd)
+        {
             set_device_hmd(*score.deviceHmd);
-        } else {
+        }
+        else
+        {
             set_device_hmd(GetDevice(score.hmd));
         }
 
@@ -209,12 +239,15 @@ namespace ScoreSaber::UI::Other
             ->StartCoroutine(custom_types::Helpers::CoroutineHelper::New(BeatmapUtils::getMaxScoreCoroutine(currentBeatmap, [&](int maxScore) {
                 set_score(score.modifiedScore, ((double)score.modifiedScore / (double)maxScore) * 100.0);
                 set_pp(score.pp);
-                if (score.maxCombo != 0) {
+                if (score.maxCombo != 0)
+                {
                     set_combo(score.maxCombo);
                     set_fullCombo(score.fullCombo);
                     set_badCuts(score.badCuts);
                     set_missedNotes(score.missedNotes);
-                } else {
+                }
+                else
+                {
                     set_combo(nullopt);
                     set_fullCombo(nullopt);
                     set_badCuts(nullopt);
@@ -240,8 +273,8 @@ namespace ScoreSaber::UI::Other
                 {
                     replayEnabled = true;
                 }
-                
-                if(!ScoreSaberLeaderboardView::IsReplayWatchingAllowed())
+
+                if (!ScoreSaberLeaderboardView::IsReplayWatchingAllowed())
                     replayEnabled = false;
 
                 SetReplayButtonState(replayEnabled);
@@ -325,7 +358,7 @@ namespace ScoreSaber::UI::Other
         CreateDefaultTextAndSetSize(modifiers, 3.5f);
         CreateDefaultTextAndSetSize(timeSet, 3.5f);
 
-        set_player(u"placeholder");
+        set_player("placeholder");
         set_device_hmd("Unknown");
         set_score(0, 0);
         set_pp(0);
@@ -337,66 +370,66 @@ namespace ScoreSaber::UI::Other
         set_timeSet("");
     }
 
-    void ScoreInfoModal::set_player(std::u16string player)
+    void ScoreInfoModal::set_player(std::string player)
     {
-        this->player->set_text(player + u"'s Score");
+        this->player->set_text(player + "的成绩");
     }
 
     void ScoreInfoModal::set_device_hmd(std::string_view device)
     {
-        this->deviceHmd->set_text(string_format("<color=#6F6F6F>HMD:</color> %s", device.data()));
+        this->deviceHmd->set_text(string_format("<color=#6F6F6F>设备:</color> %s", device.data()));
     }
 
     void ScoreInfoModal::set_score(long score, double percent)
     {
-        this->score->set_text(string_format("<color=#6F6F6F>Score:</color> %s (<color=#ffd42a>%.2f%s</color>)", FormatNumber((int)score).c_str(), percent, "%"));
+        this->score->set_text(string_format("<color=#6F6F6F>分数:</color> %s (<color=#ffd42a>%.2f%s</color>)", FormatNumber((int)score).c_str(), percent, "%"));
     }
 
     void ScoreInfoModal::set_pp(double pp)
     {
-        this->pp->set_text(string_format("<color=#6F6F6F>Performance Points:</color> <color=#6872e5>%.2fpp</color>", pp));
+        this->pp->set_text(string_format("<color=#6F6F6F>表现分:</color> <color=#6872e5>%.2fpp</color>", pp));
     }
 
     void ScoreInfoModal::set_combo(std::optional<int> combo)
     {
         if (combo)
-            this->combo->set_text(string_format("<color=#6F6F6F>Combo:</color> %s", FormatNumber(*combo).c_str()));
+            this->combo->set_text(string_format("<color=#6F6F6F>连击:</color> %s", FormatNumber(*combo).c_str()));
         else
-            this->missedNotes->set_text("<color=#6F6F6F>Combo:</color> N/A");
+            this->missedNotes->set_text("<color=#6F6F6F>连击:</color> N/A");
     }
 
     void ScoreInfoModal::set_fullCombo(std::optional<bool> value)
     {
         if (value)
-            this->fullCombo->set_text(string_format("<color=#6F6F6F>Full Combo:</color> %s", *value ? "<color=#13fd81>Yes</color>" : "<color=\"red\">No</color>"));
+            this->fullCombo->set_text(string_format("<color=#6F6F6F>全连:</color> %s", *value ? "<color=#13fd81>是</color>" : "<color=\"red\">否</color>"));
         else
-            this->missedNotes->set_text("<color=#6F6F6F>Full Combo:</color> N/A");
+            this->missedNotes->set_text("<color=#6F6F6F>全连:</color> N/A");
     }
 
     void ScoreInfoModal::set_badCuts(std::optional<int> badCuts)
     {
         if (badCuts)
-            this->badCuts->set_text(string_format("<color=#6F6F6F>Bad Cuts:</color> %s", FormatNumber(*badCuts).c_str()));
+            this->badCuts->set_text(string_format("<color=#6F6F6F>错误挥砍数:</color> %s", FormatNumber(*badCuts).c_str()));
         else
-            this->missedNotes->set_text("<color=#6F6F6F>Bad Cuts:</color> N/A");
+            this->missedNotes->set_text("<color=#6F6F6F>错误挥砍数:</color> N/A");
     }
 
     void ScoreInfoModal::set_missedNotes(std::optional<int> missedNotes)
     {
         if (missedNotes)
-            this->missedNotes->set_text(string_format("<color=#6F6F6F>Missed Notes:</color> %s", FormatNumber(*missedNotes).c_str()));
+            this->missedNotes->set_text(string_format("<color=#6F6F6F>遗漏方块数:</color> %s", FormatNumber(*missedNotes).c_str()));
         else
-            this->missedNotes->set_text("<color=#6F6F6F>Missed Notes:</color> N/A");
+            this->missedNotes->set_text("<color=#6F6F6F>遗漏方块数:</color> N/A");
     }
 
     void ScoreInfoModal::set_modifiers(std::string_view modifiers)
     {
-        this->modifiers->set_text(string_format("<color=#6F6F6F>Modifiers:</color> %s", modifiers.data()));
+        this->modifiers->set_text(string_format("<color=#6F6F6F>修改项:</color> %s", modifiers.data()));
     }
 
     void ScoreInfoModal::set_timeSet(std::string_view timeSet)
     {
-        this->timeSet->set_text(string_format("<color=#6F6F6F>Time Set:</color> %s", timeSet.data()));
+        this->timeSet->set_text(string_format("<color=#6F6F6F>提交于:</color> %s", timeSet.data()));
     }
 
     void ScoreInfoModal::ShowPlayerProfileModal()
@@ -415,12 +448,12 @@ namespace ScoreSaber::UI::Other
             if (enabled)
             {
                 // setting color doesn't seem to do anything, so I swapped the highlight colors around so that change only happens if enabled
-                //replayImage->set_color({1.0f, 1.0f, 1.0f, 0.8f});
+                // replayImage->set_color({1.0f, 1.0f, 1.0f, 0.8f});
                 replayImage->set_highlightColor({1.0f, 1.0f, 1.0f, 0.2f});
             }
             else
             {
-                //replayImage->set_color({1.0f, 1.0f, 1.0f, 0.2f});
+                // replayImage->set_color({1.0f, 1.0f, 1.0f, 0.2f});
                 replayImage->set_highlightColor({1.0f, 1.0f, 1.0f, 1.0f});
             }
         }
@@ -433,17 +466,17 @@ namespace ScoreSaber::UI::Other
             SetReplayButtonState(false);
             replayEnabled = false;
             Hide();
-            ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("Loading Replay...", -1);
+            ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("加载回放中...", -1);
             ScoreSaber::ReplaySystem::ReplayLoader::GetReplayData(currentBeatmap, leaderboardId, replayFileName, currentScore, [=](bool result) {
                 QuestUI::MainThreadScheduler::Schedule([=]() {
                     if (result)
                     {
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("Replay loaded!", 3);
+                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("回放加载完成!", 3);
                         ScoreSaber::ReplaySystem::ReplayLoader::StartReplay(currentBeatmap);
                     }
                     else
                     {
-                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("Failed to load replay", 3);
+                        ScoreSaber::UI::Other::ScoreSaberLeaderboardView::ScoreSaberBanner->set_prompt("回放加载失败", 3);
                     }
                     SetReplayButtonState(true);
                     replayEnabled = true;
