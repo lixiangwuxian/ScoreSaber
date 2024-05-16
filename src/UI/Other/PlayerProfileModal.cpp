@@ -127,7 +127,7 @@ namespace ScoreSaber::UI::Other
         bgImage->set_color(Color(85 / 255.0f, 94 / 255.0f, 188 / 255.0f, 1));
         bgImage->curvedCanvasSettingsHelper->Reset();
 
-        headerText = UIUtils::CreateClickableText(headerHorizon->get_transform(), u"占位档案", {0, 0}, {0, 0}, std::bind(&PlayerProfileModal::OpenPlayerUrl, this));
+        headerText = UIUtils::CreateClickableText(headerHorizon->get_transform(), "占位", {0, 0}, {0, 0}, std::bind(&PlayerProfileModal::OpenPlayerUrl, this));
         SetPreferredSize(headerText, 90, -1);
         headerHorizon->set_childAlignment(TextAnchor::MiddleCenter);
         headerText->set_alignment(TMPro::TextAlignmentOptions::Center);

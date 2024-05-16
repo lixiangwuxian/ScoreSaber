@@ -79,7 +79,7 @@ void CreateLinkBoxes(Transform* parent, LinkBoxData data)
     layoutElement->set_preferredWidth(40.0f);
     layoutElement->set_preferredHeight(60.0f);
 
-    ScoreSaber::CustomTypes::Components::ClickableText* text = UIUtils::CreateClickableText(layoutGroup->get_transform(), to_utf16(data.mainText), [url = data.mainURL]() { Application::OpenURL(url); });
+    ScoreSaber::CustomTypes::Components::ClickableText* text = UIUtils::CreateClickableText(layoutGroup->get_transform(), data.mainText, [url = data.mainURL]() { Application::OpenURL(url); });
     text->set_fontSize(6.5f);
     text->set_alignment(TextAlignmentOptions::Center);
 

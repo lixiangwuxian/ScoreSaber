@@ -38,11 +38,11 @@ using namespace UnityEngine::UI;
 using namespace QuestUI;
 using namespace QuestUI::BeatSaberUI;
 
-#define SetPreferredSize(identifier, width, height)                                         \
-    auto layout##identifier = identifier->get_gameObject()->GetComponent<LayoutElement*>(); \
-    if (!layout##identifier)                                                                \
-        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();  \
-    layout##identifier->set_preferredWidth(width);                                          \
+#define SetPreferredSize(identifier, width, height)                                           \
+    auto layout##identifier = identifier->get_gameObject() -> GetComponent<LayoutElement*>(); \
+    if (!layout##identifier)                                                                  \
+        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();    \
+    layout##identifier->set_preferredWidth(width);                                            \
     layout##identifier->set_preferredHeight(height)
 
 #define SocialButton(identifier)                                                                                                                                                             \
@@ -64,7 +64,7 @@ static SafePtrUnity<HapticPresetSO> hapticFeedbackPresetSO;
 
 namespace UIUtils
 {
-    ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::u16string_view text, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::function<void()> onClick)
+    ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::string_view text, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::function<void()> onClick)
     {
         auto clickableText = CreateClickableText(parent, text, anchoredPosition, sizeDelta);
         if (onClick)
@@ -72,7 +72,7 @@ namespace UIUtils
         return clickableText;
     }
 
-    ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::u16string_view text, std::function<void()> onClick)
+    ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::string_view text, std::function<void()> onClick)
     {
         auto clickableText = CreateClickableText(parent, text);
         if (onClick)
@@ -80,7 +80,7 @@ namespace UIUtils
         return clickableText;
     }
 
-    ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(Transform* parent, std::u16string_view text, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta)
+    ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(Transform* parent, std::string_view text, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta)
     {
         GameObject* gameObj = GameObject::New_ctor("QuestUIText");
         gameObj->SetActive(false);
@@ -121,11 +121,6 @@ namespace UIUtils
         gameObj->SetActive(true);
         return textMesh;
     }
-
-    ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::string_view text, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta)
-    {
-        return CreateClickableText(parent, to_utf16(text), anchoredPosition, sizeDelta);
-    };
 
     UnityEngine::GameObject* CreateLoadingIndicator(UnityEngine::Transform* parent)
     {

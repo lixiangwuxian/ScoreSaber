@@ -17,9 +17,8 @@
 using namespace UnityEngine;
 namespace UIUtils
 {
-    ::ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::u16string_view text, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::function<void()> onClick);
-    ::ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::u16string_view text, std::function<void()> onClick);
-    ::ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::u16string_view text, UnityEngine::Vector2 anchoredPosition = {0, 0}, UnityEngine::Vector2 sizeDelta = {60.0f, 10.0f});
+    ::ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::string_view text, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta, std::function<void()> onClick);
+    ::ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::string_view text, std::function<void()> onClick);
     ::ScoreSaber::CustomTypes::Components::ClickableText* CreateClickableText(UnityEngine::Transform* parent, std::string_view text, UnityEngine::Vector2 anchoredPosition = {0, 0}, UnityEngine::Vector2 sizeDelta = {60.0f, 10.0f});
     UnityEngine::UI::HorizontalLayoutGroup* CreateTeamMemberLayout(UnityEngine::Transform* parent, TeamUtils::TeamMember& member);
     UnityEngine::GameObject* CreateLoadingIndicator(UnityEngine::Transform* parent);

@@ -166,7 +166,7 @@ GlobalLeaderboardTableCell* GlobalLeaderboardTableCell::CreateCell()
 
     playerCell->name = UIUtils::CreateClickableText(
         CreateHost(t, {-11.0f, 2.8f}, {55.0f, 8.0f})->get_transform(),
-        u"Username", {0.0f, 0.0f}, {0.0f, 0.0f}, std::bind(&GlobalLeaderboardTableCell::OpenPlayerProfileModal, playerCell));
+        "用户名", {0.0f, 0.0f}, {0.0f, 0.0f}, std::bind(&GlobalLeaderboardTableCell::OpenPlayerProfileModal, playerCell));
 
     playerCell->name->set_overflowMode(TextOverflowModes::Ellipsis);
     playerCell->name->set_alignment(TextAlignmentOptions::Left);

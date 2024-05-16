@@ -40,11 +40,11 @@ custom_types::Helpers::Coroutine WaitForInit(
     co_return;
 }
 
-#define SetPreferredSize(identifier, width, height)                                         \
-    auto layout##identifier = identifier->get_gameObject()->GetComponent<LayoutElement*>(); \
-    if (!layout##identifier)                                                                \
-        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();  \
-    layout##identifier->set_preferredWidth(width);                                          \
+#define SetPreferredSize(identifier, width, height)                                           \
+    auto layout##identifier = identifier->get_gameObject() -> GetComponent<LayoutElement*>(); \
+    if (!layout##identifier)                                                                  \
+        layout##identifier = identifier->get_gameObject()->AddComponent<LayoutElement*>();    \
+    layout##identifier->set_preferredWidth(width);                                            \
     layout##identifier->set_preferredHeight(height)
 
 namespace ScoreSaber::UI::ViewControllers
@@ -73,7 +73,7 @@ namespace ScoreSaber::UI::ViewControllers
             textHorizontal->set_childAlignment(TextAnchor::MiddleCenter);
             SetPreferredSize(textHorizontal, 80.0f, -1);
             textHorizontal->get_rectTransform()->set_sizeDelta(Vector2(-40.0f, 0.0f));
-            auto headerText = UIUtils::CreateClickableText(textHorizontal->get_transform(), u"Global Leaderboards", Vector2(0.0f, 0.0f), Vector2(0.0f, 0.0f), []() { Application::OpenURL("https://scoresaber.com/rankings"); });
+            auto headerText = UIUtils::CreateClickableText(textHorizontal->get_transform(), "全球排行榜", Vector2(0.0f, 0.0f), Vector2(0.0f, 0.0f), []() { Application::OpenURL("https://scoresaber.com/rankings"); });
 
             headerText->set_alignment(TMPro::TextAlignmentOptions::Center);
             headerText->set_fontSize(7.0f);
@@ -218,27 +218,26 @@ namespace ScoreSaber::UI::ViewControllers
             auto textVertical = CreateVerticalLayoutGroup(moreInfoModal->get_transform());
             textVertical->set_spacing(1.0f);
             textVertical->set_padding(RectOffset::New_ctor(2, 2, 2, 2));
-            auto h1 = CreateText(textVertical->get_transform(), "What is <color=#6772E5>PP</color>?", false);
+            auto h1 = CreateText(textVertical->get_transform(), "<color=#6772E5>PP</color>是什么?", false);
             h1->set_alignment(TMPro::TextAlignmentOptions::TopLeft);
             h1->set_fontSize(4.0f);
-            auto t1 = CreateText(textVertical->get_transform(), "Performance Points (<color=#6772E5>PP</color>) are earned through playing ranked maps. Harder maps and higher\n"
-                                                                "scores will increase the amount of <color=#6772E5>PP</color> you receive from beating a map. Performance Points\n"
-                                                                "determine your rank on the ScoreSaber global leaderboards, the more <color=#6772E5>PP</color> you have the higher\n"
-                                                                "your rank will be.",
+            auto t1 = CreateText(textVertical->get_transform(), "表现分(<color=#6772E5>PP</color>)可通过游玩ranked类型的谱面获取。<color=#6772E5>PP</color>高低与谱面难度\n"
+                                                                "及您在这个谱面取得的分数正相关。您在全球排行榜上的位置取决于您的PP，\n"
+                                                                "您的<color=#6772E5>PP</color>越高，您的排名也就越高\n",
                                  false);
             t1->set_alignment(TMPro::TextAlignmentOptions::TopLeft);
             t1->set_fontSize(2.5f);
             t1->set_enableWordWrapping(true);
             t1->get_rectTransform()->set_sizeDelta({0, 0});
             Object::Destroy(t1->GetComponent<LayoutElement*>());
-            auto h2 = CreateText(textVertical->get_transform(), "How Does Ranking Work?", false);
+            auto h2 = CreateText(textVertical->get_transform(), "Ranking系统的原理是?", false);
             h2->set_alignment(TMPro::TextAlignmentOptions::TopLeft);
             h2->set_fontSize(4.0f);
-            auto t2 = CreateText(textVertical->get_transform(), "Ranked maps are maps passed through a ranking system that judges maps to make sure they\n"
-                                                                "are objectively fair. The Ranking Team votes based on the Ranking Criteria, a document that\n"
-                                                                "goes over the rules a map must follow to be ranked. The Quality Assurance Team votes to\n"
-                                                                "either speed up or slow down maps in queue based on whether the map meets their quality\n"
-                                                                "standards, however they cannot fully block a map that meets the criteria from being ranked.",
+            auto t2 = CreateText(textVertical->get_transform(), "Ranked谱面是通过了Ranking系统的谱面，该系统会对谱面进行判断以确保它们相对合理。\n"
+                                                                "Ranking团队会根据Ranking标准对谱面进行投票。Ranking标准是一个概述了谱面需要成为\n"
+                                                                "Ranked状态所必须遵循的规则的文档。质量保证团队会根据谱面是否符合他们的质量标准\n"
+                                                                "来投票提前或推迟位于等待Ranking队列中的谱面成为Ranked谱面，但是他们不能彻底阻止\n"
+                                                                "符合标准的谱面成为Ranked谱面。",
                                  false);
             t2->set_alignment(TMPro::TextAlignmentOptions::TopLeft);
             t2->set_fontSize(2.5f);
@@ -247,9 +246,9 @@ namespace ScoreSaber::UI::ViewControllers
             Object::Destroy(t2->GetComponent<LayoutElement*>());
 
             auto buttonHorizontal = CreateHorizontalLayoutGroup(textVertical->get_transform());
-            auto dismiss = CreateUIButton(buttonHorizontal->get_transform(), "Dismiss", [&]() { moreInfoModal->Hide(true, nullptr); });
+            auto dismiss = CreateUIButton(buttonHorizontal->get_transform(), "取消", [&]() { moreInfoModal->Hide(true, nullptr); });
 
-            auto moreInfo = CreateUIButton(buttonHorizontal->get_transform(), "More Info", []() { Application::OpenURL("https://wiki.scoresaber.com/ranking-system.html"); });
+            auto moreInfo = CreateUIButton(buttonHorizontal->get_transform(), "更多信息", []() { Application::OpenURL("https://wiki.scoresaber.com/ranking-system.html"); });
         }
         moreInfoModal->Show(true, true, nullptr);
     }
