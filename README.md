@@ -1,4 +1,4 @@
-## Building
+## 如何构建
 
 ### 环境配置
 
@@ -32,7 +32,7 @@
 ### 打包
 
 ```powershell
-./createqmod.ps1
+./createqmod.ps1 scoresaber
 ```
 
 ---
