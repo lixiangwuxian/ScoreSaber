@@ -18,7 +18,6 @@ namespace ScoreSaber::Data
         Player(const rapidjson::GenericValue<rapidjson::UTF16<char16_t>>&& value);
         Player(rapidjson::GenericObject<true, rapidjson::Value> value);
         Player(rapidjson::GenericObject<true, rapidjson::GenericValue<rapidjson::UTF16<char16_t>>> value);
-
         std::string id;
         std::string name;
         std::string profilePicture;

@@ -55,8 +55,8 @@ namespace ScoreSaber::UI::Other
         co_yield reinterpret_cast<System::Collections::IEnumerator*>(CRASH_UNLESS(webRequest->SendWebRequest()));
         if (!webRequest->get_isNetworkError())
         {
-            std::string response = to_utf8(csstrtostr(webRequest->get_downloadHandler()->get_text()));
-            rapidjson::GenericDocument<rapidjson::Value> doc;
+            std::u16string response = std::u16string(csstrtostr(webRequest->get_downloadHandler()->get_text()));
+            rapidjson::GenericDocument<rapidjson::UTF16<char16_t>> doc;
             doc.Parse(response.c_str());
             ScoreSaber::Data::Player player(doc.GetObject());
             SetPlayerData(player);
