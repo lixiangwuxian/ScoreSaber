@@ -60,34 +60,36 @@ void BeatLeader::initLinksContainerPopup(BeatLeader::LinksContainerPopup** modal
     }, UnityEngine::Vector2(24, -1), UnityEngine::Vector2(22, 6));
     ::BSML::Lite::AddHoverHint(modalUI->patreon, "Patreon page");
 
-    WebUtils::GetAsync(WebUtils::API_URL + "mod/uptodate?platform=oculus&gameVersion=" + (string)UnityEngine::Application::get_version() + "&version=" + modInfo.version, [modalUI](long status, string const& result){ 
-        BSML::MainThreadScheduler::Schedule([modalUI, status, result] {
-            if (status == 200 && result == "true") {
+
+    //todo debug
+    // WebUtils::GetAsync(WebUtils::API_URL + "mod/uptodate?platform=oculus&gameVersion=" + (string)UnityEngine::Application::get_version() + "&version=" + modInfo.version, [modalUI](long status, string const& result){ 
+    //     BSML::MainThreadScheduler::Schedule([modalUI, status, result] {
+    //         if (status == 200 && result == "true") {
                 modalUI->versionText->SetText("<color=#88FF88>Mod is up to date!", true);
-            } else {
-                modalUI->versionText->SetText("<color=#FF8888>Mod is outdated!", true);
-            }
-        });
-    });
+    //         } else {
+    //             modalUI->versionText->SetText("<color=#FF8888>Mod is outdated!", true);
+    //         }
+    //     });
+    // });
 
-    CreateText(modalTransform, "<u>Install playlists. You need to sync them yourself!", UnityEngine::Vector2(-31.0, -7.0));
-    modalUI->nominated = ::BSML::Lite::CreateUIButton(modalTransform, "Nominated", UnityEngine::Vector2(14, -42.0), [modalUI]() {
-       PlaylistSynchronizer::InstallPlaylist(WebUtils::API_URL + "playlist/nominated", "BL Nominated");
-    });
-    SetButtonSize(modalUI->nominated, {22, 8});
-    ::BSML::Lite::AddHoverHint(modalUI->nominated, "Playlist of nominated maps");
+    // CreateText(modalTransform, "<u>Install playlists. You need to sync them yourself!", UnityEngine::Vector2(-31.0, -7.0));
+    // modalUI->nominated = ::BSML::Lite::CreateUIButton(modalTransform, "Nominated", UnityEngine::Vector2(14, -42.0), [modalUI]() {
+    //    PlaylistSynchronizer::InstallPlaylist(WebUtils::API_URL + "playlist/nominated", "BL Nominated");
+    // });
+    // SetButtonSize(modalUI->nominated, {22, 8});
+    // ::BSML::Lite::AddHoverHint(modalUI->nominated, "Playlist of nominated maps");
 
-    modalUI->qualified = ::BSML::Lite::CreateUIButton(modalTransform, "Qualified", UnityEngine::Vector2(38, -42.0), [modalUI]() {
-        PlaylistSynchronizer::InstallPlaylist(WebUtils::API_URL + "playlist/qualified", "BL Qualified");
-    });
-    SetButtonSize(modalUI->qualified, {22, 8});
-    ::BSML::Lite::AddHoverHint(modalUI->nominated, "Playlist of qualified maps");
+    // modalUI->qualified = ::BSML::Lite::CreateUIButton(modalTransform, "Qualified", UnityEngine::Vector2(38, -42.0), [modalUI]() {
+    //     PlaylistSynchronizer::InstallPlaylist(WebUtils::API_URL + "playlist/qualified", "BL Qualified");
+    // });
+    // SetButtonSize(modalUI->qualified, {22, 8});
+    // ::BSML::Lite::AddHoverHint(modalUI->nominated, "Playlist of qualified maps");
 
-    modalUI->ranked = ::BSML::Lite::CreateUIButton(modalTransform, "Ranked", UnityEngine::Vector2(62, -42.0), [modalUI]() {
-        PlaylistSynchronizer::InstallPlaylist(WebUtils::API_URL + "playlist/ranked", "BL Ranked");
-    });
-    SetButtonSize(modalUI->ranked, {22, 8});
-    ::BSML::Lite::AddHoverHint(modalUI->nominated, "Playlist of ranked maps");
+    // modalUI->ranked = ::BSML::Lite::CreateUIButton(modalTransform, "Ranked", UnityEngine::Vector2(62, -42.0), [modalUI]() {
+    //     PlaylistSynchronizer::InstallPlaylist(WebUtils::API_URL + "playlist/ranked", "BL Ranked");
+    // });
+    // SetButtonSize(modalUI->ranked, {22, 8});
+    // ::BSML::Lite::AddHoverHint(modalUI->nominated, "Playlist of ranked maps");
 
     modalUI->modal->set_name("BeatLeaderLinksModal");
     *modalUIPointer = modalUI;

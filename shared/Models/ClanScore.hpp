@@ -9,12 +9,10 @@ using namespace std;
 struct ClanScore
 {
     int id;
-    // int baseScore;
     int modifiedScore;
     float accuracy;
     int clanId;
     float pp;
-    // float Weight;
     int rank;
     string timeset;
 

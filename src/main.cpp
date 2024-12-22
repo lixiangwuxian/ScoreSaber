@@ -41,11 +41,13 @@
 #include "UI/BSML_Addons/Components/FixedImageView.hpp"
 #include "UnityEngine/UI/Image.hpp"
 
+
 using namespace GlobalNamespace;
 using namespace BSML;
 
 // Called at the early stages of game loading
 MOD_EXPORT void setup(CModInfo *info) noexcept {
+    BeatLeaderLogger.info("Started setup");
     *info = modInfo.to_c();
 
     getModConfig().Init(modInfo);
@@ -205,7 +207,7 @@ MAKE_HOOK_MATCH(Image_get_pixelsPerUnit, &UnityEngine::UI::Image::get_pixelsPerU
 MOD_EXPORT "C" void late_load() {
     il2cpp_functions::Init();
     custom_types::Register::AutoRegister();
-    WebUtils::refresh_urls();
+    // WebUtils::refresh_urls();
     FileManager::EnsureReplaysFolderExists();
 
     BSML::Init();
@@ -224,12 +226,12 @@ MOD_EXPORT "C" void late_load() {
         //     synchronizer.emplace();
         // }
     });
+
     BSML::MainThreadScheduler::Schedule([] {
-        PlayerController::Refresh();
         INSTALL_HOOK(BeatLeaderLogger, ModalView_Show);
     });
 
-    PlaylistSynchronizer::SyncPlaylist();
+    // PlaylistSynchronizer::SyncPlaylist();
 
     ReplayRecorder::StartRecording(
         []() {

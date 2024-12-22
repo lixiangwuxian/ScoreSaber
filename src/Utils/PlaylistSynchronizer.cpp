@@ -29,7 +29,7 @@ string PlaylistSynchronizer::INSTALL_PATH = "sdcard/ModData/com.beatgames.beatsa
 
 void done() {
     mapsSynchronized = true;
-    WebUtils::GetAsync(WebUtils::API_URL + "user/oneclickdone", [](long httpCode, std::string data) {});
+    // WebUtils::GetAsync(WebUtils::API_URL + "user/oneclickdone", [](long httpCode, std::string data) {});
 }
 
 void PlaylistSynchronizer::DownloadBeatmap(string path, string hash, int index, function<void(bool)> const &completion) {
@@ -64,6 +64,7 @@ void PlaylistSynchronizer::DownloadBeatmap(string path, string hash, int index, 
 void PlaylistSynchronizer::GetBeatmap(int index) {
     string hash = mapsToDownload[index];
     BeatLeaderLogger.info("{}", ("Will download " + hash).c_str());
+
     WebUtils::GetJSONAsync("https://api.beatsaver.com/maps/hash/" + hash, [hash, index] (long status, bool error, rapidjson::Document const& result){
         if (status == 200 && !error && result.HasMember("versions")) {
             PlaylistSynchronizer::DownloadBeatmap(result["versions"].GetArray()[0]["downloadURL"].GetString(), hash, index);
@@ -108,45 +109,45 @@ void DownloadPlaylist(
     });
 }
 
-void ActuallySyncPlaylist() {
-    if (PlayerController::currentPlayer == std::nullopt) return;
+// void ActuallySyncPlaylist() {
+//     if (PlayerController::currentPlayer == std::nullopt) return;
 
-    auto parts = split(PlayerController::currentPlayer->playlistsToInstall, ",");
+//     auto parts = split(PlayerController::currentPlayer->playlistsToInstall, ",");
 
-    for (string playlist : parts) {
-        DownloadPlaylist(WebUtils::API_URL + "playlist/" + playlist, playlist, true, [](auto songs) {
-            BSML::MainThreadScheduler::Schedule([] {
-                SongCore::API::Loading::RefreshLevelPacks();
-            });
-        });
-    }
+//     for (string playlist : parts) {
+//         DownloadPlaylist(WebUtils::API_URL + "playlist/" + playlist, playlist, true, [](auto songs) {
+//             BSML::MainThreadScheduler::Schedule([] {
+//                 SongCore::API::Loading::RefreshLevelPacks();
+//             });
+//         });
+//     }
 
-    WebUtils::RequestAsync(WebUtils::API_URL + "user/playlist/toInstall", "DELETE", 200, [](long httpCode, std::string data) {});
+//     WebUtils::RequestAsync(WebUtils::API_URL + "user/playlist/toInstall", "DELETE", 200, [](long httpCode, std::string data) {});
 
-    DownloadPlaylist(WebUtils::API_URL + "user/oneclickplaylist", "BLSynced", true, [](auto songs) {
-        if (songs == std::nullopt) return;  
-        for (int index = 0; index < (int)songs->Size(); ++index)
-        {
-            auto const& song = (*songs)[index];
-            string hash = toLower(song["hash"].GetString());
-            if (!SongCore::API::Loading::GetLevelByHash(hash)) {
-                mapsToDownload.push_back(hash);
-            }
-        }
+//     DownloadPlaylist(WebUtils::API_URL + "user/oneclickplaylist", "BLSynced", true, [](auto songs) {
+//         if (songs == std::nullopt) return;  
+//         for (int index = 0; index < (int)songs->Size(); ++index)
+//         {
+//             auto const& song = (*songs)[index];
+//             string hash = toLower(song["hash"].GetString());
+//             if (!SongCore::API::Loading::GetLevelByHash(hash)) {
+//                 mapsToDownload.push_back(hash);
+//             }
+//         }
 
-        if (mapsToDownload.size() == 0) {
-            done();
-        } else {
-            PlaylistSynchronizer::GetBeatmap(0);
-        }
-    });
-}
+//         if (mapsToDownload.size() == 0) {
+//             done();
+//         } else {
+//             PlaylistSynchronizer::GetBeatmap(0);
+//         }
+//     });
+// }
 
 void PlaylistSynchronizer::SyncPlaylist() {
     SongCore::API::Loading::GetSongsLoadedEvent() +=
         [] (auto songs) {
             if (mapsSynchronized) return;
-            ActuallySyncPlaylist();
+            // ActuallySyncPlaylist();
         };
 }
 

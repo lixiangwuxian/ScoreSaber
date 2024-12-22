@@ -34,7 +34,7 @@ EXPOSE_API(LoggedInPlayerId, optional<string>) {
     }
 }
 
-EXPOSE_API(LoggedInPlayerQuestId, optional<string>) {
-    auto const& player = PlayerController::currentPlayer;
-    return player ? player->questId : nullopt;
-}
+// EXPOSE_API(LoggedInPlayerQuestId, optional<string>) {
+//     auto const& player = PlayerController::currentPlayer;
+//     return player ? player->questId : nullopt;
+// }

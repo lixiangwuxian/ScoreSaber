@@ -6,10 +6,10 @@ Difficulty::Difficulty(rapidjson::Value const& document) {
     type = document["type"].GetInt();
 
     // Load votes
-    auto receivedVotes = document["votes"].GetArray();
-    for(const auto& vote : receivedVotes) {
-        votes.push_back(vote.GetFloat());
-    }
+    // auto receivedVotes = document["votes"].GetArray();
+    // for(const auto& vote : receivedVotes) {
+    //     votes.push_back(vote.GetFloat());
+    // }
 
     // Load ModifierValues (% increase or decrease for specific modifiers on this diff)
     auto receivedModifierValues = document["modifierValues"].GetObject();
@@ -37,26 +37,26 @@ Difficulty::Difficulty(rapidjson::Value const& document) {
 
         // Load our the aspect into our model
         float value = kv.value.GetFloat();
-        if (aspect == "Stars")
+        // if (aspect == "Stars")
             modifiersRating[key].stars = value;
-        else if (aspect == "TechRating")
-            modifiersRating[key].techRating = value;
-        else if (aspect == "AccRating")
-            modifiersRating[key].accRating = value;
-        else if (aspect == "PassRating")
-            modifiersRating[key].passRating = value;
-        // Not used ingame for now (its "predicted average accuracy of top 10 players on this map")
-        else if (aspect == "PredictedAcc"){}
-        // Should never happen but so we notice when something goes wrong
-        else
-            modifiersRating[key].stars = -1;
+        // else if (aspect == "TechRating")
+        //     modifiersRating[key].techRating = value;
+        // else if (aspect == "AccRating")
+        //     modifiersRating[key].accRating = value;
+        // else if (aspect == "PassRating")
+        //     modifiersRating[key].passRating = value;
+        // // Not used ingame for now (its "predicted average accuracy of top 10 players on this map")
+        // else if (aspect == "PredictedAcc"){}
+        // // Should never happen but so we notice when something goes wrong
+        // else
+        //     modifiersRating[key].stars = -1;
     }
 
     // Load non modifier rating for this diff
     rating.stars = document["stars"].GetFloat();
-    rating.passRating = document["passRating"].GetFloat();
-    rating.accRating = document["accRating"].GetFloat();
-    rating.techRating = document["techRating"].GetFloat();
+    // rating.passRating = document["passRating"].GetFloat();
+    // rating.accRating = document["accRating"].GetFloat();
+    // rating.techRating = document["techRating"].GetFloat();
 
     if (document.HasMember("clanStatus") && !document["clanStatus"].IsNull()) {
         clanStatus = ClanRankingStatus(document["clanStatus"].GetObject());
@@ -68,7 +68,7 @@ Difficulty::Difficulty(rapidjson::Value const& document) {
 Difficulty::Difficulty(int statusGiven, int typeGiven, vector<float> votesGiven, unordered_map<string, float> modifierValuesGiven,unordered_map<string, TriangleRating> modifiersRatingGiven, TriangleRating ratingGiven) {
     status = statusGiven;
     type = typeGiven;
-    votes = votesGiven;
+    // votes = votesGiven;
     modifierValues = modifierValuesGiven;
     modifiersRating = modifiersRatingGiven;
     rating = ratingGiven;

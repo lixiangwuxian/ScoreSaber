@@ -80,6 +80,7 @@
 #include "GlobalNamespace/LoadingControl.hpp"
 #include "GlobalNamespace/LeaderboardTableView.hpp"
 #include "GlobalNamespace/BeatmapDifficulty.hpp"
+#include "GlobalNamespace/BeatmapDifficultyMethods.hpp"
 #include "GlobalNamespace/IBeatmapLevelData.hpp"
 #include "GlobalNamespace/IReadonlyBeatmapData.hpp"
 #include "GlobalNamespace/BeatmapCharacteristicSO.hpp"
@@ -264,13 +265,14 @@ namespace LeaderboardUI {
                 }
 
                 if (groupsSelector) {
-                    ArrayW<StringW> values(player->clans.size() + 2);
+                    // ArrayW<StringW> values(player->clans.size() + 2);
+                    ArrayW<StringW> values(2);
                     values[0] = u" Friends";
                     values[1] = u" Country";
                     
-                    for (size_t i = 0; i < player->clans.size(); ++i) {
-                        values[i + 2] = StringW(" " + player->clans[i].tag);
-                    }
+                    // for (size_t i = 0; i < player->clans.size(); ++i) {
+                    //     values[i + 2] = StringW(" " + player->clans[i].tag);
+                    // }
                     
                     groupsSelector->set_texts(values);
                 }
@@ -347,69 +349,68 @@ namespace LeaderboardUI {
         }
     }
 
-    void updateVotingButton() {
-        setVotingButtonsState(0);
-        hideVotingUIs();
-        if (plvc) {
-            auto [hash, difficulty, mode] = getLevelDetails(plvc->_beatmapKey);
-            string votingStatusUrl = WebUtils::API_URL + "votestatus/" + hash + "/" + difficulty + "/" + mode;
+    // void updateVotingButton() {
+    //     setVotingButtonsState(0);
+    //     hideVotingUIs();
+    //     if (plvc) {
+    //         auto [hash, difficulty, mode] = getLevelDetails(plvc->_beatmapKey);
+    //         string votingStatusUrl = WebUtils::API_URL + "votestatus/" + hash + "/" + difficulty + "/" + mode;
 
-            lastVotingStatusUrl = votingStatusUrl;
-            WebUtils::GetAsync(votingStatusUrl, [votingStatusUrl](long status, string response) {
-                if (votingStatusUrl == lastVotingStatusUrl && status == 200) {
-                    BSML::MainThreadScheduler::Schedule([response] {
-                        setVotingButtonsState(stoi(response));
-                    });
-                }
-            }, [](float progress){});
-        }
-    }
+    //         lastVotingStatusUrl = votingStatusUrl;
+    //         WebUtils::GetAsync(votingStatusUrl, [votingStatusUrl](long status, string response) {
+    //             if (votingStatusUrl == lastVotingStatusUrl && status == 200) {
+    //                 BSML::MainThreadScheduler::Schedule([response] {
+    //                     setVotingButtonsState(stoi(response));
+    //                 });
+    //             }
+    //         }, [](float progress){});
+    //     }
+    // }
 
-    void setVotingButtonsState(int state){
-        if (votingButton) {
-            votingButton->SetState(state);
-        }
-        if(ResultsView::resultsVotingButton){
-            ResultsView::resultsVotingButton->SetState(state);
-        }
-    }
+    // void setVotingButtonsState(int state){
+    //     if (votingButton) {
+    //         votingButton->SetState(state);
+    //     }
+    //     if(ResultsView::resultsVotingButton){
+    //         ResultsView::resultsVotingButton->SetState(state);
+    //     }
+    // }
 
-    tuple<string, string, string> getLevelDetails(BeatmapKey levelData)
+    tuple<string, int, string> getLevelDetails(BeatmapKey levelData)
     {
         string hash = regex_replace((string)levelData.levelId, basic_regex("custom_level_"), "");
-        string difficulty = MapEnhancer::DiffName(levelData.difficulty.value__);
-        string mode = (string)levelData.beatmapCharacteristic->serializedName;
+        // string difficulty = MapEnhancer::DiffName(levelData.difficulty.value__);
+        int difficulty = levelData.difficulty.value__;
+        string mode = "Solo" + (string)levelData.beatmapCharacteristic->serializedName;
         return make_tuple(hash, difficulty, mode);
     }
 
     void refreshFromTheServerScores() {
         auto [hash, difficulty, mode] = getLevelDetails(plvc->_beatmapKey);
-        string url = WebUtils::API_URL + "v3/scores/" + hash + "/" + difficulty + "/" + mode + "/" + ScoresContexts::getContextForId(getModConfig().Context.GetValue())->key;
-
+        // string url = WebUtils::API_URL + "v3/scores/" + hash + "/" + difficulty + "/" + mode + "/" + ScoresContexts::getContextForId(getModConfig().Context.GetValue())->key;
+        string url = WebUtils::API_URL + "/api/game/leaderboard";
         int selectedCellNumber = cachedSelector != -1 ? cachedSelector : plvc->_scopeSegmentedControl->selectedCellNumber;
         int selectedGroup = groupsSelector->segmentedControl->selectedCellNumber;
 
         switch (selectedCellNumber)
         {
         case 1:
-            url += "/global/around";
+            url += "/around-player/" + hash + "/mode/" + mode + "/difficulty/" + to_string(difficulty) + "?page=" + to_string(page);
             break;
         case 2:
             if (selectedGroup == 0) {
-                url += "/friends/page";
+                url += "/around-friends/" + hash + "/mode/" + mode + "/difficulty/" + to_string(difficulty) + "?page=" + to_string(page);
             } else if (selectedGroup == 1) {
-                url += "/country/page";
-            } else {
-                url += "/clan_" + PlayerController::currentPlayer->clans[selectedGroup - 2].tag + "/page";
+                url += "/around-country/" + hash + "/mode/" + mode + "/difficulty/" + to_string(difficulty) + "?page=" + to_string(page);
             }
             break;
         
         default:
-            url += "/global/page";
+            url += "/" + hash + "/mode/" + mode + "/difficulty/" + to_string(difficulty) + "?page=" + to_string(page);
             break;
         }
-
-        url += "?page=" + to_string(page) + "&player=" + PlayerController::currentPlayer->id;
+        
+        plvc->_loadingControl->ShowText("Generated leaderboard url...", true);
 
         lastUrl = url;
 
@@ -417,16 +418,22 @@ namespace LeaderboardUI {
             if (url != lastUrl) return;
             if (!showBeatLeader) return;
 
+            BeatLeaderLogger.warn("LeaderboardUI refreshFromTheServerScores status: {}, {}", status, stringResult);
+
             if (status != 200) {
                 return;
             }
 
+            //todo leaderboard
             BSML::MainThreadScheduler::Schedule([status, stringResult] {
                 rapidjson::Document result;
                 result.Parse(stringResult.c_str());
-                if (result.HasParseError() || !result.HasMember("data")) return;
+                if (result.HasParseError() || !result.HasMember("scores")) {
+                    BeatLeaderLogger.error("LeaderboardUI refreshFromTheServerScores result has parse error or no scores member");
+                    return;
+                }
 
-                auto scores = result["data"].GetArray();
+                auto scores = result["scores"].GetArray();
 
                 plvc->_scores->Clear();
                 if ((int)scores.Size() == 0) {
@@ -438,10 +445,16 @@ namespace LeaderboardUI {
                     return;
                 }
 
-                auto metadata = result["metadata"].GetObject();
-                int perPage = metadata["itemsPerPage"].GetInt();
-                int pageNum = metadata["page"].GetInt();
-                int total = metadata["total"].GetInt();
+                // auto metadata = result["metadata"].GetObject();
+                // int perPage = metadata["itemsPerPage"].GetInt();
+                // int pageNum = metadata["page"].GetInt();
+                // int total = metadata["total"].GetInt();
+
+                //dummy data
+                int perPage = 10;
+                int pageNum = 100;
+                int total = 10000;
+
                 int topRank = 0;
 
                 for (int index = 0; index < 10; ++index)
@@ -510,90 +523,94 @@ namespace LeaderboardUI {
             });
         });
         
-        string votingStatusUrl = WebUtils::API_URL + "votestatus/" + hash + "/" + difficulty + "/" + mode;
-        votingUrl = WebUtils::API_URL + "vote/" + hash + "/" + difficulty + "/" + mode;
-        if (lastVotingStatusUrl != votingStatusUrl) {
-            updateVotingButton();
-        }
+        // string votingStatusUrl = WebUtils::API_URL + "votestatus/" + hash + "/" + difficulty + "/" + mode;
+        // votingUrl = WebUtils::API_URL + "vote/" + hash + "/" + difficulty + "/" + mode;
+        // if (lastVotingStatusUrl != votingStatusUrl) {
+        //     updateVotingButton();
+        // }
 
-        plvc->_loadingControl->ShowText("Loading", true);
+        // plvc->_loadingControl->ShowText("Loading", true);
     }
 
-    void refreshFromTheServerClans() {
-        auto [hash, difficulty, mode] = getLevelDetails(plvc->_beatmapKey);
-        string url = WebUtils::API_URL + "v1/clanScores/" + hash + "/" + difficulty + "/" + mode + "/page";
+    // void refreshFromTheServerClans() {
+    //     //todo debug
+    //     return;
+    //     //
+    //     auto [hash, difficulty, mode] = getLevelDetails(plvc->_beatmapKey);
+    //     string url = WebUtils::API_URL + "v1/clanScores/" + hash + "/" + difficulty + "/" + mode + "/page";
 
-        url += "?page=" + to_string(page);
+    //     url += "?page=" + to_string(page);
 
-        lastUrl = url;
+    //     lastUrl = url;
 
-        WebUtils::GetAsync(url, [url](long status, string stringResult){
-            if (url != lastUrl) return;
-            if (!showBeatLeader) return;
 
-            if (status != 200) {
-                return;
-            }
+    //     WebUtils::GetAsync(url, [url](long status, string stringResult){
+    //         if (url != lastUrl) return;
+    //         if (!showBeatLeader) return;
 
-            BSML::MainThreadScheduler::Schedule([status, stringResult] {
-                rapidjson::Document result;
-                result.Parse(stringResult.c_str());
-                if (result.HasParseError() || !result.HasMember("data")) return;
+    //         if (status != 200) {
+    //             return;
+    //         }
 
-                auto scores = result["data"].GetArray();
+    //         BSML::MainThreadScheduler::Schedule([status, stringResult] {
+    //             rapidjson::Document result;
+    //             result.Parse(stringResult.c_str());
+    //             if (result.HasParseError() || !result.HasMember("data")) return;
 
-                plvc->_scores->Clear();
-                if ((int)scores.Size() == 0) {
-                    plvc->_loadingControl->Hide();
-                    plvc->_hasScoresData = false;
-                    plvc->_loadingControl->ShowText("No clan rankings were found!", true);
+    //             auto scores = result["data"].GetArray();
+
+    //             plvc->_scores->Clear();
+    //             if ((int)scores.Size() == 0) {
+    //                 plvc->_loadingControl->Hide();
+    //                 plvc->_hasScoresData = false;
+    //                 plvc->_loadingControl->ShowText("No clan rankings were found!", true);
                     
-                    plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
-                    return;
-                }
+    //                 plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
+    //                 return;
+    //             }
 
-                auto metadata = result["metadata"].GetObject();
-                int perPage = metadata["itemsPerPage"].GetInt();
-                int pageNum = metadata["page"].GetInt();
-                int total = metadata["total"].GetInt();
+    //             auto metadata = result["metadata"].GetObject();
+    //             int perPage = metadata["itemsPerPage"].GetInt();
+    //             int pageNum = metadata["page"].GetInt();
+    //             int total = metadata["total"].GetInt();
 
-                for (int index = 0; index < 10; ++index)
-                {
-                    if (index < (int)scores.Size())
-                    {
-                        auto const& score = scores[index];
+    //             for (int index = 0; index < 10; ++index)
+    //             {
+    //                 if (index < (int)scores.Size())
+    //                 {
+    //                     auto const& score = scores[index];
                         
-                        ClanScore currentScore = ClanScore(score);
-                        clanScoreVector[index] = currentScore;
+    //                     ClanScore currentScore = ClanScore(score);
+    //                     clanScoreVector[index] = currentScore;
 
-                        BeatLeaderLogger.info("ClanScore");
-                        LeaderboardTableView::ScoreData* scoreData = LeaderboardTableView::ScoreData::New_ctor(
-                            currentScore.modifiedScore, 
-                            FormatUtils::FormatClanScore(currentScore), 
-                            currentScore.rank, 
-                            false);
-                        plvc->_scores->Add(scoreData);
-                    }
-                }
+    //                     BeatLeaderLogger.info("ClanScore");
+    //                     LeaderboardTableView::ScoreData* scoreData = LeaderboardTableView::ScoreData::New_ctor(
+    //                         currentScore.modifiedScore, 
+    //                         FormatUtils::FormatClanScore(currentScore), 
+    //                         currentScore.rank, 
+    //                         false);
+    //                     plvc->_scores->Add(scoreData);
+    //                 }
+    //             }
 
-                plvc->_leaderboardTableView->_rowHeight = 6;
+    //             plvc->_leaderboardTableView->_rowHeight = 6;
                     
-                plvc->_leaderboardTableView->_scores = plvc->_scores;
-                plvc->_leaderboardTableView->_specialScorePos = 12;
+    //             plvc->_leaderboardTableView->_scores = plvc->_scores;
+    //             plvc->_leaderboardTableView->_specialScorePos = 12;
 
-                if (upPageButton != NULL) {
-                    upPageButton->get_gameObject()->SetActive(pageNum != 1);
-                    downPageButton->get_gameObject()->SetActive(pageNum * perPage < total);
-                }
+    //             if (upPageButton != NULL) {
+    //                 upPageButton->get_gameObject()->SetActive(pageNum != 1);
+    //                 downPageButton->get_gameObject()->SetActive(pageNum * perPage < total);
+    //             }
 
-                plvc->_loadingControl->Hide();
-                plvc->_hasScoresData = true;
-                plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
-            });
-        });
+    //             plvc->_loadingControl->Hide();
+    //             plvc->_hasScoresData = true;
+    //             plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
+    //         });
+    //     });
 
-        plvc->_loadingControl->ShowText("Loading", true);
-    }
+    //     plvc->_loadingControl->ShowText("Loading", true);
+    // }
 
     void updateModifiersButton() {
         auto currentContext = ScoresContexts::getContextForId(getModConfig().Context.GetValue());
@@ -608,29 +625,29 @@ namespace LeaderboardUI {
         }
     }
 
-    void voteCallback(bool voted, bool rankable, float stars, int type) {
-        if (voted) {
-            setVotingButtonsState(0);
-            string rankableString = "?rankability=" + (rankable ? (string)"1.0" : (string)"0.0");
-            string starsString = stars > 0 ? "&stars=" + to_string_wprecision(stars, 2) : "";
-            string typeString = type > 0 ? "&type=" + to_string(type) : "";
-            string currentVotingUrl = votingUrl;
-            WebUtils::PostJSONAsync(votingUrl + rankableString + starsString + typeString, "", [currentVotingUrl, rankable, type](long status, string response) {
-                if (votingUrl != currentVotingUrl) return;
+    // void voteCallback(bool voted, bool rankable, float stars, int type) {
+    //     if (voted) {
+    //         setVotingButtonsState(0);
+    //         string rankableString = "?rankability=" + (rankable ? (string)"1.0" : (string)"0.0");
+    //         string starsString = stars > 0 ? "&stars=" + to_string_wprecision(stars, 2) : "";
+    //         string typeString = type > 0 ? "&type=" + to_string(type) : "";
+    //         string currentVotingUrl = votingUrl;
+    //         WebUtils::PostJSONAsync(votingUrl + rankableString + starsString + typeString, "", [currentVotingUrl, rankable, type](long status, string response) {
+    //             if (votingUrl != currentVotingUrl) return;
 
-                BSML::MainThreadScheduler::Schedule([status, response, rankable, type] {
-                    if (status == 200) {
-                        setVotingButtonsState(stoi(response));
-                        LevelInfoUI::addVoteToCurrentLevel(rankable, type);
-                    } else {
-                        setVotingButtonsState(1);
-                    } 
-                });
-            });
-        }
+    //             BSML::MainThreadScheduler::Schedule([status, response, rankable, type] {
+    //                 if (status == 200) {
+    //                     setVotingButtonsState(stoi(response));
+    //                     LevelInfoUI::addVoteToCurrentLevel(rankable, type);
+    //                 } else {
+    //                     setVotingButtonsState(1);
+    //                 } 
+    //             });
+    //         });
+    //     }
 
-        hideVotingUIs();
-    }
+    //     hideVotingUIs();
+    // }
 
     void hideVotingUIs()
     {
@@ -653,11 +670,11 @@ namespace LeaderboardUI {
     }
 
     void refreshFromTheServerCurrent() {
-        if (CaptorClanUI::showClanRanking) {
-            refreshFromTheServerClans();
-        } else {
+        // if (CaptorClanUI::showClanRanking) {
+        //     refreshFromTheServerClans();
+        // } else {
             refreshFromTheServerScores();
-        }
+        // }
     }
 
     void PageDown() {
@@ -679,7 +696,8 @@ namespace LeaderboardUI {
         page = 1;
         isLocal = false;
 
-        if (ssInstalled && 
+        // if (ssInstalled && 
+        if (true &&
             ((ssElements.size() == 0 && !ssWasOpened) 
             || (ssElements.size() < 10 && ssWasOpened))) {
             for (size_t i = 0; i < ssElements.size(); i++)
@@ -748,7 +766,7 @@ namespace LeaderboardUI {
                     plvc->Refresh(true, true);
                 });
             BeatLeader::initLinksContainerPopup(&linkContainer, self->get_transform());
-            BeatLeader::initVotingPopup(&votingUI, self->get_transform(), voteCallback);
+            // BeatLeader::initVotingPopup(&votingUI, self->get_transform(), voteCallback);
 
             auto playerAvatarImage = ::BSML::Lite::CreateImage(parentScreen->get_transform(), plvc->_aroundPlayerLeaderboardIcon, UnityEngine::Vector2(180, 51), UnityEngine::Vector2(16, 16));
             playerAvatar = playerAvatarImage->get_gameObject()->AddComponent<BeatLeader::PlayerAvatar*>();
@@ -858,15 +876,15 @@ namespace LeaderboardUI {
                 refreshFromTheServerCurrent();
             };
 
-            bool hasClans = PlayerController::currentPlayer && !PlayerController::currentPlayer->clans.empty();
-            ArrayW<StringW> values(hasClans ? PlayerController::currentPlayer->clans.size() + 2 : 2);
+            // bool hasClans = PlayerController::currentPlayer && !PlayerController::currentPlayer->clans.empty();
+            ArrayW<StringW> values(2);
             values[0] = u" Friends";
             values[1] = u" Country";
-            if (hasClans) {
-                for (size_t i = 0; i < PlayerController::currentPlayer->clans.size(); ++i) {
-                    values[i + 2] = StringW(" " + PlayerController::currentPlayer->clans[i].tag);
-                }
-            }
+            // if (hasClans) {
+            //     for (size_t i = 0; i < PlayerController::currentPlayer->clans.size(); ++i) {
+            //         values[i + 2] = StringW(" " + PlayerController::currentPlayer->clans[i].tag);
+            //     }
+            // }
             groupsSelector = QuestUI::CreateTextSegmentedControl(parentScreen->get_transform(), {347, -36}, {20, 6}, values, [](int index) {
                 clearTable();
                 refreshFromTheServerCurrent();
@@ -1011,7 +1029,7 @@ namespace LeaderboardUI {
         }
 
         if (ssInstalled && showBeatLeader && sspageUpButton == NULL) {
-            std::async(std::launch::async, [] () {
+            [[maybe_unused]] auto future = std::async(std::launch::async, [] () {
                 std::this_thread::sleep_for(std::chrono::seconds{1});
                 BSML::MainThreadScheduler::Schedule([] {
                     refreshLeaderboardCall();
@@ -1178,50 +1196,50 @@ namespace LeaderboardUI {
                     scoreSelector->set_defaultColor(UnityEngine::Color(hg, 0.0, 0.0, 1.0));
                     scoreSelector->set_highlightColor(underlineHoverColor);
                     schemeForRole(player.role, false).Apply(scoreSelector->get_material());
-                } else {
-                    auto clan = clanScoreVector[row].clan;
-                    cellBackgrounds[result]->get_gameObject()->set_active(true);
+                // } else {
+                //     auto clan = clanScoreVector[row].clan;
+                //     cellBackgrounds[result]->get_gameObject()->set_active(true);
 
-                    result->_playerNameText->GetComponent<UnityEngine::RectTransform*>()->set_anchoredPosition({
-                        getModConfig().AvatarsActive.GetValue() ? 10.5f : 6.5f,
-                        result->_playerNameText->GetComponent<UnityEngine::RectTransform*>()->get_anchoredPosition().y
-                    });
-                    avatars[result]->get_gameObject()->set_active(getModConfig().AvatarsActive.GetValue());
-                    result->_scoreText->get_gameObject()->set_active(getModConfig().ScoresActive.GetValue());
+                //     result->_playerNameText->GetComponent<UnityEngine::RectTransform*>()->set_anchoredPosition({
+                //         getModConfig().AvatarsActive.GetValue() ? 10.5f : 6.5f,
+                //         result->_playerNameText->GetComponent<UnityEngine::RectTransform*>()->get_anchoredPosition().y
+                //     });
+                //     avatars[result]->get_gameObject()->set_active(getModConfig().AvatarsActive.GetValue());
+                //     result->_scoreText->get_gameObject()->set_active(getModConfig().ScoresActive.GetValue());
                     
-                    if (PlayerController::IsMainClan(clan.tag)) {
-                        cellBackgrounds[result]->set_color(ownScoreColor);
-                    } else {
-                        cellBackgrounds[result]->set_color(someoneElseScoreColor);
-                    }
+                    // if (PlayerController::IsMainClan(clan.tag)) {
+                    //     cellBackgrounds[result]->set_color(ownScoreColor);
+                    // } else {
+                    //     cellBackgrounds[result]->set_color(someoneElseScoreColor);
+                    // }
 
-                    if (clan.rank >= 1000) {
-                        result->_rankText->set_fontSize(2);
-                    } if (clan.rank >= 100) {
-                        result->_rankText->set_fontSize(3);
-                    } else {
-                        result->_rankText->set_fontSize(4);
-                    }
+                    // if (clan.rank >= 1000) {
+                    //     result->_rankText->set_fontSize(2);
+                    // } if (clan.rank >= 100) {
+                    //     result->_rankText->set_fontSize(3);
+                    // } else {
+                    //     result->_rankText->set_fontSize(4);
+                    // }
 
-                    if (getModConfig().AvatarsActive.GetValue()){
-                        avatars[result]->set_sprite(plvc->_aroundPlayerLeaderboardIcon);
+                    // if (getModConfig().AvatarsActive.GetValue()){
+                    //     avatars[result]->set_sprite(plvc->_aroundPlayerLeaderboardIcon);
                         
                         
-                        Sprites::get_Icon(clan.icon, [result](UnityEngine::Sprite* sprite) {
-                            if (sprite != NULL && avatars[result] != NULL && sprite->get_texture()) {
-                                avatars[result]->set_sprite(sprite);
-                            }
-                        });
-                    }
+                    //     Sprites::get_Icon(clan.icon, [result](UnityEngine::Sprite* sprite) {
+                    //         if (sprite != NULL && avatars[result] != NULL && sprite->get_texture()) {
+                    //             avatars[result]->set_sprite(sprite);
+                    //         }
+                    //     });
+                    // }
 
-                    auto scoreSelector = cellHighlights[result];
-                    scoreSelector->get_gameObject()->set_active(false);
+                    // auto scoreSelector = cellHighlights[result];
+                    // scoreSelector->get_gameObject()->set_active(false);
 
                     
-                    float hg = idleHighlight("");
-                    scoreSelector->set_defaultColor(UnityEngine::Color(hg, 0.0, 0.0, 1.0));
-                    scoreSelector->set_highlightColor(underlineHoverColor);
-                    schemeForRole("", false).Apply(scoreSelector->get_material());
+                    // float hg = idleHighlight("");
+                    // scoreSelector->set_defaultColor(UnityEngine::Color(hg, 0.0, 0.0, 1.0));
+                    // scoreSelector->set_highlightColor(underlineHoverColor);
+                    // schemeForRole("", false).Apply(scoreSelector->get_material());
                 }
             }
         } else {
@@ -1238,9 +1256,9 @@ namespace LeaderboardUI {
     void updateStatus(ReplayUploadStatus status, string description, float progress, bool showRestart) {
         lastVotingStatusUrl = "";
 
-        if (status != ReplayUploadStatus::inProgress) {
-            updateVotingButton();
-        }
+        // if (status != ReplayUploadStatus::inProgress) {
+        //     updateVotingButton();
+        // }
         
         if (visible && showBeatLeader) {
             statusWasCached = false;

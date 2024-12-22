@@ -29,22 +29,39 @@ namespace FormatUtils {
         const int Year = 365 * Day;
 
         inline string GetRelativeTimeString(string_view timeSet) {
-            int timeSetSeconds = std::stoi(timeSet.data());
-            int nowSeconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
-            int delta = nowSeconds - timeSetSeconds;
-            if (delta < 1 * Minute) return delta == 1 ? "one second ago" : to_string(delta) + " seconds ago";
-            if (delta < 2 * Minute) return "a minute ago";
-            if (delta < 45 * Minute) return to_string(delta / Minute) + " minutes ago";
-            if (delta < 90 * Minute) return "an hour ago";
-            if (delta < 24 * Hour) return to_string(delta / Hour) + " hours ago";
-            if (delta < 48 * Hour) return "yesterday";
-            if (delta < 30 * Day) return to_string(delta / Day) + " days ago";
-            if (delta < 12 * Month) {
-                int months = delta / Month;
-                return months <= 1 ? "one month ago" : to_string(months) + " months ago";
+            std::regex iso8601_regex("(\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2})");
+            std::smatch matches;
+            string timeStr(timeSet);
+            
+            if (std::regex_search(timeStr, matches, iso8601_regex)) {
+                std::tm tm = {};
+                tm.tm_year = std::stoi(matches[1]) - 1900;
+                tm.tm_mon = std::stoi(matches[2]) - 1;
+                tm.tm_mday = std::stoi(matches[3]);
+                tm.tm_hour = std::stoi(matches[4]);
+                tm.tm_min = std::stoi(matches[5]);
+                tm.tm_sec = std::stoi(matches[6]);
+                
+                time_t timeSetSeconds = std::mktime(&tm);
+                int nowSeconds = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count();
+                int delta = nowSeconds - timeSetSeconds;
+                
+                if (delta < 1 * Minute) return delta == 1 ? "one second ago" : to_string(delta) + " seconds ago";
+                if (delta < 2 * Minute) return "a minute ago";
+                if (delta < 45 * Minute) return to_string(delta / Minute) + " minutes ago";
+                if (delta < 90 * Minute) return "an hour ago";
+                if (delta < 24 * Hour) return to_string(delta / Hour) + " hours ago";
+                if (delta < 48 * Hour) return "yesterday";
+                if (delta < 30 * Day) return to_string(delta / Day) + " days ago";
+                if (delta < 12 * Month) {
+                    int months = delta / Month;
+                    return months <= 1 ? "one month ago" : to_string(months) + " months ago";
+                }
+                int years = delta / Year;
+                return years <= 1 ? "one year ago" : to_string(years) + " years ago";
             }
-            int years = delta / Year;
-            return years <= 1 ? "one year ago" : to_string(years) + " years ago";
+            
+            return "unknown time ago";
         }
 
         inline string FormatRank(int rank, bool withPrefix) {
@@ -90,28 +107,29 @@ namespace FormatUtils {
 
         inline string FormatNameWithClans(Player const& player, int limit, bool withClans) {
             string clansLabel = withClans ? "<size=90%>" : "";
-            int clanCount = player.clans.size();
-            if (withClans) {                
-                if (clanCount == 2) {
-                    clansLabel = "<size=80%>";
-                } 
-                else if (clanCount == 3) {
-                    clansLabel = "<size=70%>";
-                }
+            // int clanCount = player.clans.size();
+            // if (withClans) {                
+            //     if (clanCount == 2) {
+            //         clansLabel = "<size=80%>";
+            //     } 
+            //     else if (clanCount == 3) {
+            //         clansLabel = "<size=70%>";
+            //     }
 
-                for (size_t i = 0; i < clanCount; i++) {
-                    Clan clan = player.clans[i];
-                    clansLabel += "  <color=" + clan.color + ">" + clan.tag + "</color>";
-                }
-                clansLabel += "</size>";
-            }
+            //     for (size_t i = 0; i < clanCount; i++) {
+            //         Clan clan = player.clans[i];
+            //         clansLabel += "  <color=" + clan.color + ">" + clan.tag + "</color>";
+            //     }
+            //     clansLabel += "</size>";
+            // }
 
             string name = "";
-            if (!player.name.empty() && player.name != "<blank>") {
+            // if (!player.name.empty() && player.name != "<blank>") {
                 name = player.name;
-            } else {
-                name = "[REDACTED]";
-            }
+            // } else {
+            //     name = "[REDACTED]";
+            // }
+            int clanCount = 0;
 
             return "<noparse>" + truncate(name, limit - clanCount * 3) + "</noparse>" + clansLabel;
         }
@@ -121,7 +139,8 @@ namespace FormatUtils {
             string name = "";
 
             if (!PlayerController::IsIncognito(score.player)) {
-                name = getModConfig().ClansActive.GetValue() ? FormatNameWithClans(score.player, 24, true) : "<noparse>" + truncate(score.player.name, 24) + "</noparse>";
+                // name = getModConfig().ClansActive.GetValue() ? FormatNameWithClans(score.player, 24, true) : "<noparse>" + truncate(score.player.name, 24) + "</noparse>";
+                name = "<noparse>" + truncate(score.player.name, 24) + "</noparse>";
             } 
             else {
                 name = "[REDACTED]";

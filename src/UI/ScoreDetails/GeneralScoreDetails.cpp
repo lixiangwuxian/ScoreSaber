@@ -70,7 +70,7 @@ string GetTimeSetString(Score const& score) {
 string GetDetailsString(const Score& score) {
     stringstream result;
 
-    result << "<color=#888888>Pauses: <color=#FFFFFF>" << to_string(score.pauses) << "    ";
+    // result << "<color=#888888>Pauses: <color=#FFFFFF>" << to_string(score.pauses) << "    ";
     if (score.modifiers.length() == 0) {
         result << "<color=#888888>No Modifiers\n";
     } else {
@@ -81,7 +81,7 @@ string GetDetailsString(const Score& score) {
     if (score.fullCombo) result << "<color=#20BB20>Full Combo</color>    ";
     if (score.missedNotes > 0) result << "<color=#888888>Misses: <color=#BB2020>" << to_string(score.missedNotes) + "</color>    ";
     if (score.badCuts > 0) result << "<color=#888888>Bad cuts: <color=#BB2020>" << to_string(score.badCuts) + "</color>    ";
-    if (score.bombCuts > 0) result << "<color=#888888>Bomb cuts: <color=#BB2020>" << to_string(score.bombCuts) + "</color>    ";
+    // if (score.bombCuts > 0) result << "<color=#888888>Bomb cuts: <color=#BB2020>" << to_string(score.bombCuts) + "</color>    ";
     if (score.wallsHit > 0) result << "<color=#888888>Walls hit: <color=#BB2020>" << to_string(score.wallsHit) + "</color>    ";
     result << "</size>";
 

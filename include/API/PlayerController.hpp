@@ -1,6 +1,8 @@
 #pragma once
 
 #include "shared/Models/Player.hpp"
+#include "shared/Models/Session.hpp"
+#include "Utils/StringUtils.hpp"
 
 #include <string>
 using namespace std;
@@ -11,9 +13,10 @@ public:
     static void Refresh(int retry = 0, const function<void(optional<Player> const&, string)>& finished = nullptr);
     static vector<function<void(optional<Player> const&)>> playerChanged;
 
-    static void LogIn(string login, string password, const function<void(optional<Player> const&, string)>& finished);
-    static void SignUp(string login, string password, const function<void(optional<Player> const&, string)>& finished);
-    static void LogOut();
+    static void LogIn(string login,  const function<void(optional<Player> const&, string)>& finished);
+    static void GetPlayerInfo(string playerId, bool full, const function<void(optional<Player> const&, string)>& finished);
+    // static void SignUp(string login, string password, const function<void(optional<Player> const&, string)>& finished);
+    // static void LogOut();
 
     static bool IsFriend(Player anotherPlayer);
     static bool IsPatron(Player anotherPlayer);

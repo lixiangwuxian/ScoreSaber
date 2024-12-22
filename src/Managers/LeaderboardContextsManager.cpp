@@ -7,6 +7,11 @@
 
 namespace BeatLeader {
     void LeaderboardContextsManager::UpdateContexts(function<void()> const &completion) {
+        //todo debug
+        completion();
+        return;
+        //
+
         WebUtils::GetJSONAsync(WebUtils::API_URL + "mod/leaderboardContexts", [completion](long status, bool error, rapidjson::Document const& doc) {
             if (status != 200 || error) {
                 BeatLeaderLogger.error("Failed to get contexts: %ld", status);

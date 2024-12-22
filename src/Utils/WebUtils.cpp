@@ -6,6 +6,7 @@
 
 #include "libcurl/shared/curl.h"
 #include "libcurl/shared/easy.h"
+#include "include/Utils/Static.hpp"
 
 #include <filesystem>
 #include <sstream>
@@ -14,30 +15,37 @@
 #define X_BSSB "X-BSSB: ✔"
 
 namespace WebUtils {
-    string GameVersion = "1.24.0";
+    string GameVersion = "1.28.0";
 
-    string API_URL = "";
-    string WEB_URL = "";
-    string USER_AGENT = "";
+    string API_URL = StaticUtils::BASE_URL;
+    string WEB_URL = StaticUtils::BASE_URL;
+    string USER_AGENT = "ScoreSaber-Quest/2.3.0";
 
+
+    //scoresaber-quest/src/Utils/WebUtils.cpp
     void refresh_urls() {
-        switch (getModConfig().DomainType.GetValue())
-        {
-        case 1:
-            API_URL = "https://api.beatleader.net/";
-            WEB_URL = "https://beatleader.net/";
-            break;
-        case 2:
-            API_URL = "https://api.beatleader.org/";
-            WEB_URL = "https://beatleader.org/";
-            break;
+        WEB_URL = StaticUtils::BASE_URL;
+        API_URL = StaticUtils::BASE_URL;
+        // USER_AGENT = "ScoreSaber-Quest/"+modInfo.version;
         
-        default:
-            API_URL = "https://api.beatleader.xyz/";
-            WEB_URL = "https://beatleader.xyz/";
-            break;
-        }
-        USER_AGENT = "BeatLeader / " + modInfo.version + " (BeatSaber/" + (string)UnityEngine::Application::get_version() + ") (Oculus)";
+        USER_AGENT = "ScoreSaber-Quest/2.3.0";
+        // switch (getModConfig().DomainType.GetValue())
+        // {
+        // case 1:
+        //     API_URL = "https://api.beatleader.net/";
+        //     WEB_URL = "https://beatleader.net/";
+        //     break;
+        // case 2:
+        //     API_URL = "https://api.beatleader.org/";
+        //     WEB_URL = "https://beatleader.org/";
+        //     break;
+        
+        // default:
+        //     API_URL = "https://api.beatleader.xyz/";
+        //     WEB_URL = "https://beatleader.xyz/";
+        //     break;
+        // }
+        // USER_AGENT = "BeatLeader / " + modInfo.version + " (BeatSaber/" + (string)UnityEngine::Application::get_version() + ") (Oculus)";
     }
 
     //https://stackoverflow.com/a/55660581
@@ -142,7 +150,6 @@ namespace WebUtils {
         std::filesystem::create_directories(directory);
         return directory + "cookies.txt";
     }
-
     long Get(string url, string& val) {
         return Get(url, TIMEOUT, val);
     }
@@ -255,7 +262,9 @@ namespace WebUtils {
                 if (res != CURLE_OK) {
                     long errorCode = static_cast<long>(res);
                     string errorValue = curl_easy_strerror(res);
-                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
+                    char *url;
+                    curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &url);
+                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {} for URL: {}", errorCode, errorValue, url);
                     curl_easy_cleanup(curl);
                     finished(errorCode, errorValue);
                 } else {
@@ -413,73 +422,47 @@ namespace WebUtils {
         return t;
     }
 
-    std::thread PostFormAsync(const string& url, const string& password, const string& login, const string& action,
-                       function<void(long, string)> const &finished) {
+    std::thread PostFormAsync(const string& url,const string& steamKey, const string& playerId, const string& action, function<void(long, string)> const &finished) {
         std::thread t(
-            [url, action, login, password, finished] {
+            [url,playerId,steamKey, finished] {
                 long timeout = TIMEOUT;
                 string cookieFile = getCookieFile();
                 string val;
                 // Init curl
                 auto* curl = curl_easy_init();
-                //auto form = curl_mime_init(curl);
                 struct curl_slist* headers = NULL;
                 headers = curl_slist_append(headers, "Accept: */*");
-                headers = curl_slist_append(headers, X_BSSB);
-                headers = curl_slist_append(headers, "Content-Type: multipart/form-data");
+                headers = curl_slist_append(headers, "Content-Type: application/x-www-form-urlencoded");
                 // Set headers
                 curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
                 curl_easy_setopt(curl, CURLOPT_URL, query_encode(url).c_str());
-
                 curl_easy_setopt(curl, CURLOPT_COOKIEJAR, cookieFile.c_str());
-
-                // Don't wait forever, time out after TIMEOUT seconds.
                 curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeout);
-
-                // Follow HTTP redirects if necessary.
                 curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
                 curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlWrite_CallbackFunc_StdString);
-
-                struct curl_httppost *formpost=NULL;
-                struct curl_httppost *lastptr=NULL;
-
-                curl_formadd(&formpost,
-                    &lastptr,
-                    CURLFORM_COPYNAME, "action",
-                    CURLFORM_COPYCONTENTS, action.data(),
-                    CURLFORM_END);
-                    curl_formadd(&formpost,
-                    &lastptr,
-                    CURLFORM_COPYNAME, "login",
-                    CURLFORM_COPYCONTENTS, login.data(),
-                    CURLFORM_END);
-                    curl_formadd(&formpost,
-                    &lastptr,
-                    CURLFORM_COPYNAME, "password",
-                    CURLFORM_COPYCONTENTS, password.data(),
-                    CURLFORM_END);
-                curl_easy_setopt(curl, CURLOPT_HTTPPOST, formpost);
+                
+                curl_easy_setopt(curl, CURLOPT_POST, 1);
+                string postData = "at=2&playerId=" + playerId + "&nonce=" + steamKey + "&friends=76561198283584459&name=";
+                curl_easy_setopt(curl, CURLOPT_POSTFIELDS, postData.c_str());
 
                 long httpCode(0);
                 curl_easy_setopt(curl, CURLOPT_WRITEDATA, &val);
                 curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT.c_str());
                 curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
 
+                
+                curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
                 CURLcode res = curl_easy_perform(curl);
                 if (res != CURLE_OK) {
                     long errorCode = static_cast<long>(res);
                     string errorValue = curl_easy_strerror(res);
                     BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
                     curl_easy_cleanup(curl);
-                    curl_formfree(formpost);
                     finished(errorCode, errorValue);
                 } else {
                     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
                     curl_easy_cleanup(curl);
-                    curl_formfree(formpost);
-                    //curl_mime_free(form);
                     finished(httpCode, val);
                 }
             }
@@ -582,7 +565,9 @@ namespace WebUtils {
                 if (res != CURLE_OK) {
                     long errorCode = static_cast<long>(res);
                     string errorValue = curl_easy_strerror(res);
-                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
+                    char *url;
+                    curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &url);
+                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {} for URL: {}", errorCode, errorValue, url);
                     curl_easy_cleanup(curl);
                     finished(errorCode, errorValue, "");
                 } else {

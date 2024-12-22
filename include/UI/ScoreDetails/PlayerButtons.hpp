@@ -21,13 +21,13 @@ namespace BeatLeader {
             UnityEngine::Material* leftMaterial;
             UnityEngine::Material* rightMaterial;
 
-            MiniProfileButton friendsButton;
+            // MiniProfileButton friendsButton;
             MiniProfileButton incognitoButton;
             MiniProfileButton linkButton;
 
-            MiniProfileButton twitterButton;
-            MiniProfileButton twitchButton;
-            MiniProfileButton youtubeButton;
+            // MiniProfileButton twitterButton;
+            // MiniProfileButton twitchButton;
+            // MiniProfileButton youtubeButton;
             
             void setScore(Score score);
 
@@ -38,7 +38,7 @@ namespace BeatLeader {
             void updateFriendButton() const;
             void updateIncognitoButton() const;
 
-            void toggleFriend() const;
+            // void toggleFriend() const;
             void toggleBlacklist() const;
 
             void UpdateLayout();

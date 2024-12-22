@@ -16,6 +16,10 @@ namespace BeatLeader {
         AbstractNewsPanel::OnInitialize();
         LocalComponent()->_loadingIndicator->SetActive(true);
 
+        //todo debug
+        return;
+        //
+
         WebUtils::GetJSONAsync(WebUtils::API_URL + "mod/news", [this](long status, bool error, rapidjson::Document const& response) {
             if (status == 200 && !error) {
                 auto news = Paged<NewsPost>(response.GetObject());

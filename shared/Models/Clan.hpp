@@ -3,6 +3,8 @@
 #include "beatsaber-hook/shared/config/rapidjson-utils.hpp"
 
 #include <string>
+#include <optional>
+
 using namespace std;
 
 struct Clan

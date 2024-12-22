@@ -54,13 +54,13 @@ namespace ResultsView {
             auto votingButtonImage = ::BSML::Lite::CreateClickableImage(transform, BundleLoader::bundle->modifiersIcon, [transform]() {
                 if (resultsVotingButton->state != 2) return;
                 
-                if (votingUI == NULL) {
+                // if (votingUI == NULL) {
                     // Init voting modal
-                    BeatLeader::initVotingPopup(&votingUI, transform, LeaderboardUI::voteCallback);
-                }
+                    // BeatLeader::initVotingPopup(&votingUI, transform, LeaderboardUI::voteCallback);
+                // }
 
-                votingUI->reset();
-                votingUI->modal->Show(true, true, nullptr);
+                // votingUI->reset();
+                // votingUI->modal->Show(true, true, nullptr);
             }, {-67, 9}, {8, 8});
             resultsVotingButton = self->get_gameObject()->AddComponent<BeatLeader::VotingButton*>();
             resultsVotingButton->Init(votingButtonImage);
@@ -98,7 +98,7 @@ namespace ResultsView {
         }
 
         // Load initial status
-        LeaderboardUI::updateVotingButton();
+        // LeaderboardUI::updateVotingButton();
     }
 
     void setup() {

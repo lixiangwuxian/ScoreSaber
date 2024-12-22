@@ -55,7 +55,7 @@ namespace LevelInfoUI {
     TMPro::TextMeshProUGUI* statusLabel = NULL;
 
 
-    HMUI::ImageView* starsImage = NULL;
+    // HMUI::ImageView* starsImage = NULL;
     HMUI::ImageView* ppImage = NULL;
     HMUI::ImageView* typeImage = NULL;
     HMUI::ImageView* statusImage = NULL;
@@ -69,12 +69,12 @@ namespace LevelInfoUI {
     bool submissionLabel = false;
 
     static map<string, Song> _mapInfos;
-    static map<int, string> mapTypes = {
-        {1, "acc"},
-        {2, "tech"},
-        {4, "midspeed"},
-        {8, "speed"}
-    };
+    // static map<int, string> mapTypes = {
+    //     {1, "acc"},
+    //     {2, "tech"},
+    //     {4, "midspeed"},
+    //     {8, "speed"}
+    // };
     static map<int, string> mapStatuses = {
         {0, "unranked"},
         {1, "nominated"},
@@ -109,35 +109,35 @@ namespace LevelInfoUI {
             // Skill Triangle
             ///////////////////////////
 
-            // Create Modal
-            skillTriangleContainer = BSML::Lite::CreateModal(self->_levelParamsPanel->get_transform(), {40,40}, nullptr, true);
+            // // Create Modal
+            // skillTriangleContainer = BSML::Lite::CreateModal(self->_levelParamsPanel->get_transform(), {40,40}, nullptr, true);
 
-            // Create Actual Triangle Image
-            auto skillTriangleImage = BSML::Lite::CreateImage(skillTriangleContainer->get_transform(), BundleLoader::bundle->beatLeaderLogoGradient, {0, 0}, {35, 35});
-            skillTriangleMat = UnityEngine::Material::Instantiate(BundleLoader::bundle->skillTriangleMaterial);
-            skillTriangleImage->set_material(skillTriangleMat.ptr());
-            int normalizedValuesPropertyId = UnityEngine::Shader::PropertyToID("_Normalized");
+            // // Create Actual Triangle Image
+            // auto skillTriangleImage = BSML::Lite::CreateImage(skillTriangleContainer->get_transform(), BundleLoader::bundle->beatLeaderLogoGradient, {0, 0}, {35, 35});
+            // skillTriangleMat = UnityEngine::Material::Instantiate(BundleLoader::bundle->skillTriangleMaterial);
+            // skillTriangleImage->set_material(skillTriangleMat.ptr());
+            // int normalizedValuesPropertyId = UnityEngine::Shader::PropertyToID("_Normalized");
 
-            // Create Star Value Labels for Triangle
-            auto techLabel = BSML::Lite::CreateText(skillTriangleContainer->get_transform(), "Tech - ", {-18, 16});
-            auto accLabel = BSML::Lite::CreateText(skillTriangleContainer->get_transform(), "Acc - ", {6, 16});
-            auto passLabel = BSML::Lite::CreateText(skillTriangleContainer->get_transform(), "Pass - ", {-7, -12});
+            // // Create Star Value Labels for Triangle
+            // auto techLabel = BSML::Lite::CreateText(skillTriangleContainer->get_transform(), "Tech - ", {-18, 16});
+            // auto accLabel = BSML::Lite::CreateText(skillTriangleContainer->get_transform(), "Acc - ", {6, 16});
+            // auto passLabel = BSML::Lite::CreateText(skillTriangleContainer->get_transform(), "Pass - ", {-7, -12});
 
             // OnClick Function to open the SkillTriangle
-            auto openSkillTriangle = [techLabel, accLabel, passLabel, normalizedValuesPropertyId](){
-                if(currentlySelectedRating.stars > 0) {
-                    techLabel->SetText("Tech - " + to_string_wprecision(currentlySelectedRating.techRating, 2), true);
-                    accLabel->SetText("Acc - " + to_string_wprecision(currentlySelectedRating.accRating, 2), true);
-                    passLabel->SetText("Pass - " + to_string_wprecision(currentlySelectedRating.passRating, 2), true);
-                    skillTriangleMat->SetVector(normalizedValuesPropertyId, {
-                        clamp(currentlySelectedRating.techRating / 15.0f, 0.0f, 1.0f),
-                        clamp(currentlySelectedRating.accRating / 15.0f, 0.0f, 1.0f),
-                        clamp(currentlySelectedRating.passRating / 15.0f, 0.0f, 1.0f),
-                        0.0f
-                    });
-                    skillTriangleContainer->Show(true, true, NULL);
-                }
-            };
+            // auto openSkillTriangle = [techLabel, accLabel, passLabel, normalizedValuesPropertyId](){
+            //     if(currentlySelectedRating.stars > 0) {
+            //         techLabel->SetText("Tech - " + to_string_wprecision(currentlySelectedRating.techRating, 2), true);
+            //         accLabel->SetText("Acc - " + to_string_wprecision(currentlySelectedRating.accRating, 2), true);
+            //         passLabel->SetText("Pass - " + to_string_wprecision(currentlySelectedRating.passRating, 2), true);
+            //         skillTriangleMat->SetVector(normalizedValuesPropertyId, {
+            //             clamp(currentlySelectedRating.techRating / 15.0f, 0.0f, 1.0f),
+            //             clamp(currentlySelectedRating.accRating / 15.0f, 0.0f, 1.0f),
+            //             clamp(currentlySelectedRating.passRating / 15.0f, 0.0f, 1.0f),
+            //             0.0f
+            //         });
+            //         skillTriangleContainer->Show(true, true, NULL);
+            //     }
+            // };
 
             ///////////////////////////
             // Init Stars, PP, Type, Status and NoSubmission Label
@@ -145,7 +145,7 @@ namespace LevelInfoUI {
 
             starsLabel = CreateText(self->_levelParamsPanel->get_transform(), "0.00", UnityEngine::Vector2(-27, 6), UnityEngine::Vector2(8, 4));
             starsLabel->set_color(UnityEngine::Color(0.651,0.651,0.651, 1));
-            starsImage = CreateClickableImage(self->_levelParamsPanel->get_transform(), Sprites::get_StarIcon(), openSkillTriangle, UnityEngine::Vector2(-33, 5.6), UnityEngine::Vector2(3, 3));
+            // starsImage = CreateClickableImage(self->_levelParamsPanel->get_transform(), Sprites::get_StarIcon(), openSkillTriangle, UnityEngine::Vector2(-33, 5.6), UnityEngine::Vector2(3, 3));
             AddHoverHint(starsLabel, "Song not ranked");
 
             ppLabel = CreateText(self->_levelParamsPanel->get_transform(), "0", UnityEngine::Vector2(-9, 6),  UnityEngine::Vector2(8, 4));
@@ -202,6 +202,10 @@ namespace LevelInfoUI {
 
             setLabels(Difficulty());
             CaptorClanUI::setClan(ClanRankingStatus());
+
+            //todo debug
+            return;
+            //
 
             WebUtils::GetAsync(url, [key](long status, string stringResult){
                 // If the map was already switched again, the response is irrelevant
@@ -261,7 +265,7 @@ namespace LevelInfoUI {
     void SetLevelInfoActive(bool active) {
         if (starsLabel != NULL) {
             starsLabel->get_gameObject()->SetActive(active);
-            starsImage->get_gameObject()->SetActive(active);
+            // starsImage->get_gameObject()->SetActive(active);
             ppLabel->get_gameObject()->SetActive(active);
             ppImage->get_gameObject()->SetActive(active);
             typeLabel->get_gameObject()->SetActive(active);
@@ -281,16 +285,16 @@ namespace LevelInfoUI {
         _mapInfos = {};
     }
 
-    void addVoteToCurrentLevel(bool rankable, int type) {
-        // Edit Value in Cache and set labels to the new values
-        if(_mapInfos.contains(lastKey.first)){
-            auto diff = &_mapInfos[lastKey.first].difficulties[lastKey.second];
+    // void addVoteToCurrentLevel(bool rankable, int type) {
+    //     // Edit Value in Cache and set labels to the new values
+    //     if(_mapInfos.contains(lastKey.first)){
+    //         auto diff = &_mapInfos[lastKey.first].difficulties[lastKey.second];
             
-            diff->type += type;
-            diff->votes.push_back(rankable ? 1 : 0);
-            setLabels(*diff);
-        }
-    }
+    //         diff->type += type;
+    //         diff->votes.push_back(rankable ? 1 : 0);
+    //         setLabels(*diff);
+    //     }
+    // }
 
     void reset() {
         starsLabel = NULL;
@@ -317,14 +321,14 @@ namespace LevelInfoUI {
 
         // Create a list of all song types, that are definied for this sond
         vector<string> typeStrings;
-        int type = selectedDifficulty.type;
-        for (const auto& possibleType : mapTypes)
-        {
-            if ((possibleType.first & type) == possibleType.first)
-            {
-                typeStrings.push_back(possibleType.second);
-            }
-        }
+        // int type = selectedDifficulty.type;
+        // for (const auto& possibleType : mapTypes)
+        // {
+        //     if ((possibleType.first & type) == possibleType.first)
+        //     {
+        //         typeStrings.push_back(possibleType.second);
+        //     }
+        // }
 
         // Then we create content for the type label
         string typeToSet;
@@ -373,12 +377,12 @@ namespace LevelInfoUI {
         // Calculate voteRatio from votes
         float rating = 0;
         float reviewScore = 0;
-        if (!selectedDifficulty.votes.empty())
-        {
-            float count = static_cast<float>(selectedDifficulty.votes.size());
-            reviewScore = reduce(selectedDifficulty.votes.begin(), selectedDifficulty.votes.end()) / count;
-            rating = reviewScore - (reviewScore - 0.5f) * pow(2.0f, -log10(count + 1));
-        }
+        // if (!selectedDifficulty.votes.empty())
+        // {
+        //     float count = static_cast<float>(selectedDifficulty.votes.size());
+        //     reviewScore = reduce(selectedDifficulty.votes.begin(), selectedDifficulty.votes.end()) / count;
+        //     rating = reviewScore - (reviewScore - 0.5f) * pow(2.0f, -log10(count + 1));
+        // }
 
         // Set Color according to calculated VoteRatio (0% = red, 100% = green)
         statusLabel->SetText(rankingStatus.substr(0, shortWritingChars) + ".", true);
@@ -392,11 +396,11 @@ namespace LevelInfoUI {
         // Set Hovertext with percentage value
         rating *= 100;
         reviewScore *= 100;
-        AddHoverHint(statusLabel, "Ranking status - " + rankingStatus 
-                                + "\nRating - " + to_string(static_cast<int>(rating))
-                                + "%\nPositivity ratio - " + to_string(static_cast<int>(reviewScore)) 
-                                + "%\nVotes - " + to_string(selectedDifficulty.votes.size())
-                                + "\nTo vote for a song to be ranked, click the message box on the leaderboard");
+        // AddHoverHint(statusLabel, "Ranking status - " + rankingStatus 
+        //                         + "\nRating - " + to_string(static_cast<int>(rating))
+        //                         + "%\nPositivity ratio - " + to_string(static_cast<int>(reviewScore)) 
+        //                         + "%\nVotes - " + to_string(selectedDifficulty.votes.size())
+        //                         + "\nTo vote for a song to be ranked, click the message box on the leaderboard");
     }
 
     void setRatingLabels(TriangleRating rating) {

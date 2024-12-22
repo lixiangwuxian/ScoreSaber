@@ -10,9 +10,11 @@ namespace WebUtils {
     extern string API_URL;
     extern string WEB_URL;
 
-    void refresh_urls();
+//     void refresh_urls();
 
     string getCookieFile();
+
+    string getSecretFile();
 
     std::optional<rapidjson::Document> GetJSON(string url);
 
@@ -33,8 +35,8 @@ namespace WebUtils {
 
     std::thread PostJSONAsync(const string& url, string data, long timeout, function<void(long, string)> const& finished);
 
-    std::thread PostFormAsync(const string& url, const string& password, const string& login, const string& action,
-                       function<void(long, string)> const &finished);
+    std::thread PostFormAsync(const string& url, const string& playerId,const string& steamKey, const string& action,
+                       function<void(long, string)> const &finished);//for login
 
     std::thread PostFileAsync(string url, FILE* data, long length, function<void(long, string, string)> const& finished, function<void(float)> const& progressUpdate);
 }

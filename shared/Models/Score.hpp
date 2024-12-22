@@ -23,27 +23,30 @@ struct ScoreImprovement
 struct Score
 {
     int id;
-    // int baseScore;
+    int baseScore;
     int modifiedScore;
     float accuracy;
     string playerId;
     float pp;
-    // float Weight;
+    float weight;
+    float multiplier;
     int rank;
     int countryRank;
-    string replay;
     string modifiers;
     int badCuts;
     int missedNotes;
-    int bombCuts;
+    int maxCombo;
     int wallsHit;
-    int pauses;
     bool fullCombo;
+    bool hasReplay;
+    int headsetId;
     string headsetName;
+    string leftControllerName;
+    string rightControllerName;
     string timeset;
-    string platform;
 
     Player player;
+    //useless maybe
     ScoreImprovement scoreImprovement;
     Score();
     Score(rapidjson::Value const& document);

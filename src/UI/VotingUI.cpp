@@ -113,35 +113,35 @@ void BeatLeader::initVotingPopup(
 
     float typeButtonY = -17.0;
 
-    modalUI->accButton = ::BSML::Lite::CreateUIButton(containerTransform, "acc", UnityEngine::Vector2(9, typeButtonY), UnityEngine::Vector2(12.0, 6.0), [modalUI]() {
-        modalUI->updateType(MapType::acc, modalUI->accButton);
-    });
-    BeatLeader::SetButtonSize(modalUI->accButton, UnityEngine::Vector2(12.0, 7.0));
-    setupButtonTitle(modalUI->accButton, -0.5, 3);
+    // modalUI->accButton = ::BSML::Lite::CreateUIButton(containerTransform, "acc", UnityEngine::Vector2(9, typeButtonY), UnityEngine::Vector2(12.0, 6.0), [modalUI]() {
+    //     modalUI->updateType(MapType::acc, modalUI->accButton);
+    // });
+    // BeatLeader::SetButtonSize(modalUI->accButton, UnityEngine::Vector2(12.0, 7.0));
+    // setupButtonTitle(modalUI->accButton, -0.5, 3);
 
-    modalUI->techButton = ::BSML::Lite::CreateUIButton(containerTransform, "tech", UnityEngine::Vector2(23, typeButtonY), UnityEngine::Vector2(12.0, 6.0), [modalUI]() {
-        modalUI->updateType(MapType::tech, modalUI->techButton);
-    });
-    BeatLeader::SetButtonSize(modalUI->techButton, UnityEngine::Vector2(12.0, 7.0));
-    setupButtonTitle(modalUI->techButton, -0.5, 3);
+    // modalUI->techButton = ::BSML::Lite::CreateUIButton(containerTransform, "tech", UnityEngine::Vector2(23, typeButtonY), UnityEngine::Vector2(12.0, 6.0), [modalUI]() {
+    //     modalUI->updateType(MapType::tech, modalUI->techButton);
+    // });
+    // BeatLeader::SetButtonSize(modalUI->techButton, UnityEngine::Vector2(12.0, 7.0));
+    // setupButtonTitle(modalUI->techButton, -0.5, 3);
 
-    modalUI->midspeedButton = ::BSML::Lite::CreateUIButton(containerTransform, "midspeed", UnityEngine::Vector2(37, typeButtonY), UnityEngine::Vector2(12.0, 6.0), [modalUI]() {
-        modalUI->updateType(MapType::midspeed, modalUI->midspeedButton);
-    });
-    BeatLeader::SetButtonSize(modalUI->midspeedButton, UnityEngine::Vector2(12.0, 7.0));
-    setupButtonTitle(modalUI->midspeedButton, -0.5, 3);
+    // modalUI->midspeedButton = ::BSML::Lite::CreateUIButton(containerTransform, "midspeed", UnityEngine::Vector2(37, typeButtonY), UnityEngine::Vector2(12.0, 6.0), [modalUI]() {
+    //     modalUI->updateType(MapType::midspeed, modalUI->midspeedButton);
+    // });
+    // BeatLeader::SetButtonSize(modalUI->midspeedButton, UnityEngine::Vector2(12.0, 7.0));
+    // setupButtonTitle(modalUI->midspeedButton, -0.5, 3);
 
-    modalUI->speedButton = ::BSML::Lite::CreateUIButton(containerTransform, "speed", UnityEngine::Vector2(51, typeButtonY), UnityEngine::Vector2(12.0, 6.0), [modalUI]() {
-        modalUI->updateType(MapType::speed, modalUI->speedButton);
-    });
-    BeatLeader::SetButtonSize(modalUI->speedButton, UnityEngine::Vector2(12.0, 7.0));
-    setupButtonTitle(modalUI->speedButton, -0.5, 3);
+    // modalUI->speedButton = ::BSML::Lite::CreateUIButton(containerTransform, "speed", UnityEngine::Vector2(51, typeButtonY), UnityEngine::Vector2(12.0, 6.0), [modalUI]() {
+    //     modalUI->updateType(MapType::speed, modalUI->speedButton);
+    // });
+    // BeatLeader::SetButtonSize(modalUI->speedButton, UnityEngine::Vector2(12.0, 7.0));
+    // setupButtonTitle(modalUI->speedButton, -0.5, 3);
 
-    modalUI->voteButton = ::BSML::Lite::CreateUIButton(containerTransform, "Submit", UnityEngine::Vector2(30, -25.0), UnityEngine::Vector2(16.0, 3.0), [callback, modalUI]() {
-        callback(true, modalUI->rankable, modalUI->stars, modalUI->type);
-    });
-    BeatLeader::SetButtonSize(modalUI->voteButton, UnityEngine::Vector2(16.0, 8.0));
-    setupButtonTitle(modalUI->voteButton, -0.5);
+    // modalUI->voteButton = ::BSML::Lite::CreateUIButton(containerTransform, "Submit", UnityEngine::Vector2(30, -25.0), UnityEngine::Vector2(16.0, 3.0), [callback, modalUI]() {
+    //     callback(true, modalUI->rankable, modalUI->stars, modalUI->type);
+    // });
+    // BeatLeader::SetButtonSize(modalUI->voteButton, UnityEngine::Vector2(16.0, 8.0));
+    // setupButtonTitle(modalUI->voteButton, -0.5);
 
     modalUI->leftButton = ::BSML::Lite::CreateUIButton(containerTransform, "◄", UnityEngine::Vector2(10, -25.0), UnityEngine::Vector2(5.0, 6.0), [modalUI]() {
         modalUI->left();

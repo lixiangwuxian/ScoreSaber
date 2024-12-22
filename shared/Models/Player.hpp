@@ -6,48 +6,53 @@
 #include <string>
 using namespace std;
 
-struct ProfileSettings {
-    string message;
-    string effectName;
-    int hue;
-    float saturation;
+// struct ProfileSettings
+// {
+//     string message;
+//     string effectName;
+//     int hue;
+//     float saturation;
 
-    ProfileSettings(rapidjson::Value const& document);
-    ProfileSettings() = default;
-};
+//     ProfileSettings(rapidjson::Value const &document);
+//     ProfileSettings() = default;
+// };
 
-struct Social {
-    string service;
-    string link;
-    string user;
+// struct Social
+// {
+//     string service;
+//     string link;
+//     string user;
 
-    Social(rapidjson::Value const& document);
-    Social() = default;
-};
+//     Social(rapidjson::Value const &document);
+//     Social() = default;
+// };
+
+
 
 class Player
 {
-    public:
+public:
     string id;
     string name;
     string country;
-    string avatar;
+    string avatar; // profilePicture
     string role;
-    string playlistsToInstall;
-    optional<string> questId;
+    // string playlistsToInstall;
+    // optional<string> questId;
     int rank;
     int countryRank;
     float pp;
     int lastRank;
     int lastCountryRank;
     float lastPP;
-    optional<ProfileSettings> profileSettings;
-    
-    vector<string> friends;
-    vector<Social> socials;
-    vector<Clan> clans;
+    // optional<ProfileSettings> profileSettings;
 
-    Player(rapidjson::Value const& userModInterface);
-    void SetHistory(rapidjson::Value const& history);
+    // vector<string> friends;
+    // vector<Social> socials;
+    // vector<Clan> clans;
+    // Data::Player localPlayerData;
+
+    Player(rapidjson::Value const &userModInterface);
+    void SetHistory(rapidjson::Value const &history);
     Player() = default;
 };

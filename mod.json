@@ -1,13 +1,13 @@
 {
   "_QPVersion": "0.1.1",
-  "name": "BeatLeader",
-  "id": "BeatLeader",
+  "name": "ScoreSaber",
+  "id": "ScoreSaber",
   "modloader": "Scotland2",
   "author": "NSGolova",
   "version": "0.8.5",
   "packageId": "com.beatgames.beatsaber",
   "packageVersion": "1.37.0_9064817954",
-  "description": "beatleader.xyz | In-game leaderboards for custom and OST maps | Score replays | Clans, events, playlists and much more",
+  "description": "scoresaber.com For Quest 1.37.0",
   "coverImage": "cover.png",
   "dependencies": [
     {
@@ -38,7 +38,7 @@
   ],
   "modFiles": [],
   "lateModFiles": [
-    "libbl.so"
+    "libss.so"
   ],
   "libraryFiles": [
     "libbeatsaber-hook_5_1_9.so"

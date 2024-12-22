@@ -14,7 +14,15 @@ struct Difficulty
 {
     int status;
     int type;
-    vector<float> votes;
+
+    //ss
+    int leaderboardId;
+    int difficulty;
+    std::string gameMode;
+    std::string difficultyRaw;
+    //
+    
+    // vector<float> votes;
     unordered_map<string, float> modifierValues;
     unordered_map<string, TriangleRating> modifiersRating;
     TriangleRating rating;

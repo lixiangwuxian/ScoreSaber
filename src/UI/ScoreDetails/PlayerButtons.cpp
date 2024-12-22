@@ -63,16 +63,16 @@ void BeatLeader::PlayerButtons::Setup(HMUI::ModalView *modal, function<void(Play
     auto leftTransform = leftBackground->get_transform();
     auto rightTransform = rightBackground->get_transform();
 
-    friendsButton = MiniProfileButton("Friends management", SelectedColor, true, ::BSML::Lite::CreateClickableImage(
-            leftTransform, 
-            BundleLoader::bundle->friendsIcon, 
-            [captureSelf](){
-                captureSelf->toggleFriend();
-            },
-            {0, 0}, 
-            {4, 4}
-    ));
-    friendsButton.RegisterCallback();
+    // friendsButton = MiniProfileButton("Friends management", SelectedColor, true, ::BSML::Lite::CreateClickableImage(
+    //         leftTransform, 
+    //         BundleLoader::bundle->friendsIcon, 
+    //         [captureSelf](){
+    //             captureSelf->toggleFriend();
+    //         },
+    //         {0, 0}, 
+    //         {4, 4}
+    // ));
+    // friendsButton.RegisterCallback();
 
     incognitoButton = MiniProfileButton("Hide player info", SelectedColor, true, ::BSML::Lite::CreateClickableImage(
             leftTransform, 
@@ -96,38 +96,38 @@ void BeatLeader::PlayerButtons::Setup(HMUI::ModalView *modal, function<void(Play
     ));
     linkButton.RegisterCallback();
 
-    twitterButton = MiniProfileButton("Twitter", TwitterColor, false, ::BSML::Lite::CreateClickableImage(
-            rightTransform, 
-            BundleLoader::bundle->twitterIcon, 
-            [captureSelf](){
-                captureSelf->openSocial("Twitter");
-            },
-            {0, 0}, 
-            {4, 4}
-    ));
-    twitterButton.RegisterCallback();
+    // twitterButton = MiniProfileButton("Twitter", TwitterColor, false, ::BSML::Lite::CreateClickableImage(
+    //         rightTransform, 
+    //         BundleLoader::bundle->twitterIcon, 
+    //         [captureSelf](){
+    //             captureSelf->openSocial("Twitter");
+    //         },
+    //         {0, 0}, 
+    //         {4, 4}
+    // ));
+    // twitterButton.RegisterCallback();
 
-    twitchButton = MiniProfileButton("Twitch", TwitchColor, false, ::BSML::Lite::CreateClickableImage(
-            rightTransform, 
-            BundleLoader::bundle->twitchIcon, 
-            [captureSelf](){
-                captureSelf->openSocial("Twitch");
-            },
-            {0, 0}, 
-            {4, 4}
-    ));
-    twitchButton.RegisterCallback();
+    // twitchButton = MiniProfileButton("Twitch", TwitchColor, false, ::BSML::Lite::CreateClickableImage(
+    //         rightTransform, 
+    //         BundleLoader::bundle->twitchIcon, 
+    //         [captureSelf](){
+    //             captureSelf->openSocial("Twitch");
+    //         },
+    //         {0, 0}, 
+    //         {4, 4}
+    // ));
+    // twitchButton.RegisterCallback();
 
-    youtubeButton = MiniProfileButton("YouTube", YoutubeColor, false, ::BSML::Lite::CreateClickableImage(
-            rightTransform, 
-            BundleLoader::bundle->youtubeIcon, 
-            [captureSelf](){
-                captureSelf->openSocial("YouTube");
-            },
-            {0, 0}, 
-            {4, 4}
-    ));
-    youtubeButton.RegisterCallback();
+    // youtubeButton = MiniProfileButton("YouTube", YoutubeColor, false, ::BSML::Lite::CreateClickableImage(
+    //         rightTransform, 
+    //         BundleLoader::bundle->youtubeIcon, 
+    //         [captureSelf](){
+    //             captureSelf->openSocial("YouTube");
+    //         },
+    //         {0, 0}, 
+    //         {4, 4}
+    // ));
+    // youtubeButton.RegisterCallback();
 
     UpdateLayout();
 }
@@ -138,39 +138,39 @@ void BeatLeader::PlayerButtons::setScore(Score score) {
         currentPlayer = PlayerController::currentPlayer.value();
     }
 
-    updateFriendButton();
-    updateSocialButtons();
+    // updateFriendButton();
+    // updateSocialButtons();
     updateIncognitoButton();
 }
 
-void BeatLeader::PlayerButtons::toggleFriend() const {
-    friendsButton.setState(MiniProfileButtonState::NonInteractable);
-    auto captureSelf = this;
-    if (!PlayerController::IsFriend(player)) {
-        WebUtils::RequestAsync(WebUtils::API_URL + "user/friend?playerId=" + player.id, "POST", 60, [captureSelf](long status, string response) {
-            BSML::MainThreadScheduler::Schedule([captureSelf] {
-                captureSelf->friendsButton.setHint("Remove friend");
-                captureSelf->friendsButton.setState(MiniProfileButtonState::InteractableGlowing);
-                PlayerController::currentPlayer->friends.push_back(player.id);
-            });
-        });
-    } else {
-        WebUtils::RequestAsync(WebUtils::API_URL + "user/friend?playerId=" + player.id, "DELETE", 60, [captureSelf](long status, string response) {
-            BSML::MainThreadScheduler::Schedule([captureSelf] {
-                captureSelf->friendsButton.setHint("Add friend");
-                captureSelf->friendsButton.setState(MiniProfileButtonState::InteractableFaded);
-                auto iterator = PlayerController::currentPlayer->friends.begin();
+// void BeatLeader::PlayerButtons::toggleFriend() const {
+//     friendsButton.setState(MiniProfileButtonState::NonInteractable);
+//     auto captureSelf = this;
+//     if (!PlayerController::IsFriend(player)) {
+//         WebUtils::RequestAsync(WebUtils::API_URL + "user/friend?playerId=" + player.id, "POST", 60, [captureSelf](long status, string response) {
+//             BSML::MainThreadScheduler::Schedule([captureSelf] {
+//                 captureSelf->friendsButton.setHint("Remove friend");
+//                 captureSelf->friendsButton.setState(MiniProfileButtonState::InteractableGlowing);
+//                 PlayerController::currentPlayer->friends.push_back(player.id);
+//             });
+//         });
+//     } else {
+//         WebUtils::RequestAsync(WebUtils::API_URL + "user/friend?playerId=" + player.id, "DELETE", 60, [captureSelf](long status, string response) {
+//             BSML::MainThreadScheduler::Schedule([captureSelf] {
+//                 captureSelf->friendsButton.setHint("Add friend");
+//                 captureSelf->friendsButton.setState(MiniProfileButtonState::InteractableFaded);
+//                 auto iterator = PlayerController::currentPlayer->friends.begin();
 
-                for (auto it = PlayerController::currentPlayer->friends.begin(); it != PlayerController::currentPlayer->friends.end(); it++) {
-                    if (*it == player.id) {
-                        PlayerController::currentPlayer->friends.erase(it);
-                        break;
-                    }
-                }
-            });
-        });
-    }
-}
+//                 for (auto it = PlayerController::currentPlayer->friends.begin(); it != PlayerController::currentPlayer->friends.end(); it++) {
+//                     if (*it == player.id) {
+//                         PlayerController::currentPlayer->friends.erase(it);
+//                         break;
+//                     }
+//                 }
+//             });
+//         });
+//     }
+// }
 
 void BeatLeader::PlayerButtons::toggleBlacklist() const {
     incognitoButton.setState(MiniProfileButtonState::NonInteractable);
@@ -187,42 +187,42 @@ void BeatLeader::PlayerButtons::toggleBlacklist() const {
     playerCallback(player);
 }
 
-void BeatLeader::PlayerButtons::updateFriendButton() const {
-    if (player.id == currentPlayer.id) {
-        friendsButton.setHint("Friends management");
-        friendsButton.setState(MiniProfileButtonState::NonInteractable);
+// void BeatLeader::PlayerButtons::updateFriendButton() const {
+//     if (player.id == currentPlayer.id) {
+//         friendsButton.setHint("Friends management");
+//         friendsButton.setState(MiniProfileButtonState::NonInteractable);
 
-    } else {
-        bool isFriend = PlayerController::IsFriend(player);
+//     } else {
+//         bool isFriend = PlayerController::IsFriend(player);
 
-        if (isFriend) {
-            friendsButton.setHint("Remove friend");
-            friendsButton.setState(MiniProfileButtonState::InteractableGlowing);
-        } else {
-            friendsButton.setHint("Add friend");
-            friendsButton.setState(MiniProfileButtonState::InteractableFaded);
-        }
-    }
-}
+//         if (isFriend) {
+//             friendsButton.setHint("Remove friend");
+//             friendsButton.setState(MiniProfileButtonState::InteractableGlowing);
+//         } else {
+//             friendsButton.setHint("Add friend");
+//             friendsButton.setState(MiniProfileButtonState::InteractableFaded);
+//         }
+//     }
+// }
 
-void BeatLeader::PlayerButtons::updateSocialButtons() const {
-    twitterButton.setState(MiniProfileButtonState::NonInteractable);
-    twitchButton.setState(MiniProfileButtonState::NonInteractable);
-    youtubeButton.setState(MiniProfileButtonState::NonInteractable);
+// void BeatLeader::PlayerButtons::updateSocialButtons() const {
+//     twitterButton.setState(MiniProfileButtonState::NonInteractable);
+//     twitchButton.setState(MiniProfileButtonState::NonInteractable);
+//     youtubeButton.setState(MiniProfileButtonState::NonInteractable);
 
-    for (size_t i = 0; i < player.socials.size(); i++)
-    {
-        if (player.socials[i].service == "Twitter") {
-            twitterButton.setState(MiniProfileButtonState::InteractableGlowing);
-        }
-        if (player.socials[i].service == "Twitch") {
-            twitchButton.setState(MiniProfileButtonState::InteractableGlowing);
-        }
-        if (player.socials[i].service == "YouTube") {
-            youtubeButton.setState(MiniProfileButtonState::InteractableGlowing);
-        }
-    }
-}
+//     for (size_t i = 0; i < player.socials.size(); i++)
+//     {
+//         if (player.socials[i].service == "Twitter") {
+//             twitterButton.setState(MiniProfileButtonState::InteractableGlowing);
+//         }
+//         if (player.socials[i].service == "Twitch") {
+//             twitchButton.setState(MiniProfileButtonState::InteractableGlowing);
+//         }
+//         if (player.socials[i].service == "YouTube") {
+//             youtubeButton.setState(MiniProfileButtonState::InteractableGlowing);
+//         }
+//     }
+// }
 
 void BeatLeader::PlayerButtons::updateIncognitoButton() const {
     if (!PlayerController::IsIncognito(player)) {
@@ -234,19 +234,19 @@ void BeatLeader::PlayerButtons::updateIncognitoButton() const {
     }
 }
 
-void BeatLeader::PlayerButtons::openSocial(string name) const {
-    Social social;
-    for (size_t i = 0; i < player.socials.size(); i++)
-    {
-        if (player.socials[i].service == name) {
-            social = player.socials[i];
-            break;
-        }
-    }
+// void BeatLeader::PlayerButtons::openSocial(string name) const {
+//     Social social;
+//     for (size_t i = 0; i < player.socials.size(); i++)
+//     {
+//         if (player.socials[i].service == name) {
+//             social = player.socials[i];
+//             break;
+//         }
+//     }
 
-    static auto UnityEngine_Application_OpenURL = il2cpp_utils::resolve_icall<void, StringW>("UnityEngine.Application::OpenURL");
-    UnityEngine_Application_OpenURL(social.link);
-}
+//     static auto UnityEngine_Application_OpenURL = il2cpp_utils::resolve_icall<void, StringW>("UnityEngine.Application::OpenURL");
+//     UnityEngine_Application_OpenURL(social.link);
+// }
 
 void BeatLeader::PlayerButtons::openProfile() const {
     string url = WebUtils::WEB_URL + "u/" + player.id;

@@ -25,7 +25,7 @@ Clan::Clan(rapidjson::Value const& document) {
 
 ClanRankingStatus::ClanRankingStatus(rapidjson::Value const& document) {
     if (document["clan"].IsNull()) {
-        clan = nullopt;
+        clan = std::nullopt;
     } else {
         clan = Clan(document["clan"].GetObject());
     }

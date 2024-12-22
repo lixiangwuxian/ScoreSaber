@@ -26,7 +26,11 @@ namespace BeatLeader {
         AbstractNewsPanel::OnInitialize();
         LocalComponent()->header->SetupData("BeatLeader Events");
         LocalComponent()->_loadingIndicator->SetActive(true);
-        
+
+        //todo debug
+        return;
+        //
+
         WebUtils::GetJSONAsync(WebUtils::API_URL + "mod/events", [this](long status, bool error, rapidjson::Document const& response) {
             if (status == 200 && !error) {
                 auto result = Paged<PlatformEvent>(response.GetObject());

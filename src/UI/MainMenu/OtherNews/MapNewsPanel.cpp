@@ -22,7 +22,11 @@ namespace BeatLeader {
         
         LocalComponent()->header->SetupData("Trending Maps");
         LocalComponent()->_loadingIndicator->SetActive(true);
-        
+
+        //todo debug
+        return;
+        //
+
         WebUtils::GetJSONAsync(WebUtils::API_URL + "mod/maps/trending", [this](long status, bool error, rapidjson::Document const& response) {
             if (status == 200 && !error) {
                 auto result = Paged<MapData>(response.GetObject());

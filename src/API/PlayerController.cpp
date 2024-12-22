@@ -32,6 +32,11 @@ void callbackWrapper(optional<Player> const& player) {
 }
 
 void PlayerController::Refresh(int retry, const function<void(optional<Player> const&, string)>& finished) {
+    //todo debug
+    finished(nullopt, "Not implemented refresh yet");
+    return;
+    //
+
     // Error Handler
     auto handleError = [retry, finished](){
         if (retry < 3) {
@@ -43,97 +48,159 @@ void PlayerController::Refresh(int retry, const function<void(optional<Player> c
     };
 
     // Get new userdata and refresh the interface with it
-    WebUtils::GetJSONAsync(WebUtils::API_URL + "user/modinterface", [retry, finished, handleError](long status, bool error, rapidjson::Document const& result){
+    //todo to implement
+    // WebUtils::GetJSONAsync(WebUtils::API_URL + "user/modinterface", [retry, finished, handleError](long status, bool error, rapidjson::Document const& result){
+        // if (status == 200 && !error) {
+        //     currentPlayer = Player(result.GetObject());
+        //     // We also need the history so we can display the ranking change
+        //     // Leaderboard Context on Server is a bit flag and ours just a normal enum. Therefor we need to calculate 2^Context to get the right parameter
+        //     WebUtils::GetJSONAsync(WebUtils::API_URL + "player/" + currentPlayer->id + "/history?leaderboardContext="+to_string(getModConfig().Context.GetValue())+"&count=1", [finished, handleError](long historyStatus, bool historyError, rapidjson::Document const& historyResult){
+        //         // Only do stuff if we are successful
+        //         if(historyStatus == 200 && !historyError){
+        //             // Set the new Historydata on the player
+        //             // currentPlayer->SetHistory(historyResult.GetArray()[0]);
+
+        //             // Call callbacks
+        //             if (finished) finished(currentPlayer, "");
+        //             callbackWrapper(currentPlayer);
+        //         }
+        //         else {
+        //             handleError();
+        //         }
+        //     });
+
+        //     BeatLeaderLogger.info("history {}", to_string(getModConfig().Context.GetValue()));
+
+        //     // Refresh the cookie to keep player logged in
+        //     // WebUtils::PostJSONAsync(WebUtils::API_URL + "cookieRefresh", "", [](long status, string error){ });
+        // }
+        // else{
+            // handleError();
+        // }
+    // });
+}
+
+// void PlayerController::SignUp(string login, string password, const function<void(optional<Player> const&, string)>& finished) {
+//     lastErrorDescription = "";
+
+//     WebUtils::PostFormAsync(WebUtils::API_URL + "signinoculus", password, login, "signup",
+//                             [finished](long statusCode, string error) {
+//         if (statusCode == 200) {
+//             Refresh(0, finished);
+//         } else {
+//             lastErrorDescription = error;
+//             BeatLeaderLogger.error("BeatLeader {}",
+//                                 ("signup error" + to_string(statusCode)).c_str());
+//             finished(nullopt, error);
+//         }
+//     });
+// }
+
+//implement by gpt-4o
+void PlayerController::LogIn(string steamkeyAndUserId, const function<void(optional<Player> const&, string)>& finished) {
+    lastErrorDescription = "";
+    // 分割登录数据
+    size_t delimiterPos = steamkeyAndUserId.find(':');
+    if (delimiterPos == string::npos) {
+        lastErrorDescription = "Invalid login format, expected 'steamKey:playerId'";
+        BeatLeaderLogger.error("BeatLeader {}", lastErrorDescription.c_str());
+        finished(nullopt, lastErrorDescription);
+        return;
+    }
+    
+    string steamKey = steamkeyAndUserId.substr(0, delimiterPos);
+    string playerId = steamkeyAndUserId.substr(delimiterPos + 1);
+
+    // 校验登录数据是否有效
+    if (steamKey.empty() || playerId.empty()) {
+        lastErrorDescription = "Missing steamKey or playerId";
+        BeatLeaderLogger.error("BeatLeader {}", lastErrorDescription.c_str());
+        finished(nullopt, lastErrorDescription);
+        return;
+    }
+    
+    string url = WebUtils::API_URL + "/api/game/auth";
+
+    // 异步POST请求
+    WebUtils::PostFormAsync(url, steamKey,playerId,"login", [finished,url,playerId](long statusCode, string response) {
+        if (statusCode == 200) {
+            try {
+                rapidjson::Document jsonDocument;
+                jsonDocument.Parse(response.c_str());
+                if (jsonDocument.HasParseError() || !jsonDocument.IsObject()) {
+                    string error = "Failed to parse login response";
+                    BeatLeaderLogger.error("BeatLeader {}", error.c_str());
+                    finished(nullopt, error);
+                    return;
+                }
+
+                Session session(jsonDocument.GetObject());
+
+                GetPlayerInfo(playerId, true, finished);
+
+            } catch (const std::exception& e) {
+                string error = "Exception during login: " + string(e.what());
+                BeatLeaderLogger.error("BeatLeader {}", error.c_str());
+                finished(nullopt, error);
+            }
+        } else {
+            string error = "Login failed "+playerId+" "+ to_string(statusCode)+" "+response;
+            lastErrorDescription = error;
+            BeatLeaderLogger.error("BeatLeader {}", error.c_str());
+            finished(nullopt, error);
+        }
+    });
+}
+
+
+void PlayerController::GetPlayerInfo(string playerId, bool full,const function<void(optional<Player> const&, string)>& finished) {
+    string url = WebUtils::API_URL + "/api/player/" + playerId;
+    if (full) {
+        url = url + "/full";
+    } else {
+        url = url + "/basic";
+    }
+    WebUtils::GetJSONAsync(url, [finished](long status, bool error, rapidjson::Document const& result){
         if (status == 200 && !error) {
+            // Player player(result.GetObject());
             currentPlayer = Player(result.GetObject());
-            // We also need the history so we can display the ranking change
-            // Leaderboard Context on Server is a bit flag and ours just a normal enum. Therefor we need to calculate 2^Context to get the right parameter
-            WebUtils::GetJSONAsync(WebUtils::API_URL + "player/" + currentPlayer->id + "/history?leaderboardContext="+to_string(getModConfig().Context.GetValue())+"&count=1", [finished, handleError](long historyStatus, bool historyError, rapidjson::Document const& historyResult){
-                // Only do stuff if we are successful
-                if(historyStatus == 200 && !historyError){
-                    // Set the new Historydata on the player
-                    currentPlayer->SetHistory(historyResult.GetArray()[0]);
-
-                    // Call callbacks
-                    if (finished) finished(currentPlayer, "");
-                    callbackWrapper(currentPlayer);
-                }
-                else {
-                    handleError();
-                }
-            });
-
-            BeatLeaderLogger.info("history {}", to_string(getModConfig().Context.GetValue()));
-
-            // Refresh the cookie to keep player logged in
-            WebUtils::PostJSONAsync(WebUtils::API_URL + "cookieRefresh", "", [](long status, string error){ });
+            finished(optional<Player>(currentPlayer), "");
         }
-        else{
-            handleError();
+        else {
+            finished(nullopt, "Failed to retrieve player");
         }
     });
 }
 
-void PlayerController::SignUp(string login, string password, const function<void(optional<Player> const&, string)>& finished) {
-    lastErrorDescription = "";
 
-    WebUtils::PostFormAsync(WebUtils::API_URL + "signinoculus", password, login, "signup",
-                            [finished](long statusCode, string error) {
-        if (statusCode == 200) {
-            Refresh(0, finished);
-        } else {
-            lastErrorDescription = error;
-            BeatLeaderLogger.error("BeatLeader {}",
-                                ("signup error" + to_string(statusCode)).c_str());
-            finished(nullopt, error);
-        }
-    });
-}
+// void PlayerController::LogOut() {
+//     WebUtils::GetAsync(WebUtils::API_URL + "signout", [](long statusCode, string error) {});
+//     remove(WebUtils::getCookieFile().data());
 
-void PlayerController::LogIn(string login, string password, const function<void(optional<Player> const&, string)>& finished) {
-    lastErrorDescription = "";
+//     currentPlayer = nullopt;
+//     callbackWrapper(currentPlayer);
+// }
 
-    WebUtils::PostFormAsync(WebUtils::API_URL + "signinoculus", password, login, "login",
-                            [finished](long statusCode, string error) {
-        if (statusCode == 200) {
-            Refresh(0, finished);
-        } else {
-            lastErrorDescription = error;
-            BeatLeaderLogger.error("BeatLeader {}",
-                                ("signup error" + to_string(statusCode)).c_str());
-            finished(nullopt, error);
-        }
-    });
-}
+// bool PlayerController::IsFriend(Player anotherPlayer) {
+//     if (currentPlayer == nullopt) return false;
 
-void PlayerController::LogOut() {
-    WebUtils::GetAsync(WebUtils::API_URL + "signout", [](long statusCode, string error) {});
-    remove(WebUtils::getCookieFile().data());
+//     return std::find(currentPlayer->friends.begin(), currentPlayer->friends.end(), anotherPlayer.id) != currentPlayer->friends.end();
+// }
 
-    currentPlayer = nullopt;
-    callbackWrapper(currentPlayer);
-}
+// bool PlayerController::InClan(string tag) {
+//     if (currentPlayer == nullopt) return false;
 
-bool PlayerController::IsFriend(Player anotherPlayer) {
-    if (currentPlayer == nullopt) return false;
+//     auto it = std::find_if(currentPlayer->clans.begin(), currentPlayer->clans.end(), 
+//                            [&tag](const auto& clan) { return toLower(clan.tag) == toLower(tag); });
 
-    return std::find(currentPlayer->friends.begin(), currentPlayer->friends.end(), anotherPlayer.id) != currentPlayer->friends.end();
-}
+//     return it != currentPlayer->clans.end();
+// }
 
-bool PlayerController::InClan(string tag) {
-    if (currentPlayer == nullopt) return false;
+// bool PlayerController::IsMainClan(string tag) {
+//     if (currentPlayer == nullopt || currentPlayer->clans.size() == 0) return false;
 
-    auto it = std::find_if(currentPlayer->clans.begin(), currentPlayer->clans.end(), 
-                           [&tag](const auto& clan) { return toLower(clan.tag) == toLower(tag); });
-
-    return it != currentPlayer->clans.end();
-}
-
-bool PlayerController::IsMainClan(string tag) {
-    if (currentPlayer == nullopt || currentPlayer->clans.size() == 0) return false;
-
-    return toLower(currentPlayer->clans[0].tag) == toLower(tag);
-}
+//     return toLower(currentPlayer->clans[0].tag) == toLower(tag);
+// }
 
 bool PlayerController::IsIncognito(Player anotherPlayer) {
     Document incognitoList;

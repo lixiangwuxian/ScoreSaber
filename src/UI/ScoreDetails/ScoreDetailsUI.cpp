@@ -148,20 +148,20 @@ void BeatLeader::ScoreDetailsPopup::updatePlayerDetails(Player player) {
 
 void BeatLeader::ScoreDetailsPopup::setScore(const Score& score) {
     scoreId = score.id;
-    replayLink = score.replay;
-    platform = score.platform;
+    // replayLink = score.replay;
+    // platform = score.platform;
 
     updatePlayerDetails(score.player);
     
     name->set_alignment(TMPro::TextAlignmentOptions::Center);
-    rank->SetText(FormatUtils::FormatRank(score.player.rank, true), true);
-    pp->SetText(FormatUtils::FormatPP(score.player.pp), true);
+    // rank->SetText(FormatUtils::FormatRank(score.player.rank, true), true);
+    // pp->SetText(FormatUtils::FormatPP(score.player.pp), true);
 
-    if (score.player.profileSettings != nullopt) {
-        sponsorMessage->SetText(score.player.profileSettings->message, true);
-    } else {
+    // if (score.player.profileSettings != nullopt) {
+    //     sponsorMessage->SetText(score.player.profileSettings->message, true);
+    // } else {
         sponsorMessage->SetText("", true);
-    }
+    // }
     
     sponsorMessage->set_alignment(TMPro::TextAlignmentOptions::Center);
 
@@ -233,21 +233,23 @@ void BeatLeader::ScoreDetailsPopup::selectTab(int index) {
         self->loadingText->SetText("Loading...", true);
         loadingText->get_gameObject()->SetActive(true);
         string url = WebUtils::API_URL + "score/statistic/" + to_string(scoreId);
-        WebUtils::GetJSONAsync(url, [self, index](long status, bool error, rapidjson::Document const& result) {
-            if (status == 200 && !error && result.HasMember("scoreGraphTracker")) {
-                scoreStats = ScoreStats(result);
-                BSML::MainThreadScheduler::Schedule([self, index] {
-                    self->scoreStatsFetched = true;
-                    self->loadingText->get_gameObject()->SetActive(false);
-                    self->selectTab(index);
-                });
-            } else {
-                BSML::MainThreadScheduler::Schedule([self] {
-                    self->loadingText->SetText("Failed to fetch stats", true);
-                });
+        //todo debug
+        self->loadingText->SetText("Not implemented yet", true);
+        // WebUtils::GetJSONAsync(url, [self, index](long status, bool error, rapidjson::Document const& result) {
+        //     if (status == 200 && !error && result.HasMember("scoreGraphTracker")) {
+        //         scoreStats = ScoreStats(result);
+        //         BSML::MainThreadScheduler::Schedule([self, index] {
+        //             self->scoreStatsFetched = true;
+        //             self->loadingText->get_gameObject()->SetActive(false);
+        //             self->selectTab(index);
+        //         });
+        //     } else {
+        //         BSML::MainThreadScheduler::Schedule([self] {
+        //             self->loadingText->SetText("Failed to fetch stats", true);
+        //         });
 
-            }
-        });
+        //     }
+        // });
     }
 }
 
@@ -299,5 +301,5 @@ void BeatLeader::ScoreDetailsPopup::playReplay() {
             self->loadingText->SetText("Downloading: " + to_string_wprecision(progress, 2) + "%", true);
         });
     });
-    WebUtils::GetAsync(WebUtils::API_URL + "/watched/" + to_string(scoreId), [](long code, string result) {});
+    // WebUtils::GetAsync(WebUtils::API_URL + "/watched/" + to_string(scoreId), [](long code, string result) {});
 }

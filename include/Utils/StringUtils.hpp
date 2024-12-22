@@ -3,6 +3,9 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
 
 using namespace std;
 
