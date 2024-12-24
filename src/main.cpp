@@ -47,14 +47,14 @@ using namespace BSML;
 
 // Called at the early stages of game loading
 MOD_EXPORT void setup(CModInfo *info) noexcept {
-    BeatLeaderLogger.info("Started setup");
+    ScoreSaberLogger.info("Started setup");
     *info = modInfo.to_c();
 
     getModConfig().Init(modInfo);
 
-    Paper::Logger::RegisterFileContextId(BeatLeaderLogger.tag);
+    Paper::Logger::RegisterFileContextId(ScoreSaberLogger.tag);
 
-    BeatLeaderLogger.info("Completed setup!");
+    ScoreSaberLogger.info("Completed setup!");
 }
 
 void resetUI() {
@@ -176,21 +176,6 @@ MAKE_HOOK_MATCH(MainFlowCoordinator_DidActivate, &GlobalNamespace::MainFlowCoord
     self->_providedRightScreenViewController = newsViewController.ptr();
 }
 
-MAKE_HOOK_MATCH(MainFlowCoordinator_TopViewControllerWillChange, &GlobalNamespace::MainFlowCoordinator::TopViewControllerWillChange, void,
-    GlobalNamespace::MainFlowCoordinator* self, ::HMUI::ViewController* oldViewController, ::HMUI::ViewController* newViewController,
-                                                                              ::HMUI::__ViewController__AnimationType animationType) {
-    MainFlowCoordinator_TopViewControllerWillChange(self, oldViewController, newViewController, animationType);
-    
-    mainCoordinator = self;
-    changingToMain = newViewController == self->_mainMenuViewController.ptr();
-
-    if ((changingToMain && !getModConfig().NoticeboardEnabled.GetValue()) || (!changingToMain && self->_rightScreenViewController == newsViewController.ptr())) {
-        self->SetRightScreenViewController(nullptr, animationType);
-    } else if (changingToMain && getModConfig().NoticeboardEnabled.GetValue() && newsViewController) {
-        self->SetRightScreenViewController(newsViewController.ptr(), animationType);
-    }
-}
-
 MAKE_HOOK_MATCH(Image_get_pixelsPerUnit, &UnityEngine::UI::Image::get_pixelsPerUnit, float, UnityEngine::UI::Image* self) {
     float result = Image_get_pixelsPerUnit(self);
     
@@ -211,7 +196,7 @@ MOD_EXPORT "C" void late_load() {
     FileManager::EnsureReplaysFolderExists();
 
     BSML::Init();
-    BSML::Register::RegisterSettingsMenu<BeatLeader::PreferencesViewController*>("BeatLeader");
+    BSML::Register::RegisterSettingsMenu<BeatLeader::PreferencesViewController*>("ScoreSaber");
     
     LeaderboardUI::retryCallback = []() {
         ReplayManager::RetryPosting(replayPostCallback);
@@ -221,14 +206,15 @@ MOD_EXPORT "C" void late_load() {
     ModifiersUI::setup();
     ResultsView::setup();
 
-    PlayerController::playerChanged.emplace_back([](optional<Player> const& updated) {
-        // if (synchronizer == nullopt) {
-        //     synchronizer.emplace();
-        // }
-    });
+    // PlayerController::playerChanged.emplace_back([](optional<Player> const& updated) {
+    //     // if (synchronizer == nullopt) {
+    //     //     synchronizer.emplace();
+    //     // }
+    // });
 
+    PlayerController::Refresh(0, [](auto player, auto str){});
     BSML::MainThreadScheduler::Schedule([] {
-        INSTALL_HOOK(BeatLeaderLogger, ModalView_Show);
+        INSTALL_HOOK(ScoreSaberLogger, ModalView_Show);
     });
 
     // PlaylistSynchronizer::SyncPlaylist();
@@ -241,16 +227,15 @@ MOD_EXPORT "C" void late_load() {
             ReplayManager::ProcessReplay(replay, status, skipUpload, replayPostCallback); 
         });
 
-    BeatLeaderLogger.info("Installing main hooks...");
+    ScoreSaberLogger.info("Installing main hooks...");
     
-    INSTALL_HOOK(BeatLeaderLogger, HandleSettingsFlowCoordinatorDidFinish);
-    INSTALL_HOOK(BeatLeaderLogger, MenuTransitionsHelperRestartGame);
-    INSTALL_HOOK(BeatLeaderLogger, AppInitStart);
-    INSTALL_HOOK(BeatLeaderLogger, SceneManager_Internal_ActiveSceneChanged);
-    INSTALL_HOOK(BeatLeaderLogger, RichPresenceManager_HandleGameScenesManagerTransitionDidFinish);
-    INSTALL_HOOK(BeatLeaderLogger, MainFlowCoordinator_DidActivate);
-    INSTALL_HOOK(BeatLeaderLogger, MainFlowCoordinator_TopViewControllerWillChange);
-    INSTALL_HOOK(BeatLeaderLogger, Image_get_pixelsPerUnit);
+    INSTALL_HOOK(ScoreSaberLogger, HandleSettingsFlowCoordinatorDidFinish);
+    INSTALL_HOOK(ScoreSaberLogger, MenuTransitionsHelperRestartGame);
+    INSTALL_HOOK(ScoreSaberLogger, AppInitStart);
+    INSTALL_HOOK(ScoreSaberLogger, SceneManager_Internal_ActiveSceneChanged);
+    INSTALL_HOOK(ScoreSaberLogger, RichPresenceManager_HandleGameScenesManagerTransitionDidFinish);
+    INSTALL_HOOK(ScoreSaberLogger, MainFlowCoordinator_DidActivate);
+    INSTALL_HOOK(ScoreSaberLogger, Image_get_pixelsPerUnit);
 
-    BeatLeaderLogger.info("Installed main hooks!");
+    ScoreSaberLogger.info("Installed main hooks!");
 }

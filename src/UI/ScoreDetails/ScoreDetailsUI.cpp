@@ -148,14 +148,15 @@ void BeatLeader::ScoreDetailsPopup::updatePlayerDetails(Player player) {
 
 void BeatLeader::ScoreDetailsPopup::setScore(const Score& score) {
     scoreId = score.id;
-    // replayLink = score.replay;
+    bool hasReplay = score.hasReplay;
+    replayLink = WebUtils::API_URL + "/api/game/telemetry/downloadReplay?playerId=" + score.playerId + "&leaderboardId=" + to_string(score.leaderboardId);
     // platform = score.platform;
 
     updatePlayerDetails(score.player);
     
     name->set_alignment(TMPro::TextAlignmentOptions::Center);
-    // rank->SetText(FormatUtils::FormatRank(score.player.rank, true), true);
-    // pp->SetText(FormatUtils::FormatPP(score.player.pp), true);
+    rank->SetText(FormatUtils::FormatRank(score.rank, true), true);
+    pp->SetText(FormatUtils::FormatPP(score.pp), true);
 
     // if (score.player.profileSettings != nullopt) {
     //     sponsorMessage->SetText(score.player.profileSettings->message, true);

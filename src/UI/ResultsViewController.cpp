@@ -102,7 +102,7 @@ namespace ResultsView {
     }
 
     void setup() {
-        INSTALL_HOOK(BeatLeaderLogger, GetLastReplayStateHook);
-        INSTALL_HOOK(BeatLeaderLogger, ResultsViewDidActivate);
+        INSTALL_HOOK(ScoreSaberLogger, GetLastReplayStateHook);
+        INSTALL_HOOK(ScoreSaberLogger, ResultsViewDidActivate);
     }
 }

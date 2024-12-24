@@ -43,22 +43,22 @@ void BeatLeader::initLinksContainerPopup(BeatLeader::LinksContainerPopup** modal
     modalUI->profile = ::BSML::Lite::CreateClickableImage(modalTransform, BundleLoader::bundle->websiteLinkIcon, [](){
         string url = WebUtils::WEB_URL;
         if (PlayerController::currentPlayer != std::nullopt) {
-            url += "u/" + PlayerController::currentPlayer->id;
+            url += "/u/" + PlayerController::currentPlayer->id;
         }
         UnityEngine_Application_OpenURL(url);
     }, UnityEngine::Vector2(-24, -1), UnityEngine::Vector2(22, 6));
     ::BSML::Lite::AddHoverHint(modalUI->profile, "Your web profile");
 
 
-    modalUI->discord = ::BSML::Lite::CreateClickableImage(modalTransform, BundleLoader::bundle->discordLinkIcon, [](){
-        UnityEngine_Application_OpenURL("https://discord.gg/2RG5YVqtG6");
-    }, UnityEngine::Vector2(0, -1), UnityEngine::Vector2(22, 6));
-    ::BSML::Lite::AddHoverHint(modalUI->discord, "Our discord server");
+    // modalUI->discord = ::BSML::Lite::CreateClickableImage(modalTransform, BundleLoader::bundle->discordLinkIcon, [](){
+    //     UnityEngine_Application_OpenURL("https://discord.gg/2RG5YVqtG6");
+    // }, UnityEngine::Vector2(0, -1), UnityEngine::Vector2(22, 6));
+    // ::BSML::Lite::AddHoverHint(modalUI->discord, "Our discord server");
 
-    modalUI->patreon = ::BSML::Lite::CreateClickableImage(modalTransform, BundleLoader::bundle->patreonLinkIcon, [](){
-        UnityEngine_Application_OpenURL("https://patreon.com/BeatLeader");
-    }, UnityEngine::Vector2(24, -1), UnityEngine::Vector2(22, 6));
-    ::BSML::Lite::AddHoverHint(modalUI->patreon, "Patreon page");
+    // modalUI->patreon = ::BSML::Lite::CreateClickableImage(modalTransform, BundleLoader::bundle->patreonLinkIcon, [](){
+    //     UnityEngine_Application_OpenURL("https://patreon.com/BeatLeader");
+    // }, UnityEngine::Vector2(24, -1), UnityEngine::Vector2(22, 6));
+    // ::BSML::Lite::AddHoverHint(modalUI->patreon, "Patreon page");
 
 
     //todo debug

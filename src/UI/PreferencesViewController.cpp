@@ -155,20 +155,14 @@ void BeatLeader::PreferencesViewController::DidActivate(bool firstActivation, bo
         loginField = ::BSML::Lite::CreateStringSetting(containerTransform, "Login", "", [](StringW value) {
             login = (string) value;
         });
-        
-        // passwordField = ::BSML::Lite::CreateStringSetting(containerTransform, "Password", "", [](StringW value) {
-        //     password = (string) value;
-        // });
 
         loginButton = ::BSML::Lite::CreateUIButton(containerTransform, "Log in", []() {
-            // if (login.empty() || password.empty()) {
             if (login.empty()) {
                 errorDescription = "Enter scoresaber_DO_NOT_SHARE.scary text here";
                 UpdateUI(nullopt);
                 return;
             }
             showLoading();
-            //todo
             PlayerController::LogIn(login, [](std::optional<Player> const& player, string error) {
                 BSML::MainThreadScheduler::Schedule([player, error] {
                 if (player == nullopt) {

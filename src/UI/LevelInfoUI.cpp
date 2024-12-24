@@ -17,8 +17,7 @@
 #include "include/Assets/Sprites.hpp"
 #include "include/Assets/BundleLoader.hpp"
 #include "shared/Models/Song.hpp"
-#include "shared/Models/Difficulty.hpp"
-#include "shared/Models/TriangleRating.hpp"
+#include "shared/Models/LeaderBoardInfo.hpp"
 #include "include/UI/LevelInfoUI.hpp"
 #include "include/UI/ModifiersUI.hpp"
 #include "include/UI/UIUtils.hpp"
@@ -55,7 +54,7 @@ namespace LevelInfoUI {
     TMPro::TextMeshProUGUI* statusLabel = NULL;
 
 
-    // HMUI::ImageView* starsImage = NULL;
+    HMUI::ImageView* starsImage = NULL;
     HMUI::ImageView* ppImage = NULL;
     HMUI::ImageView* typeImage = NULL;
     HMUI::ImageView* statusImage = NULL;
@@ -68,7 +67,7 @@ namespace LevelInfoUI {
     bool bslInstalled = false;
     bool submissionLabel = false;
 
-    static map<string, Song> _mapInfos;
+    static map<string, LeaderBoardInfo> _mapInfos;
     // static map<int, string> mapTypes = {
     //     {1, "acc"},
     //     {2, "tech"},
@@ -87,8 +86,8 @@ namespace LevelInfoUI {
     static string selectedMap;
     static pair<string, string> lastKey;
     
-    const Difficulty defaultDiff = Difficulty(0, 0, {}, {}, {}, {});
-    static TriangleRating currentlySelectedRating = defaultDiff.rating;
+    const LeaderBoardInfo defaultLeaderBoardInfo = LeaderBoardInfo();
+    static LeaderBoardInfo currentlySelectedLeaderBoardInfo = defaultLeaderBoardInfo;
 
     MAKE_HOOK_MATCH(DidDeactivate, &StandardLevelDetailViewController::DidDeactivate, void, StandardLevelDetailViewController* self, bool removedFromHierarchy, bool screenSystemDisabling) {
         DidDeactivate(self, removedFromHierarchy, screenSystemDisabling);
@@ -145,12 +144,12 @@ namespace LevelInfoUI {
 
             starsLabel = CreateText(self->_levelParamsPanel->get_transform(), "0.00", UnityEngine::Vector2(-27, 6), UnityEngine::Vector2(8, 4));
             starsLabel->set_color(UnityEngine::Color(0.651,0.651,0.651, 1));
-            // starsImage = CreateClickableImage(self->_levelParamsPanel->get_transform(), Sprites::get_StarIcon(), openSkillTriangle, UnityEngine::Vector2(-33, 5.6), UnityEngine::Vector2(3, 3));
+            starsImage = CreateImage(self->_levelParamsPanel->get_transform(), Sprites::get_StarIcon(), UnityEngine::Vector2(-33, 5.6), UnityEngine::Vector2(3, 3));
             AddHoverHint(starsLabel, "Song not ranked");
 
             ppLabel = CreateText(self->_levelParamsPanel->get_transform(), "0", UnityEngine::Vector2(-9, 6),  UnityEngine::Vector2(8, 4));
             ppLabel->set_color(UnityEngine::Color(0.651,0.651,0.651, 1));
-            AddHoverHint(ppLabel, "BeatLeader approximate pp");
+            AddHoverHint(ppLabel, "SS approximate pp");
             
             ppImage = CreateImage(self->_levelParamsPanel->get_transform(), Sprites::get_GraphIcon(), UnityEngine::Vector2(-15.5, 5.6), UnityEngine::Vector2(3, 3));
 
@@ -182,73 +181,21 @@ namespace LevelInfoUI {
             noSubmissionLabel->set_alignment(TMPro::TextAlignmentOptions::Center);
         }
 
-        // Why not just substr str.substr("custom_level_".size())?
-        // Because not every level is a custom level.
-        string hash = regex_replace((string)self->_beatmapLevel->levelID, basic_regex("custom_level_"), "");
-        string difficulty = MapEnhancer::DiffName(self->beatmapKey.difficulty.value__);
-        string mode = (string)self->_beatmapCharacteristicSegmentedControlController->_selectedBeatmapCharacteristic->serializedName;
+        // // Why not just substr str.substr("custom_level_".size())?
+        // // Because not every level is a custom level.
+        // string hash = regex_replace((string)self->_beatmapLevel->levelID, basic_regex("custom_level_"), "");
+        // string difficulty = MapEnhancer::DiffName(self->beatmapKey.difficulty.value__);
+        // string mode = (string)self->_beatmapCharacteristicSegmentedControlController->_selectedBeatmapCharacteristic->serializedName;
 
-        pair<string, string> key = {hash, difficulty + mode};
+        // pair<string, string> key = {hash, difficulty + mode};
 
-        // If we didnt change the level, we can just stay where we already are
-        if (lastKey == key) return;
-
-        lastKey = key;
-        if (_mapInfos.contains(key.first)) {
-            setLabels(_mapInfos[key.first].difficulties[key.second]);
-            CaptorClanUI::setClan(_mapInfos[key.first].difficulties[key.second].clanStatus);
-        } else {
-            string url = WebUtils::API_URL + "map/modinterface/" + key.first;
-
-            setLabels(Difficulty());
-            CaptorClanUI::setClan(ClanRankingStatus());
-
-            //todo debug
-            return;
-            //
-
-            WebUtils::GetAsync(url, [key](long status, string stringResult){
-                // If the map was already switched again, the response is irrelevant
-                if(lastKey != key) return;
-
-                BSML::MainThreadScheduler::Schedule([status, key, stringResult] () {
-                    if (status != 200) {
-                        setLabels(defaultDiff);
-                        return;
-                    }
-
-                    rapidjson::Document result;
-                    result.Parse(stringResult.c_str());
-                    if (result.HasParseError()) {
-                        setLabels(defaultDiff);
-                        return;
-                    }
-                    
-                    Difficulty selectedDifficulty;
-                    Song song = Song(result);
-                    if (!song.difficulties.empty())
-                    {
-                        // If the request was successful, we cache the value and display it
-                        _mapInfos.insert({ key.first, song});
-                        selectedDifficulty = _mapInfos[key.first].difficulties[key.second];
-                    }
-                    else
-                    {
-                        // If it wasnt we just display our default values
-                        selectedDifficulty = defaultDiff;
-                    }
-                
-                    setLabels(selectedDifficulty);
-
-                    CaptorClanUI::setClan(selectedDifficulty.clanStatus);
-                });
-            });
-        }
+        // // If we didnt change the level, we can just stay where we already are
+        // if (lastKey == key) return;
     }
 
     void setup() {
-        INSTALL_HOOK(BeatLeaderLogger, LevelRefreshContent);
-        INSTALL_HOOK(BeatLeaderLogger, DidDeactivate);
+        INSTALL_HOOK(ScoreSaberLogger, LevelRefreshContent);
+        INSTALL_HOOK(ScoreSaberLogger, DidDeactivate);
 
         for(auto& modInfo : modloader::get_all())
         {
@@ -265,7 +212,7 @@ namespace LevelInfoUI {
     void SetLevelInfoActive(bool active) {
         if (starsLabel != NULL) {
             starsLabel->get_gameObject()->SetActive(active);
-            // starsImage->get_gameObject()->SetActive(active);
+            starsImage->get_gameObject()->SetActive(active);
             ppLabel->get_gameObject()->SetActive(active);
             ppImage->get_gameObject()->SetActive(active);
             typeLabel->get_gameObject()->SetActive(active);
@@ -303,21 +250,21 @@ namespace LevelInfoUI {
 
     void refreshRatingLabels(){
         // Refresh rating labels from cache
-        if(starsLabel && _mapInfos.contains(lastKey.first)){ 
-            setRatingLabels(_mapInfos[lastKey.first].difficulties[lastKey.second].rating);
-        }
+        // if(starsLabel && _mapInfos.contains(lastKey.first)){ 
+        //     setRatingLabels(_mapInfos[lastKey.first].difficulties[lastKey.second].rating);
+        // }
     }
 
-    void setLabels(Difficulty selectedDifficulty)
+    void setLabels(LeaderBoardInfo leaderBoardInfo)
     {
         if (!starsLabel) return;
 
-        // The difficulty may have changed therefor we need to tell the ModifiersUI the new Values and Ratings
-        ModifiersUI::songModifiers = selectedDifficulty.modifierValues;
-        ModifiersUI::songModifierRatings = selectedDifficulty.modifiersRating;
+        // // The difficulty may have changed therefor we need to tell the ModifiersUI the new Values and Ratings
+        // ModifiersUI::songModifiers = leaderBoardInfo.difficulty.modifierValues;
+        // ModifiersUI::songModifierRatings = leaderBoardInfo.difficulty.modifiersRating;
 
         // After that we set the rating labels (stars & pp). This also sets the rating labels on the ModifiersUI
-        setRatingLabels(selectedDifficulty.rating);
+        setRatingLabels(leaderBoardInfo.stars);
 
         // Create a list of all song types, that are definied for this sond
         vector<string> typeStrings;
@@ -333,50 +280,34 @@ namespace LevelInfoUI {
         // Then we create content for the type label
         string typeToSet;
         string typeHoverHint = "Map types\n\n";
-        if (typeStrings.size() == 0)
-        {
-            // No type has been votes at this time -> unknown
-            typeToSet = "-";
-            typeHoverHint += "unknown";
-        }
-        else if (typeStrings.size() == 1)
-        {
-            // If just one type has been voted, then we just set this type in the label & Hovertext
-            typeToSet = typeStrings[0];
-            // Shorten just midspeed cause of limited space
-            if (typeToSet == "midspeed")
-            {
-                typeToSet = "m.speed";
-            }
-            typeHoverHint += typeStrings[0];
-        }
-        else
-        {
-            // If a song has multiple types set, then we just show the user, that there are more than one and add them all to the hover text
-            typeToSet = "mul.";
-            for (const string &partMapType : typeStrings)
-            {
-                typeHoverHint += partMapType + "\n";
-            }
-            // Remove last newline
-            typeHoverHint.pop_back();
+        if (leaderBoardInfo.ranked) {
+            typeToSet = "ranked";
+            typeHoverHint += "ranked";
+        } else if (leaderBoardInfo.qualified) {
+            typeToSet = "qualified";
+            typeHoverHint += "qualified";
+        } else if (leaderBoardInfo.loved) {
+            typeToSet = "loved";
+            typeHoverHint += "loved";
+        } else {
+            typeToSet = "unranked";
+            typeHoverHint += "unranked";
         }
         // Actually set the labels with the prepared strings
         typeLabel->SetText(typeToSet, true);
         AddHoverHint(typeLabel, typeHoverHint);
 
-        string rankingStatus = mapStatuses[selectedDifficulty.status];
-        // For better readability show 4 characters for ranked(rank.) and unrankable(unra.)
-        int shortWritingChars = (selectedDifficulty.status == 3 || selectedDifficulty.status == 4) ? 4 : 3;
+        string rankingStatus = typeToSet;
+        int shortWritingChars = 4;
 
         // If the given rankingStatus is unknown, we default to unranked
-        if(rankingStatus.empty()){
-            rankingStatus = mapStatuses[0];
-        }
+        // if(rankingStatus.empty()){
+        //     rankingStatus = mapStatuses[0];
+        // }
 
         // Calculate voteRatio from votes
-        float rating = 0;
-        float reviewScore = 0;
+        // float rating = 0;
+        // float reviewScore = 0;
         // if (!selectedDifficulty.votes.empty())
         // {
         //     float count = static_cast<float>(selectedDifficulty.votes.size());
@@ -385,17 +316,20 @@ namespace LevelInfoUI {
         // }
 
         // Set Color according to calculated VoteRatio (0% = red, 100% = green)
-        statusLabel->SetText(rankingStatus.substr(0, shortWritingChars) + ".", true);
-        if (rating == 0) {
-            statusLabel->set_color(UnityEngine::Color(0.5, 0.5, 0.5, 1));
-        } else {
-            statusLabel->set_color(UnityEngine::Color(1 - rating, rating, 0, 1));
+        if(strlen(rankingStatus.c_str()) > 5){
+                rankingStatus = rankingStatus.substr(0, shortWritingChars) + ".";
         }
+        statusLabel->SetText(rankingStatus, true);
+        // if (rating == 0) {
+        //     statusLabel->set_color(UnityEngine::Color(0.5, 0.5, 0.5, 1));
+        // } else {
+        //     statusLabel->set_color(UnityEngine::Color(1 - rating, rating, 0, 1));
+        // }
         
 
         // Set Hovertext with percentage value
-        rating *= 100;
-        reviewScore *= 100;
+        // rating *= 100;
+        // reviewScore *= 100;
         // AddHoverHint(statusLabel, "Ranking status - " + rankingStatus 
         //                         + "\nRating - " + to_string(static_cast<int>(rating))
         //                         + "%\nPositivity ratio - " + to_string(static_cast<int>(reviewScore)) 
@@ -403,34 +337,11 @@ namespace LevelInfoUI {
         //                         + "\nTo vote for a song to be ranked, click the message box on the leaderboard");
     }
 
-    void setRatingLabels(TriangleRating rating) {
-        // Save rating so that the triangle window knows which values to show
-        currentlySelectedRating = rating;
-
-        // refresh ModifiersRating and get potentially selected rating
-        TriangleRating modifierRating = ModifiersUI::refreshAllModifiers();
-
-        // if a modifier rating is selected we want to show that one
-        if(ModifiersUI::ModifiersAvailable() && modifierRating.stars > 0)
-            currentlySelectedRating = modifierRating;
+    void setRatingLabels(float rating) {
         
         // Set the stars and pp
-        starsLabel->SetText(to_string_wprecision(UIUtils::getStarsToShow(currentlySelectedRating), 2), true);
-        ppLabel->SetText(to_string_wprecision(currentlySelectedRating.stars * 51.0f, 2), true);
+        starsLabel->SetText(to_string_wprecision(rating, 2), true);
+        ppLabel->SetText(to_string_wprecision(rating * 51.0f, 2), true);
 
-        // Add Hoverhint with all star ratings
-        string starsHoverHint;
-        if (currentlySelectedRating.stars)
-        {
-            starsHoverHint = "Overall - " + to_string_wprecision(currentlySelectedRating.stars, 2) 
-            + "\nTech - " + to_string_wprecision(currentlySelectedRating.techRating, 2) 
-            + "\nAcc - " + to_string_wprecision(currentlySelectedRating.accRating, 2)
-            + "\nPass - " + to_string_wprecision(currentlySelectedRating.passRating, 2);
-        }
-        else 
-        {
-            starsHoverHint = "Song not ranked";
-        }
-        AddHoverHint(starsLabel, starsHoverHint);
     }
 }

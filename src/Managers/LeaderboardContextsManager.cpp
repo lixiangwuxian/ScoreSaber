@@ -14,7 +14,7 @@ namespace BeatLeader {
 
         WebUtils::GetJSONAsync(WebUtils::API_URL + "mod/leaderboardContexts", [completion](long status, bool error, rapidjson::Document const& doc) {
             if (status != 200 || error) {
-                BeatLeaderLogger.error("Failed to get contexts: %ld", status);
+                ScoreSaberLogger.error("Failed to get contexts: %ld", status);
                 return;
             }
 

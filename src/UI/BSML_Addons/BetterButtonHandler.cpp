@@ -97,7 +97,7 @@ namespace BeatLeader::UI::TypeHandlers {
             BetterImageHandler::HandleImage(data, button->targetGraphic);
 
         } catch (const std::exception& e) {
-            BeatLeaderLogger.error("BeatLeader BetterButtonHandler: {}", e.what());
+            ScoreSaberLogger.error("BeatLeader BetterButtonHandler: {}", e.what());
         }
     }
 } 

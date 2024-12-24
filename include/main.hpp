@@ -15,4 +15,4 @@
 
 inline modloader::ModInfo modInfo = {MOD_ID, VERSION, 0};
 
-constexpr auto BeatLeaderLogger = Paper::ConstLoggerContext("ScoreSaber");
+constexpr auto ScoreSaberLogger = Paper::ConstLoggerContext("ScoreSaber");

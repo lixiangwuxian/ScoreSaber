@@ -249,7 +249,7 @@ void BeatLeader::PlayerButtons::updateIncognitoButton() const {
 // }
 
 void BeatLeader::PlayerButtons::openProfile() const {
-    string url = WebUtils::WEB_URL + "u/" + player.id;
+    string url = WebUtils::WEB_URL + "/u/" + player.id;
     static auto UnityEngine_Application_OpenURL = il2cpp_utils::resolve_icall<void, StringW>("UnityEngine.Application::OpenURL");
     UnityEngine_Application_OpenURL(url);
 }

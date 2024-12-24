@@ -146,7 +146,7 @@ MAKE_HOOK_MATCH(GetSpriteCharacterFromSpriteAsset, &TMPro::TMP_FontAssetUtilitie
             if (sprite != NULL) {
                 DrawSprite((UnityEngine::Texture*)sprite->get_texture(), indexToUse, glyph, assetToUse);
             } else {
-                BeatLeaderLogger.info("{}", (WebUtils::API_URL + "unicode/" + utf8ToHex(unicode) + ".png").c_str());
+                ScoreSaberLogger.info("{}", (WebUtils::API_URL + "unicode/" + utf8ToHex(unicode) + ".png").c_str());
             }
             
             loadingCount--;
@@ -188,8 +188,8 @@ void EmojiSupport::AddSupport(TMPro::TextMeshProUGUI* text) {
         currentEmojiIndex = 0;
     }
     if (!hooksInstalled) {
-        INSTALL_HOOK(BeatLeaderLogger, GetSpriteCharacterFromSpriteAsset);
-        INSTALL_HOOK(BeatLeaderLogger, SetArraySizes);
+        INSTALL_HOOK(ScoreSaberLogger, GetSpriteCharacterFromSpriteAsset);
+        INSTALL_HOOK(ScoreSaberLogger, SetArraySizes);
 
         hooksInstalled = true;
     }

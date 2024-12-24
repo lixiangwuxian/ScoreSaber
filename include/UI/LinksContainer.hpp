@@ -13,8 +13,8 @@ namespace BeatLeader {
             TMPro::TextMeshProUGUI* versionText;
 
             BSML::ClickableImage* profile;
-            BSML::ClickableImage* discord;
-            BSML::ClickableImage* patreon;
+            // BSML::ClickableImage* discord;
+            // BSML::ClickableImage* patreon;
 
             UnityEngine::UI::Button* nominated;
             UnityEngine::UI::Button* qualified;

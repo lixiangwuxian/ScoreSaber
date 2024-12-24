@@ -32,89 +32,72 @@ void callbackWrapper(optional<Player> const& player) {
 }
 
 void PlayerController::Refresh(int retry, const function<void(optional<Player> const&, string)>& finished) {
-    //todo debug
-    finished(nullopt, "Not implemented refresh yet");
-    return;
-    //
-
-    // Error Handler
-    auto handleError = [retry, finished](){
+    //getSecretFile
+    string secretFile = WebUtils::getSecretFile();
+    if (secretFile.empty()) {
+        finished(nullopt, "Secret file not found");
+        return;
+    }
+    __sFILE * file = fopen(secretFile.c_str(), "r");
+    if (file == nullptr) {
+        finished(nullopt, "Secret file not found");
+        return;
+    }
+    char buffer[50];
+    string secretKey = fgets(buffer, sizeof(buffer), file);
+    fclose(file);
+    if (secretKey.empty()) {
+        finished(nullopt, "Secret file is empty");
+        return;
+    }
+    
+    size_t delimiterPos = secretKey.find(':');
+    if (delimiterPos == string::npos) {
+        lastErrorDescription = "Invalid format, expected 'steamKey:playerId'";
+        ScoreSaberLogger.error("ScoreSaber {}", lastErrorDescription.c_str());
+        finished(nullopt, lastErrorDescription);
+        return;
+    }
+    
+    string steamKey = secretKey.substr(0, delimiterPos);
+    string playerId = secretKey.substr(delimiterPos + 1);
+    auto handleError = [retry, finished,steamKey,playerId](){
         if (retry < 3) {
-            Refresh(retry + 1, finished);
+            LogIn(steamKey+":"+playerId, finished);
         } else {
             currentPlayer = nullopt;
             if (finished) finished(nullopt, "Failed to retrieve player");
         }
     };
-
-    // Get new userdata and refresh the interface with it
-    //todo to implement
-    // WebUtils::GetJSONAsync(WebUtils::API_URL + "user/modinterface", [retry, finished, handleError](long status, bool error, rapidjson::Document const& result){
-        // if (status == 200 && !error) {
-        //     currentPlayer = Player(result.GetObject());
-        //     // We also need the history so we can display the ranking change
-        //     // Leaderboard Context on Server is a bit flag and ours just a normal enum. Therefor we need to calculate 2^Context to get the right parameter
-        //     WebUtils::GetJSONAsync(WebUtils::API_URL + "player/" + currentPlayer->id + "/history?leaderboardContext="+to_string(getModConfig().Context.GetValue())+"&count=1", [finished, handleError](long historyStatus, bool historyError, rapidjson::Document const& historyResult){
-        //         // Only do stuff if we are successful
-        //         if(historyStatus == 200 && !historyError){
-        //             // Set the new Historydata on the player
-        //             // currentPlayer->SetHistory(historyResult.GetArray()[0]);
-
-        //             // Call callbacks
-        //             if (finished) finished(currentPlayer, "");
-        //             callbackWrapper(currentPlayer);
-        //         }
-        //         else {
-        //             handleError();
-        //         }
-        //     });
-
-        //     BeatLeaderLogger.info("history {}", to_string(getModConfig().Context.GetValue()));
-
-        //     // Refresh the cookie to keep player logged in
-        //     // WebUtils::PostJSONAsync(WebUtils::API_URL + "cookieRefresh", "", [](long status, string error){ });
-        // }
-        // else{
-            // handleError();
-        // }
-    // });
+    auto allFinished = [finished,handleError](auto player, auto str){
+        if (player) {
+            finished(player, "");
+        } else {
+            handleError();
+        }
+    };
+    GetPlayerInfo(playerId, true, allFinished);
 }
 
-// void PlayerController::SignUp(string login, string password, const function<void(optional<Player> const&, string)>& finished) {
-//     lastErrorDescription = "";
-
-//     WebUtils::PostFormAsync(WebUtils::API_URL + "signinoculus", password, login, "signup",
-//                             [finished](long statusCode, string error) {
-//         if (statusCode == 200) {
-//             Refresh(0, finished);
-//         } else {
-//             lastErrorDescription = error;
-//             BeatLeaderLogger.error("BeatLeader {}",
-//                                 ("signup error" + to_string(statusCode)).c_str());
-//             finished(nullopt, error);
-//         }
-//     });
-// }
-
 //implement by gpt-4o
-void PlayerController::LogIn(string steamkeyAndUserId, const function<void(optional<Player> const&, string)>& finished) {
+void PlayerController::LogIn(string steamKeyAndUserId, const function<void(optional<Player> const&, string)>& finished) {
     lastErrorDescription = "";
     // 分割登录数据
-    size_t delimiterPos = steamkeyAndUserId.find(':');
+    size_t delimiterPos = steamKeyAndUserId.find(':');
     if (delimiterPos == string::npos) {
         lastErrorDescription = "Invalid login format, expected 'steamKey:playerId'";
-        BeatLeaderLogger.error("BeatLeader {}", lastErrorDescription.c_str());
+        ScoreSaberLogger.error("BeatLeader {}", lastErrorDescription.c_str());
         finished(nullopt, lastErrorDescription);
         return;
     }
     
-    string steamKey = steamkeyAndUserId.substr(0, delimiterPos);
-    string playerId = steamkeyAndUserId.substr(delimiterPos + 1);
+    string steamKey = steamKeyAndUserId.substr(0, delimiterPos);
+    string playerId = steamKeyAndUserId.substr(delimiterPos + 1);
 
     // 校验登录数据是否有效
     if (steamKey.empty() || playerId.empty()) {
         lastErrorDescription = "Missing steamKey or playerId";
-        BeatLeaderLogger.error("BeatLeader {}", lastErrorDescription.c_str());
+        ScoreSaberLogger.error("BeatLeader {}", lastErrorDescription.c_str());
         finished(nullopt, lastErrorDescription);
         return;
     }
@@ -122,14 +105,14 @@ void PlayerController::LogIn(string steamkeyAndUserId, const function<void(optio
     string url = WebUtils::API_URL + "/api/game/auth";
 
     // 异步POST请求
-    WebUtils::PostFormAsync(url, steamKey,playerId,"login", [finished,url,playerId](long statusCode, string response) {
+    WebUtils::PostFormAsync(url, steamKey,playerId,"login", [finished,url,playerId,steamKeyAndUserId](long statusCode, string response) {
         if (statusCode == 200) {
             try {
                 rapidjson::Document jsonDocument;
                 jsonDocument.Parse(response.c_str());
                 if (jsonDocument.HasParseError() || !jsonDocument.IsObject()) {
                     string error = "Failed to parse login response";
-                    BeatLeaderLogger.error("BeatLeader {}", error.c_str());
+                    ScoreSaberLogger.error("BeatLeader {}", error.c_str());
                     finished(nullopt, error);
                     return;
                 }
@@ -137,16 +120,28 @@ void PlayerController::LogIn(string steamkeyAndUserId, const function<void(optio
                 Session session(jsonDocument.GetObject());
 
                 GetPlayerInfo(playerId, true, finished);
+                string secretFile = WebUtils::getSecretFile();
+                if (secretFile.empty()) {
+                    finished(nullopt, "Secret file not found");
+                    return;
+                }
+                __sFILE * file = fopen(secretFile.c_str(), "w");
+                if (file == nullptr) {
+                    finished(nullopt, "Secret file not found");
+                    return;
+                }
+                fputs(steamKeyAndUserId.c_str(), file);
+                fclose(file);
 
             } catch (const std::exception& e) {
                 string error = "Exception during login: " + string(e.what());
-                BeatLeaderLogger.error("BeatLeader {}", error.c_str());
+                ScoreSaberLogger.error("BeatLeader {}", error.c_str());
                 finished(nullopt, error);
             }
         } else {
             string error = "Login failed "+playerId+" "+ to_string(statusCode)+" "+response;
             lastErrorDescription = error;
-            BeatLeaderLogger.error("BeatLeader {}", error.c_str());
+            ScoreSaberLogger.error("BeatLeader {}", error.c_str());
             finished(nullopt, error);
         }
     });

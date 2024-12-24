@@ -151,16 +151,6 @@ namespace FormatUtils {
             return name + "<pos=40%>" + FormatPP(score.pp) + "   " + formatAcc(score.accuracy) + " " + fcLabel + time;
         }
 
-        inline string FormatClanScore(ClanScore const& score) {
-            string name = "";
-            
-            name = "<noparse>" + truncate(score.clan.name, 24) + "</noparse>  <color=" + score.clan.color + ">" + score.clan.tag + "</color>";
-
-            string time = getModConfig().TimesetActive.GetValue() ? " <size=60%>" + GetRelativeTimeString(score.timeset) + "</size>" : "";
-
-            return name + "<pos=40%>" + FormatPP(score.pp) + "   " + formatAcc(score.accuracy) + " " + time;
-        }
-
         inline string GetFullPlatformName(string serverPlatform) {
             
             if (serverPlatform == "oculus") {

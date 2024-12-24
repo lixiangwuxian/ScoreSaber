@@ -91,7 +91,7 @@ namespace BeatLeader::UI::TypeHandlers {
             }
 
         } catch (const std::exception& e) {
-            BeatLeaderLogger.error("BeatLeader BetterImageHandler: {}", e.what());
+            ScoreSaberLogger.error("BeatLeader BetterImageHandler: {}", e.what());
         }
     }
 

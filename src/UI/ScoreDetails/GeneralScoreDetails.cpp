@@ -53,9 +53,9 @@ string FormatInt(int score) {
 string FormatScore(Score const& score) {
     string result = FormatInt(score.modifiedScore);
 
-    if (score.scoreImprovement.score != 0) {
-        result += (score.scoreImprovement.score > 0) ? ("\n<color=#20BB20><size=55%>+" + (FormatInt(score.scoreImprovement.score)) + "</size></color>") : "\n<color=#BB2020><size=55%>" + FormatInt(score.scoreImprovement.score) + "</size></color>";
-    }
+    // if (score.scoreImprovement.score != 0) {
+    //     result += (score.scoreImprovement.score > 0) ? ("\n<color=#20BB20><size=55%>+" + (FormatInt(score.scoreImprovement.score)) + "</size></color>") : "\n<color=#BB2020><size=55%>" + FormatInt(score.scoreImprovement.score) + "</size></color>";
+    // }
     return result;
 }
 
@@ -81,8 +81,9 @@ string GetDetailsString(const Score& score) {
     if (score.fullCombo) result << "<color=#20BB20>Full Combo</color>    ";
     if (score.missedNotes > 0) result << "<color=#888888>Misses: <color=#BB2020>" << to_string(score.missedNotes) + "</color>    ";
     if (score.badCuts > 0) result << "<color=#888888>Bad cuts: <color=#BB2020>" << to_string(score.badCuts) + "</color>    ";
+    result << "<color=#888888>Max combo: <color=#BB2020>" << to_string(score.maxCombo) + "</color>    ";
     // if (score.bombCuts > 0) result << "<color=#888888>Bomb cuts: <color=#BB2020>" << to_string(score.bombCuts) + "</color>    ";
-    if (score.wallsHit > 0) result << "<color=#888888>Walls hit: <color=#BB2020>" << to_string(score.wallsHit) + "</color>    ";
+    // if (score.wallsHit > 0) result << "<color=#888888>Walls hit: <color=#BB2020>" << to_string(score.wallsHit) + "</color>    ";
     result << "</size>";
 
     return result.str();
@@ -91,18 +92,18 @@ string GetDetailsString(const Score& score) {
 inline string FormatAcc(const Score& score) {
     string result = FormatUtils::formatAcc(score.accuracy);
 
-    if (score.scoreImprovement.accuracy != 0) {
-       result += (score.scoreImprovement.accuracy > 0) ? ("\n<color=#20BB20><size=55%>+" + (to_string_wprecision(score.scoreImprovement.accuracy * 100, 2)) + "%</size></color>") : "\n<color=#BB2020><size=55%>" + to_string_wprecision(score.scoreImprovement.accuracy * 100, 2) + "%</size></color>";
-    }
+    // if (score.scoreImprovement.accuracy != 0) {
+    //    result += (score.scoreImprovement.accuracy > 0) ? ("\n<color=#20BB20><size=55%>+" + (to_string_wprecision(score.scoreImprovement.accuracy * 100, 2)) + "%</size></color>") : "\n<color=#BB2020><size=55%>" + to_string_wprecision(score.scoreImprovement.accuracy * 100, 2) + "%</size></color>";
+    // }
 
     return result;
 }
 
 inline string FormatPP(const Score& score) {
     string result = FormatUtils::FormatPP(score.pp);
-    if (score.scoreImprovement.pp != 0) {
-       result += "\n<color=#20BB20><size=55%>+" + to_string_wprecision(score.scoreImprovement.pp, 2) + "pp</size></color>";
-    }
+    // if (score.scoreImprovement.pp != 0) {
+    //    result += "\n<color=#20BB20><size=55%>+" + to_string_wprecision(score.scoreImprovement.pp, 2) + "pp</size></color>";
+    // }
     return result;
 }
 

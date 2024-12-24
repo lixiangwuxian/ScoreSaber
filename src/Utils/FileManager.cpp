@@ -16,21 +16,12 @@ void FileManager::EnsureReplaysFolderExists() {
 
 void FileManager::WriteReplay(Replay const &replay) {
     ofstream stream = ofstream(ToFilePath(replay), ios::binary);
-
-    std::locale utf8_locale(std::locale(), new codecvt_utf8<char16_t>);
-    stream.imbue(utf8_locale);
-
     replay.Encode(stream);
-
     stream.flush();
 }
 
 std::optional<ReplayInfo> FileManager::ReadInfo(string replayPath) {
     ifstream stream(replayPath, ios::binary);
-
-    std::locale utf8_locale(std::locale(), new codecvt_utf8<char16_t>);
-    stream.imbue(utf8_locale);
-
     return Replay::DecodeInfo(stream);
 }
 

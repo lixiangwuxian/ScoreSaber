@@ -36,7 +36,7 @@ struct Score
     int badCuts;
     int missedNotes;
     int maxCombo;
-    int wallsHit;
+    // int wallsHit;
     bool fullCombo;
     bool hasReplay;
     int headsetId;
@@ -44,10 +44,14 @@ struct Score
     string leftControllerName;
     string rightControllerName;
     string timeset;
+    int maxScore;
 
     Player player;
+    int leaderboardId;
     //useless maybe
-    ScoreImprovement scoreImprovement;
+    // ScoreImprovement scoreImprovement;
     Score();
     Score(rapidjson::Value const& document);
+    void setMaxScore(int maxScore);
+    void setLeaderboardId(int leaderboardId);
 };

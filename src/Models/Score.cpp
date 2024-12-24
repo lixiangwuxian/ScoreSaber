@@ -45,3 +45,12 @@ ScoreImprovement::ScoreImprovement(rapidjson::Value const& document) {
     totalRank = document["totalRank"].GetInt();
     totalPp = document["totalPp"].GetFloat();
 }
+
+void Score::setMaxScore(int maxScore) {
+    this->maxScore = maxScore;
+    this->accuracy = (float)this->modifiedScore / (float)maxScore;
+}
+
+void Score::setLeaderboardId(int leaderboardId) {
+    this->leaderboardId = leaderboardId;
+}

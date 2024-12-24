@@ -208,7 +208,7 @@ namespace ReplayRecorder {
         recording = false;
         if (replay != nullopt) {
             collectMapData(self);
-            processResults(levelCompletionResults, self->gameMode == "Party");
+            processResults(levelCompletionResults, self->gameMode != "Solo"||self->gameMode != "Multiplayer");
         }
     }
 
@@ -569,28 +569,76 @@ namespace ReplayRecorder {
         function<void(void)> const &started,
         function<void(Replay const &, PlayEndData, bool)> const &callback) {
 
-        BeatLeaderLogger.info("Installing ReplayRecorder hooks...");
+        ScoreSaberLogger.info("Installing ReplayRecorder hooks...");
 
-        INSTALL_HOOK(BeatLeaderLogger, ProcessResultsSolo);
-        INSTALL_HOOK(BeatLeaderLogger, SinglePlayerInstallBindings);
-        INSTALL_HOOK(BeatLeaderLogger, SpawnNote);
-        INSTALL_HOOK(BeatLeaderLogger, SpawnObstacle);
-        INSTALL_HOOK(BeatLeaderLogger, BeatMapStart);
-        INSTALL_HOOK(BeatLeaderLogger, LevelPause);
-        INSTALL_HOOK(BeatLeaderLogger, LevelUnpause);
-        INSTALL_HOOK(BeatLeaderLogger, GameplayCoreInstallerInstall);
-        INSTALL_HOOK(BeatLeaderLogger, Tick);
-        INSTALL_HOOK(BeatLeaderLogger, ComputeSwingRating);
-        INSTALL_HOOK(BeatLeaderLogger, ProcessNewSwingData);
-        INSTALL_HOOK(BeatLeaderLogger, PlayerHeightDetectorLateUpdate);
-        INSTALL_HOOK(BeatLeaderLogger, ScoreControllerStart);
-        INSTALL_HOOK(BeatLeaderLogger, ScoreControllerLateUpdate);
-        INSTALL_HOOK(BeatLeaderLogger, ProcessResultsMultiplayer);
-        INSTALL_HOOK(BeatLeaderLogger, HandleNoteControllerNoteWasCut);
+        INSTALL_HOOK(ScoreSaberLogger, ProcessResultsSolo);
+        INSTALL_HOOK(ScoreSaberLogger, SinglePlayerInstallBindings);
+        INSTALL_HOOK(ScoreSaberLogger, SpawnNote);
+        INSTALL_HOOK(ScoreSaberLogger, SpawnObstacle);
+        INSTALL_HOOK(ScoreSaberLogger, BeatMapStart);
+        INSTALL_HOOK(ScoreSaberLogger, LevelPause);
+        INSTALL_HOOK(ScoreSaberLogger, LevelUnpause);
+        INSTALL_HOOK(ScoreSaberLogger, GameplayCoreInstallerInstall);
+        INSTALL_HOOK(ScoreSaberLogger, Tick);
+        INSTALL_HOOK(ScoreSaberLogger, ComputeSwingRating);
+        INSTALL_HOOK(ScoreSaberLogger, ProcessNewSwingData);
+        INSTALL_HOOK(ScoreSaberLogger, PlayerHeightDetectorLateUpdate);
+        INSTALL_HOOK(ScoreSaberLogger, ScoreControllerStart);
+        INSTALL_HOOK(ScoreSaberLogger, ScoreControllerLateUpdate);
+        INSTALL_HOOK(ScoreSaberLogger, ProcessResultsMultiplayer);
+        INSTALL_HOOK(ScoreSaberLogger, HandleNoteControllerNoteWasCut);
 
-        BeatLeaderLogger.info("Installed all ReplayRecorder hooks!");
+        ScoreSaberLogger.info("Installed all ReplayRecorder hooks!");
 
         startedCallback = started;
         replayCallback = callback;
     }
 }
+
+//for ss
+
+std::string CreateScorePacket(GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap, int rawScore,
+                                int modifiedScore, bool fullCombo, int badCutsCount, int missedCount, int maxCombo, float energy,
+                                GlobalNamespace::GameplayModifiers* gameplayModifiers)
+    {
+        auto previewBeatmapLevel = reinterpret_cast<IPreviewBeatmapLevel*>(difficultyBeatmap->get_level());
+
+        std::string levelHash = GetFormattedHash(previewBeatmapLevel->get_levelID());
+
+        std::string gameMode = "Solo" + difficultyBeatmap->get_parentDifficultyBeatmapSet()->get_beatmapCharacteristic()->serializedName;
+        int difficulty = BeatmapDifficultyMethods::DefaultRating(difficultyBeatmap->get_difficulty());
+
+        std::string songName = previewBeatmapLevel->get_songName();
+        std::string songSubName = previewBeatmapLevel->get_songSubName();
+        std::string songAuthorName = previewBeatmapLevel->get_songAuthorName();
+        std::string levelAuthorName = previewBeatmapLevel->get_levelAuthorName();
+        int bpm = previewBeatmapLevel->get_beatsPerMinute();
+
+        std::u16string playerName = ScoreSaber::Services::PlayerService::playerInfo.localPlayerData.name;
+        std::string playerId = ScoreSaber::Services::PlayerService::playerInfo.localPlayerData.id;
+
+        auto modifiers = GetModifierList(gameplayModifiers, energy);
+
+        // TODO go back to these versions after the unity upgrade (if it works then)
+        // std::string deviceHmd = string_format("standalone_hmd:(ovrplugin):%s(%d)", std::string(GlobalNamespace::OVRPlugin::GetSystemHeadsetType().i_Enum()->ToString()).c_str(), (int)GlobalNamespace::OVRPlugin::GetSystemHeadsetType());
+        // std::string deviceController = string_format("standalone_controller:(ovrplugin):%s(%d)", std::string(GlobalNamespace::OVRPlugin::GetActiveController().i_Enum()->ToString()).c_str(), (int)GlobalNamespace::OVRPlugin::GetActiveController());
+
+        std::string deviceHmd = string_format("standalone_hmd:(ovrplugin):%s(%d)", stringify_OVRPlugin_SystemHeadset(GlobalNamespace::OVRPlugin::GetSystemHeadsetType()).c_str(), (int)GlobalNamespace::OVRPlugin::GetSystemHeadsetType());
+        std::string deviceController = string_format("standalone_controller:(ovrplugin):%s(%d)", stringify_OVRPlugin_Controller(GlobalNamespace::OVRPlugin::GetActiveController()).c_str(), (int)GlobalNamespace::OVRPlugin::GetActiveController());
+
+        std::string infoHash = GetVersionHash();
+
+        ScoreSaberUploadData data(playerName, playerId, rawScore, levelHash, songName, songSubName, levelAuthorName, songAuthorName, bpm,
+                                  difficulty, infoHash, modifiers, gameMode, badCutsCount, missedCount, maxCombo, fullCombo, deviceHmd, deviceController, deviceController);
+
+        std::string uploadData = data.serialize();
+
+        std::string key = md5("f0b4a81c9bd3ded1081b365f7628781f-" + Session::GetSession.playerKey + "-" + PlayerController::currentPlayer.id + "-f0b4a81c9bd3ded1081b365f7628781f");
+
+        std::vector<unsigned char> keyBytes(key.begin(), key.end());
+        std::vector<unsigned char> uploadDataBytes(uploadData.begin(), uploadData.end());
+        std::vector<unsigned char> encrypted = Swap(uploadDataBytes, keyBytes);
+        std::string result = ConvertToHex(encrypted);
+        std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+        return result;
+    }

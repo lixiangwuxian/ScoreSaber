@@ -86,10 +86,11 @@ struct ReplayNoteCutInfo {
 };
 
 enum struct NoteEventType {
-    GOOD = 0,
-    BAD = 1,
-    MISS = 2,
-    BOMB = 3
+    None = 0,
+    GOOD = 1,
+    BAD = 2,
+    MISS = 3,
+    BOMB = 4
 };
 
 struct NoteEvent {

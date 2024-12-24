@@ -2,7 +2,6 @@
 #include "include/UI/ModifiersUI.hpp"
 #include "include/UI/UIUtils.hpp"
 #include "include/Utils/StringUtils.hpp"
-#include "shared/Models/TriangleRating.hpp"
 
 #include "GlobalNamespace/GameplayModifierToggle.hpp"
 #include "GlobalNamespace/GameplayModifierParamsSO.hpp"
@@ -32,7 +31,7 @@ namespace ModifiersUI {
     SafePtrUnity<GameplayModifiersPanelController> modifiersPanel;
     unordered_map<string, GameplayModifierToggle*> allModifierToggles;
     unordered_map<string, float> songModifiers;
-    unordered_map<string, TriangleRating> songModifierRatings;
+    unordered_map<string, float> songModifierRatings;
     bool ssActive = false;
     bool multiActive = false;
 
@@ -103,7 +102,7 @@ namespace ModifiersUI {
         ModifierStart(self);
 
         string key = modifierKeyFromName[self->get_gameplayModifier()->get_modifierNameLocalizationKey()];
-        BeatLeaderLogger.info("{}", key.c_str());
+        ScoreSaberLogger.info("{}", key.c_str());
         if(!multiActive)
             allModifierToggles[key] = self;
     }
@@ -116,12 +115,12 @@ namespace ModifiersUI {
         }
     }
 
-    TriangleRating refreshAllModifiers(){
+    float refreshAllModifiers(){
         // Set the map dependant modifier values on the toggles (with colors)
         for(auto& [key, value] : allModifierToggles){
             string modifierSubText;
             if (songModifierRatings.contains(key)) {
-                modifierSubText = (key != "SS" ? "<color=#00FF77>" : "<color=#00FFFF>") + (string)"New stars " + to_string_wprecision(UIUtils::getStarsToShow(songModifierRatings[key]), 2);
+                modifierSubText = (key != "SS" ? "<color=#00FF77>" : "<color=#00FFFF>") + (string)"New stars " + to_string_wprecision(songModifierRatings[key], 2);
             }
             else if(songModifiers.contains(key)) {
                 float modifierValue = songModifiers[key];
@@ -138,9 +137,9 @@ namespace ModifiersUI {
         return refreshMultiplierAndMaxRank();
     }
 
-    TriangleRating refreshMultiplierAndMaxRank()
+    float refreshMultiplierAndMaxRank()
     {
-        TriangleRating ratingSelected;
+        float ratingSelected;
         // If we dont have a panel reference we cant do anything
         if (modifiersPanel) {
 
@@ -184,10 +183,10 @@ namespace ModifiersUI {
     }
 
     void setup() {
-        INSTALL_HOOK(BeatLeaderLogger, ModifierStart);
-        INSTALL_HOOK(BeatLeaderLogger, RefreshMultipliers);
-        INSTALL_HOOK(BeatLeaderLogger, ActivateMultiplayer);
-        INSTALL_HOOK(BeatLeaderLogger, DeActivateMultiplayer);
+        INSTALL_HOOK(ScoreSaberLogger, ModifierStart);
+        INSTALL_HOOK(ScoreSaberLogger, RefreshMultipliers);
+        INSTALL_HOOK(ScoreSaberLogger, ActivateMultiplayer);
+        INSTALL_HOOK(ScoreSaberLogger, DeActivateMultiplayer);
     }
 
     void SetModifiersActive(bool active) {

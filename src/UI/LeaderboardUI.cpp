@@ -376,13 +376,129 @@ namespace LeaderboardUI {
     //     }
     // }
 
-    tuple<string, int, string> getLevelDetails(BeatmapKey levelData)
+    bool Contains(string haystack, string needle)
     {
-        string hash = regex_replace((string)levelData.levelId, basic_regex("custom_level_"), "");
-        // string difficulty = MapEnhancer::DiffName(levelData.difficulty.value__);
+        if (haystack.find(needle) != string::npos)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    tuple<string, int, string> getLevelDetails(BeatmapKey levelData)
+    {   
+        string hash =levelData.levelId;
+        if (Contains(hash,"custom_level_")){
+         hash=regex_replace((string)levelData.levelId, basic_regex("custom_level_"), "");
+        } else {
+            hash="ost_"+hash;
+        }
         int difficulty = levelData.difficulty.value__;
         string mode = "Solo" + (string)levelData.beatmapCharacteristic->serializedName;
         return make_tuple(hash, difficulty, mode);
+    }
+
+    void processLeaderboardResponse(long status, string stringResult) {
+        rapidjson::Document result;
+        result.Parse(stringResult.c_str());
+        if (result.HasParseError() || !result.HasMember("scores")) {
+            ScoreSaberLogger.warn("LeaderboardUI refreshFromTheServerScores result has parse error or no scores member");
+            ScoreSaberLogger.warn("{}",stringResult);
+            plvc->_loadingControl->Hide();
+            plvc->_hasScoresData = false;
+            plvc->_loadingControl->ShowText("Error while loading leaderboard", true);
+            return;
+        }
+
+        LeaderBoardInfo leaderBoardInfo(result["leaderboardInfo"].GetObject());
+    
+        LevelInfoUI::setLabels(leaderBoardInfo);
+
+
+        int maxScore = leaderBoardInfo.maxScore;
+
+        auto scores = result["scores"].GetArray();
+
+        plvc->_scores->Clear();
+        if ((int)scores.Size() == 0) {
+            plvc->_loadingControl->Hide();
+            plvc->_hasScoresData = false;
+            plvc->_loadingControl->ShowText("No scores were found!", true);
+            
+            plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
+            return;
+        }
+
+        //dummy data
+        int perPage = 10;
+        int topRank = 0;
+
+        for (int index = 0; index < 10; ++index)
+        {
+            if (index < (int)scores.Size())
+            {
+                auto const& score = scores[index];
+                
+                Score currentScore = Score(score);
+                currentScore.setMaxScore(maxScore);
+                currentScore.setLeaderboardId(leaderBoardInfo.id);
+                scoreVector[index] = currentScore;
+
+                if (index == 0) {
+                    topRank = currentScore.rank;
+                }
+                
+                if (currentScore.playerId.compare(PlayerController::currentPlayer->id) == 0) {
+                    selectedScore = index;
+                }
+                
+                int modifiedScore = currentScore.modifiedScore;
+                LeaderboardTableView::ScoreData* scoreData = LeaderboardTableView::ScoreData::New_ctor(
+                    modifiedScore, 
+                    FormatUtils::FormatPlayerScore(currentScore), 
+                    currentScore.rank, 
+                    false);
+                plvc->_scores->Add(scoreData);
+            }
+        }
+        plvc->_leaderboardTableView->_rowHeight = 6;
+        if (selectedScore > 9 && !result["selection"].IsNull()) {
+            Score currentScore = Score(result["selection"]);
+
+            LeaderboardTableView::ScoreData* scoreData = LeaderboardTableView::ScoreData::New_ctor(
+                    currentScore.modifiedScore, 
+                    FormatUtils::FormatPlayerScore(currentScore), 
+                    currentScore.rank, 
+                    false);
+            
+            if (currentScore.rank > topRank) {
+                plvc->_scores->Add(scoreData);
+                scoreVector[10] = currentScore;
+                selectedScore = 10;
+            } else {
+                for (size_t i = 10; i > 0; i--)
+                {
+                    scoreVector[i] = scoreVector[i - 1];
+                }
+                plvc->_scores->Insert(0, scoreData);
+                scoreVector[0] = currentScore;
+                selectedScore = 0;
+            }
+            if (plvc->_scores->get_Count() > 10) {
+                plvc->_leaderboardTableView->_rowHeight = 5.5;
+            }
+        }
+            
+        plvc->_leaderboardTableView->_scores = plvc->_scores;
+        plvc->_leaderboardTableView->_specialScorePos = 12;
+        if (upPageButton != NULL) {
+            upPageButton->get_gameObject()->SetActive(page > 1);
+            downPageButton->get_gameObject()->SetActive(scoreVector.size() >= 10);
+        }
+
+        plvc->_loadingControl->Hide();
+        plvc->_hasScoresData = true;
+        plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
     }
 
     void refreshFromTheServerScores() {
@@ -410,7 +526,7 @@ namespace LeaderboardUI {
             break;
         }
         
-        plvc->_loadingControl->ShowText("Generated leaderboard url...", true);
+        plvc->_loadingControl->ShowText("Loading Scores...", true);
 
         lastUrl = url;
 
@@ -418,199 +534,10 @@ namespace LeaderboardUI {
             if (url != lastUrl) return;
             if (!showBeatLeader) return;
 
-            BeatLeaderLogger.warn("LeaderboardUI refreshFromTheServerScores status: {}, {}", status, stringResult);
-
-            if (status != 200) {
-                return;
-            }
-
-            //todo leaderboard
-            BSML::MainThreadScheduler::Schedule([status, stringResult] {
-                rapidjson::Document result;
-                result.Parse(stringResult.c_str());
-                if (result.HasParseError() || !result.HasMember("scores")) {
-                    BeatLeaderLogger.error("LeaderboardUI refreshFromTheServerScores result has parse error or no scores member");
-                    return;
-                }
-
-                auto scores = result["scores"].GetArray();
-
-                plvc->_scores->Clear();
-                if ((int)scores.Size() == 0) {
-                    plvc->_loadingControl->Hide();
-                    plvc->_hasScoresData = false;
-                    plvc->_loadingControl->ShowText("No scores were found!", true);
-                    
-                    plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
-                    return;
-                }
-
-                // auto metadata = result["metadata"].GetObject();
-                // int perPage = metadata["itemsPerPage"].GetInt();
-                // int pageNum = metadata["page"].GetInt();
-                // int total = metadata["total"].GetInt();
-
-                //dummy data
-                int perPage = 10;
-                int pageNum = 100;
-                int total = 10000;
-
-                int topRank = 0;
-
-                for (int index = 0; index < 10; ++index)
-                {
-                    if (index < (int)scores.Size())
-                    {
-                        auto const& score = scores[index];
-                        
-                        Score currentScore = Score(score);
-                        scoreVector[index] = currentScore;
-
-                        if (index == 0) {
-                            topRank = currentScore.rank;
-                        }
-                        
-                        if (currentScore.playerId.compare(PlayerController::currentPlayer->id) == 0) {
-                            selectedScore = index;
-                        }
-
-                        LeaderboardTableView::ScoreData* scoreData = LeaderboardTableView::ScoreData::New_ctor(
-                            currentScore.modifiedScore, 
-                            FormatUtils::FormatPlayerScore(currentScore), 
-                            currentScore.rank, 
-                            false);
-                        plvc->_scores->Add(scoreData);
-                    }
-                }
-                plvc->_leaderboardTableView->_rowHeight = 6;
-                if (selectedScore > 9 && !result["selection"].IsNull()) {
-                    Score currentScore = Score(result["selection"]);
-
-                    LeaderboardTableView::ScoreData* scoreData = LeaderboardTableView::ScoreData::New_ctor(
-                            currentScore.modifiedScore, 
-                            FormatUtils::FormatPlayerScore(currentScore), 
-                            currentScore.rank, 
-                            false);
-                    
-                    if (currentScore.rank > topRank) {
-                        plvc->_scores->Add(scoreData);
-                        scoreVector[10] = currentScore;
-                        selectedScore = 10;
-                    } else {
-                        for (size_t i = 10; i > 0; i--)
-                        {
-                            scoreVector[i] = scoreVector[i - 1];
-                        }
-                        plvc->_scores->Insert(0, scoreData);
-                        scoreVector[0] = currentScore;
-                        selectedScore = 0;
-                    }
-                    if (plvc->_scores->get_Count() > 10) {
-                        plvc->_leaderboardTableView->_rowHeight = 5.5;
-                    }
-                }
-                    
-                plvc->_leaderboardTableView->_scores = plvc->_scores;
-                plvc->_leaderboardTableView->_specialScorePos = 12;
-                if (upPageButton != NULL) {
-                    upPageButton->get_gameObject()->SetActive(pageNum != 1);
-                    downPageButton->get_gameObject()->SetActive(pageNum * perPage < total);
-                }
-
-                plvc->_loadingControl->Hide();
-                plvc->_hasScoresData = true;
-                plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
-            });
+            BSML::MainThreadScheduler::Schedule(std::bind(&processLeaderboardResponse, status, stringResult));
         });
-        
-        // string votingStatusUrl = WebUtils::API_URL + "votestatus/" + hash + "/" + difficulty + "/" + mode;
-        // votingUrl = WebUtils::API_URL + "vote/" + hash + "/" + difficulty + "/" + mode;
-        // if (lastVotingStatusUrl != votingStatusUrl) {
-        //     updateVotingButton();
-        // }
-
-        // plvc->_loadingControl->ShowText("Loading", true);
+    
     }
-
-    // void refreshFromTheServerClans() {
-    //     //todo debug
-    //     return;
-    //     //
-    //     auto [hash, difficulty, mode] = getLevelDetails(plvc->_beatmapKey);
-    //     string url = WebUtils::API_URL + "v1/clanScores/" + hash + "/" + difficulty + "/" + mode + "/page";
-
-    //     url += "?page=" + to_string(page);
-
-    //     lastUrl = url;
-
-
-    //     WebUtils::GetAsync(url, [url](long status, string stringResult){
-    //         if (url != lastUrl) return;
-    //         if (!showBeatLeader) return;
-
-    //         if (status != 200) {
-    //             return;
-    //         }
-
-    //         BSML::MainThreadScheduler::Schedule([status, stringResult] {
-    //             rapidjson::Document result;
-    //             result.Parse(stringResult.c_str());
-    //             if (result.HasParseError() || !result.HasMember("data")) return;
-
-    //             auto scores = result["data"].GetArray();
-
-    //             plvc->_scores->Clear();
-    //             if ((int)scores.Size() == 0) {
-    //                 plvc->_loadingControl->Hide();
-    //                 plvc->_hasScoresData = false;
-    //                 plvc->_loadingControl->ShowText("No clan rankings were found!", true);
-                    
-    //                 plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
-    //                 return;
-    //             }
-
-    //             auto metadata = result["metadata"].GetObject();
-    //             int perPage = metadata["itemsPerPage"].GetInt();
-    //             int pageNum = metadata["page"].GetInt();
-    //             int total = metadata["total"].GetInt();
-
-    //             for (int index = 0; index < 10; ++index)
-    //             {
-    //                 if (index < (int)scores.Size())
-    //                 {
-    //                     auto const& score = scores[index];
-                        
-    //                     ClanScore currentScore = ClanScore(score);
-    //                     clanScoreVector[index] = currentScore;
-
-    //                     BeatLeaderLogger.info("ClanScore");
-    //                     LeaderboardTableView::ScoreData* scoreData = LeaderboardTableView::ScoreData::New_ctor(
-    //                         currentScore.modifiedScore, 
-    //                         FormatUtils::FormatClanScore(currentScore), 
-    //                         currentScore.rank, 
-    //                         false);
-    //                     plvc->_scores->Add(scoreData);
-    //                 }
-    //             }
-
-    //             plvc->_leaderboardTableView->_rowHeight = 6;
-                    
-    //             plvc->_leaderboardTableView->_scores = plvc->_scores;
-    //             plvc->_leaderboardTableView->_specialScorePos = 12;
-
-    //             if (upPageButton != NULL) {
-    //                 upPageButton->get_gameObject()->SetActive(pageNum != 1);
-    //                 downPageButton->get_gameObject()->SetActive(pageNum * perPage < total);
-    //             }
-
-    //             plvc->_loadingControl->Hide();
-    //             plvc->_hasScoresData = true;
-    //             plvc->_leaderboardTableView->_tableView->SetDataSource(plvc->_leaderboardTableView.cast<HMUI::TableView::IDataSource>(), true);
-    //         });
-    //     });
-
-    //     plvc->_loadingControl->ShowText("Loading", true);
-    // }
 
     void updateModifiersButton() {
         auto currentContext = ScoresContexts::getContextForId(getModConfig().Context.GetValue());
@@ -1453,18 +1380,18 @@ namespace LeaderboardUI {
             }
         }
 
-        INSTALL_HOOK(BeatLeaderLogger, LeaderboardActivate);
-        INSTALL_HOOK(BeatLeaderLogger, LeaderboardDeactivate);
-        INSTALL_HOOK(BeatLeaderLogger, LocalLeaderboardDidActivate);
-        INSTALL_HOOK(BeatLeaderLogger, RefreshLeaderboard);
-        INSTALL_HOOK(BeatLeaderLogger, RefreshLevelStats);
-        INSTALL_HOOK(BeatLeaderLogger, LeaderboardCellSource);
-        INSTALL_HOOK(BeatLeaderLogger, SegmentedControlHandleCellSelection);
+        INSTALL_HOOK(ScoreSaberLogger, LeaderboardActivate);
+        INSTALL_HOOK(ScoreSaberLogger, LeaderboardDeactivate);
+        INSTALL_HOOK(ScoreSaberLogger, LocalLeaderboardDidActivate);
+        INSTALL_HOOK(ScoreSaberLogger, RefreshLeaderboard);
+        INSTALL_HOOK(ScoreSaberLogger, RefreshLevelStats);
+        INSTALL_HOOK(ScoreSaberLogger, LeaderboardCellSource);
+        INSTALL_HOOK(ScoreSaberLogger, SegmentedControlHandleCellSelection);
 
         if (!ssInstalled) {
-            INSTALL_HOOK(BeatLeaderLogger, MultiplayerLobbyControllerActivateMultiplayerLobby);
-            INSTALL_HOOK(BeatLeaderLogger, MultiplayerLobbyControllerDeactivateMultiplayerLobby);
-            INSTALL_HOOK(BeatLeaderLogger, MainSettingsMenuViewControllersInstallerInstall);
+            INSTALL_HOOK(ScoreSaberLogger, MultiplayerLobbyControllerActivateMultiplayerLobby);
+            INSTALL_HOOK(ScoreSaberLogger, MultiplayerLobbyControllerDeactivateMultiplayerLobby);
+            INSTALL_HOOK(ScoreSaberLogger, MainSettingsMenuViewControllersInstallerInstall);
         }
 
         ScoresContexts::initializeGeneral();

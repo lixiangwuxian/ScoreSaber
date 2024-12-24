@@ -41,12 +41,12 @@ void PlaylistSynchronizer::DownloadBeatmap(string path, string hash, int index, 
             int args = 2;
             statusCode = zip_stream_extract(data.data(), data.length(), targetFolder.c_str(), +[](const char* name, void* arg) -> int { return 0; }, &args);
 
-            BeatLeaderLogger.info("{}", "Map downloaded");
+            ScoreSaberLogger.info("{}", "Map downloaded");
         }
         if (index + 1 < mapsToDownload.size()) {
             PlaylistSynchronizer::GetBeatmap(index + 1);
         } else {
-            BeatLeaderLogger.info("{}", "Refreshing songs");
+            ScoreSaberLogger.info("{}", "Refreshing songs");
             SongCore::API::Loading::RefreshSongs(false);
             SongCore::API::Loading::RefreshLevelPacks();
                 
@@ -63,7 +63,7 @@ void PlaylistSynchronizer::DownloadBeatmap(string path, string hash, int index, 
 
 void PlaylistSynchronizer::GetBeatmap(int index) {
     string hash = mapsToDownload[index];
-    BeatLeaderLogger.info("{}", ("Will download " + hash).c_str());
+    ScoreSaberLogger.info("{}", ("Will download " + hash).c_str());
 
     WebUtils::GetJSONAsync("https://api.beatsaver.com/maps/hash/" + hash, [hash, index] (long status, bool error, rapidjson::Document const& result){
         if (status == 200 && !error && result.HasMember("versions")) {

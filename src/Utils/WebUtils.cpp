@@ -123,7 +123,7 @@ namespace WebUtils {
             s.append((char*)contents, newLength);
         } catch(std::bad_alloc &e) {
             //handle memory problem
-            BeatLeaderLogger.critical("Failed to allocate string of size: {}", newLength);
+            ScoreSaberLogger.critical("Failed to allocate string of size: {}", newLength);
             return 0;
         }
         return newLength;
@@ -150,6 +150,10 @@ namespace WebUtils {
         std::filesystem::create_directories(directory);
         return directory + "cookies.txt";
     }
+    string getSecretFile() {
+        return StaticUtils::STEAM_KEY_PATH;
+    }
+
     long Get(string url, string& val) {
         return Get(url, TIMEOUT, val);
     }
@@ -187,7 +191,7 @@ namespace WebUtils {
         auto res = curl_easy_perform(curl);
         /* Check for errors */ 
         if (res != CURLE_OK) {
-            BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {}", static_cast<int>(res), curl_easy_strerror(res));
+            ScoreSaberLogger.critical("curl_easy_perform() failed: {}: {}", static_cast<int>(res), curl_easy_strerror(res));
         }
         curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
         curl_easy_cleanup(curl);
@@ -264,7 +268,7 @@ namespace WebUtils {
                     string errorValue = curl_easy_strerror(res);
                     char *url;
                     curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &url);
-                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {} for URL: {}", errorCode, errorValue, url);
+                    ScoreSaberLogger.critical("curl_easy_perform() failed: {}: {} for URL: {}", errorCode, errorValue, url);
                     curl_easy_cleanup(curl);
                     finished(errorCode, errorValue);
                 } else {
@@ -334,7 +338,7 @@ namespace WebUtils {
                     long errorCode = static_cast<long>(res);
                     string errorValue = curl_easy_strerror(res);
                     
-                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
+                    ScoreSaberLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
                     if (val) {
                         fclose(val);
                     }
@@ -408,7 +412,7 @@ namespace WebUtils {
                 if (res != CURLE_OK) {
                     long errorCode = static_cast<long>(res);
                     string errorValue = curl_easy_strerror(res);
-                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
+                    ScoreSaberLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
                     curl_easy_cleanup(curl);
                     finished(errorCode, errorValue);
                 } else {
@@ -457,7 +461,7 @@ namespace WebUtils {
                 if (res != CURLE_OK) {
                     long errorCode = static_cast<long>(res);
                     string errorValue = curl_easy_strerror(res);
-                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
+                    ScoreSaberLogger.critical("curl_easy_perform() failed: {}: {}", errorCode, errorValue);
                     curl_easy_cleanup(curl);
                     finished(errorCode, errorValue);
                 } else {
@@ -567,7 +571,7 @@ namespace WebUtils {
                     string errorValue = curl_easy_strerror(res);
                     char *url;
                     curl_easy_getinfo(curl, CURLINFO_EFFECTIVE_URL, &url);
-                    BeatLeaderLogger.critical("curl_easy_perform() failed: {}: {} for URL: {}", errorCode, errorValue, url);
+                    ScoreSaberLogger.critical("curl_easy_perform() failed: {}: {} for URL: {}", errorCode, errorValue, url);
                     curl_easy_cleanup(curl);
                     finished(errorCode, errorValue, "");
                 } else {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "shared/Models/TriangleRating.hpp"
-
 #include <unordered_map>
 #include <string>
 
@@ -9,11 +7,11 @@ using namespace std;
 
 namespace ModifiersUI {
     extern unordered_map<string, float> songModifiers;
-    extern unordered_map<string, TriangleRating> songModifierRatings;
+    extern unordered_map<string, float> songModifierRatings;
 
     void setup();
-    TriangleRating refreshMultiplierAndMaxRank();
-    TriangleRating refreshAllModifiers();
+    float refreshMultiplierAndMaxRank();
+    float refreshAllModifiers();
     void SetModifiersActive(bool active);
     void ResetModifiersUI();
     bool ModifiersAvailable();

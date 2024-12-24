@@ -6,7 +6,6 @@
 
 #include "UI/UIUtils.hpp"
 
-#include "shared/Models/TriangleRating.hpp"
 #include "include/Utils/ModConfig.hpp"
 
 #include "main.hpp"
@@ -146,18 +145,5 @@ namespace UIUtils {
         
         gameObj->AddComponent<UnityEngine::UI::LayoutElement*>();
         return background;
-    }
-
-    float getStarsToShow(TriangleRating rating){
-        switch(getModConfig().StarValueToShow.GetValue()){
-            case 1:
-                return rating.techRating;
-            case 2:
-                return rating.accRating;
-            case 3:
-                return rating.passRating;
-            default:
-                return rating.stars;
-        }
     }
 }
