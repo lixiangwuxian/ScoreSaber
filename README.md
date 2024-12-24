@@ -38,5 +38,5 @@ Not Works for now:
  - replay
 
 Bugs:
- - Game crash when click setting icon in main menu. Still figureing out why.
+ - Game crash when click setting icon in main menu. Still figuring out why.
  - need to login every time when restart game.
