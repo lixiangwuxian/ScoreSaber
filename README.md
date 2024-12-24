@@ -1,4 +1,4 @@
-# BeatLeader Quest Mod
+<!--# BeatLeader Quest Mod
 
 Oculus Quest native mod for the BeatLeader.
 
@@ -24,3 +24,19 @@ Go to the https://beatleader.xyz/ to see your scores on the web.
 * [zoller27osu](https://github.com/zoller27osu), [Sc2ad](https://github.com/Sc2ad) and [jakibaki](https://github.com/jakibaki) - [beatsaber-hook](https://github.com/sc2ad/beatsaber-hook)
 * [raftario](https://github.com/raftario)
 * [Lauriethefish](https://github.com/Lauriethefish), [danrouse](https://github.com/danrouse) and [Bobby Shmurner](https://github.com/BobbyShmurner) for [this template](https://github.com/Lauriethefish/quest-mod-template)
+-->
+# Work in progress
+
+scoresaber for 1.37 quest version but based on beatleader mod
+
+Works:
+ - leaderboard
+ - song detail
+ 
+Not Works for now:
+ - score upload
+ - replay
+
+Bugs:
+ - Game crash when click setting icon in main menu. Still figureing out why.
+ - need to login every time when restart game.
