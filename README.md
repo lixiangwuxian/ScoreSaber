@@ -31,7 +31,7 @@ scoresaber for 1.37 quest version but based on beatleader mod
 
 Works:
  - leaderboard
- - song detail
+ - song detail (ranking, pp)
  
 Not Works for now:
  - score upload
