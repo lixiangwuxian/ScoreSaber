@@ -11,7 +11,7 @@
 
 void MapEnhancer::Enhance(Replay &replay)
 {
-    ReplayInfo& info = replay.info;
+    Metadata& info = replay.info;
     info.hash = regex_replace((string)beatmapLevel->levelID, basic_regex("custom_level_"), "");
     info.songName = (string)beatmapLevel->songName;
     info.mapper = (string)beatmapLevel->songAuthorName;

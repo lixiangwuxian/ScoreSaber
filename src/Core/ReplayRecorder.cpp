@@ -119,12 +119,12 @@ namespace ReplayRecorder {
     map<ISaberSwingRatingCounter*, int> _swingIdCache;
     int _noteId;
 
-    map<ObstacleController *, int> _wallCache;
-    map<int, WallEvent> _wallEventCache;
-    int _wallId;
+    // map<ObstacleController *, int> _wallCache;
+    // map<int, WallEvent> _wallEventCache;
+    // int _wallId;
 
-    optional<Pause> _currentPause;
-    optional<WallEvent> _currentWallEvent;
+    // optional<Pause> _currentPause;
+    // optional<WallEvent> _currentWallEvent;
     chrono::steady_clock::time_point _pauseStartTime;
     System::Action_1<float>* _heightEvent;
     System::Action_1<ScoringElement*>* _scoreEvent;
@@ -143,26 +143,26 @@ namespace ReplayRecorder {
         automaticPlayerHeight = self->gameplayCoreSceneSetupData->playerSpecificSettings->automaticPlayerHeight;
     }
 
-    void collectMultiplayerMapData(MultiplayerLevelScenesTransitionSetupDataSO* self) {
-        GameplayCoreSceneSetupData* gameplayCoreSceneSetupData = reinterpret_cast<GameplayCoreSceneSetupData*>(self->gameplayCoreSceneSetupData);
+    // void collectMultiplayerMapData(MultiplayerLevelScenesTransitionSetupDataSO* self) {
+    //     GameplayCoreSceneSetupData* gameplayCoreSceneSetupData = reinterpret_cast<GameplayCoreSceneSetupData*>(self->gameplayCoreSceneSetupData);
 
-        mapEnhancer.difficultyBeatmap = self->beatmapKey;
-        mapEnhancer.beatmapLevel = gameplayCoreSceneSetupData->beatmapLevel;
-        mapEnhancer.gameplayModifiers = gameplayCoreSceneSetupData->gameplayModifiers;
-        mapEnhancer.playerSpecificSettings = gameplayCoreSceneSetupData->playerSpecificSettings;
-        mapEnhancer.practiceSettings = NULL;
-        mapEnhancer.environmentInfo = self->_loadedMultiplayerEnvironmentInfo;
-        mapEnhancer.colorScheme = self->colorScheme;
+    //     mapEnhancer.difficultyBeatmap = self->beatmapKey;
+    //     mapEnhancer.beatmapLevel = gameplayCoreSceneSetupData->beatmapLevel;
+    //     mapEnhancer.gameplayModifiers = gameplayCoreSceneSetupData->gameplayModifiers;
+    //     mapEnhancer.playerSpecificSettings = gameplayCoreSceneSetupData->playerSpecificSettings;
+    //     mapEnhancer.practiceSettings = NULL;
+    //     mapEnhancer.environmentInfo = self->_loadedMultiplayerEnvironmentInfo;
+    //     mapEnhancer.colorScheme = self->colorScheme;
 
-        automaticPlayerHeight = gameplayCoreSceneSetupData->playerSpecificSettings->automaticPlayerHeight;
-    }
+    //     automaticPlayerHeight = gameplayCoreSceneSetupData->playerSpecificSettings->automaticPlayerHeight;
+    // }
 
     void startReplay() {
         std::string timeStamp(std::to_string(std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now().time_since_epoch()).count()));
 
         recording = true;
         _currentPause = nullopt;
-        replay.emplace(ReplayInfo(modInfo.version, UnityEngine::Application::get_version(), timeStamp));
+        replay.emplace(Metadata(modInfo.version, UnityEngine::Application::get_version(), timeStamp));
 
         userEnhancer.Enhance(replay.value());
         audioTimeSyncController = nullptr;
@@ -212,38 +212,38 @@ namespace ReplayRecorder {
         }
     }
 
-    void processMultiplayerResults(MultiplayerResultsData* levelCompletionResults) {
-        auto results = levelCompletionResults->localPlayerResultData->multiplayerLevelCompletionResults;
+    // void processMultiplayerResults(MultiplayerResultsData* levelCompletionResults) {
+    //     auto results = levelCompletionResults->localPlayerResultData->multiplayerLevelCompletionResults;
 
-        if (results->get_hasAnyResults()) {
-            switch (results->playerLevelEndReason)
-            {
-                case MultiplayerLevelCompletionResults::MultiplayerPlayerLevelEndReason::Cleared:
-                {
-                    auto results = levelCompletionResults->localPlayerResultData->multiplayerLevelCompletionResults->levelCompletionResults; 
-                    auto playEndData = PlayEndData(results, replay->info.speed);
+    //     if (results->get_hasAnyResults()) {
+    //         switch (results->playerLevelEndReason)
+    //         {
+    //             case MultiplayerLevelCompletionResults::MultiplayerPlayerLevelEndReason::Cleared:
+    //             {
+    //                 auto results = levelCompletionResults->localPlayerResultData->multiplayerLevelCompletionResults->levelCompletionResults; 
+    //                 auto playEndData = PlayEndData(results, replay->info.speed);
 
-                    replay->info.score = results->multipliedScore;
+    //                 replay->info.score = results->multipliedScore;
 
-                    mapEnhancer.energy = results->energy;
-                    mapEnhancer.Enhance(replay.value());
-                    replayCallback(*replay, playEndData, false);
-                    break;
-                }
-                default:
-                    break;
-            }
-        }
-    }
+    //                 mapEnhancer.energy = results->energy;
+    //                 mapEnhancer.Enhance(replay.value());
+    //                 replayCallback(*replay, playEndData, false);
+    //                 break;
+    //             }
+    //             default:
+    //                 break;
+    //         }
+    //     }
+    // }
 
-    MAKE_HOOK_MATCH(ProcessResultsMultiplayer, &MultiplayerLevelScenesTransitionSetupDataSO::Finish, void, MultiplayerLevelScenesTransitionSetupDataSO* self, MultiplayerResultsData* levelCompletionResults) {
-        ProcessResultsMultiplayer(self, levelCompletionResults);
-        recording = false;
-        if (replay != nullopt && levelCompletionResults != NULL) {
-            collectMultiplayerMapData(self);
-            processMultiplayerResults(levelCompletionResults);
-        }
-    }
+    // MAKE_HOOK_MATCH(ProcessResultsMultiplayer, &MultiplayerLevelScenesTransitionSetupDataSO::Finish, void, MultiplayerLevelScenesTransitionSetupDataSO* self, MultiplayerResultsData* levelCompletionResults) {
+    //     ProcessResultsMultiplayer(self, levelCompletionResults);
+    //     recording = false;
+    //     if (replay != nullopt && levelCompletionResults != NULL) {
+    //         collectMultiplayerMapData(self);
+    //         processMultiplayerResults(levelCompletionResults);
+    //     }
+    // }
 
     void NoteSpawned(NoteController* noteController, NoteData* noteData) {
         if (replay == nullopt) return;
@@ -262,7 +262,16 @@ namespace ReplayRecorder {
 
     MAKE_HOOK_MATCH(SpawnNote, &BeatmapObjectManager::AddSpawnedNoteController, void, BeatmapObjectManager* self, NoteController* noteController, BeatmapObjectSpawnMovementData::NoteSpawnData noteSpawnData, float rotation) {
         SpawnNote(self, noteController, noteSpawnData, rotation);
-        NoteSpawned(noteController, noteController->noteData);
+        // NoteSpawned(noteController, noteController->noteData);
+        NoteEvent noteEvent;
+        noteEvent.TheNoteID = CreateNoteID(noteController->noteData);
+        noteEvent.EventType = static_cast<int>(NoteEventType::GOOD);
+        noteEvent.Time = audioTimeSyncController->songTime;
+        noteEvent.CutPoint = GetCutPoint(noteController);
+        noteEvent.CutNormal = GetCutNormal(noteController);
+        noteEvent.SaberDirection = GetSaberDirection(noteController);
+        // 填充其他字段
+        replay->noteKeyframes.push_back(noteEvent);
     }
 
     MAKE_HOOK_MATCH(SpawnObstacle, &BeatmapObjectManager::AddSpawnedObstacleController, void, BeatmapObjectManager* self, ObstacleController* obstacleController, BeatmapObjectSpawnMovementData::ObstacleSpawnData obstacleSpawnData, float rotation) {
@@ -485,31 +494,31 @@ namespace ReplayRecorder {
         BeatMapStart(self);
 
         if(replay != nullopt) {
-            replay->info.jumpDistance = self->get_jumpDistance();
-            _currentPause = nullopt;
-            _currentWallEvent = nullopt;
+            // replay->info.jumpDistance = self->get_jumpDistance();
+            // _currentPause = nullopt;
+            // _currentWallEvent = nullopt;
         }
     }
 
-    MAKE_HOOK_MATCH(LevelPause, &PauseMenuManager::ShowMenu, void, PauseMenuManager* self) {
-        LevelPause(self);
-        if (replay == nullopt) return;
+    // MAKE_HOOK_MATCH(LevelPause, &PauseMenuManager::ShowMenu, void, PauseMenuManager* self) {
+    //     LevelPause(self);
+    //     if (replay == nullopt) return;
 
-        _currentPause = Pause();
-        _currentPause->time = audioTimeSyncController->songTime;
-        _pauseStartTime = chrono::steady_clock::now();
-    }
+    //     _currentPause = Pause();
+    //     _currentPause->time = audioTimeSyncController->songTime;
+    //     _pauseStartTime = chrono::steady_clock::now();
+    // }
 
-    MAKE_HOOK_MATCH(LevelUnpause, &PauseMenuManager::HandleResumeFromPauseAnimationDidFinish, void, PauseMenuManager* self) {
-        LevelUnpause(self);
+    // MAKE_HOOK_MATCH(LevelUnpause, &PauseMenuManager::HandleResumeFromPauseAnimationDidFinish, void, PauseMenuManager* self) {
+    //     LevelUnpause(self);
 
-        _currentPause->duration = (long)chrono::duration_cast<std::chrono::seconds>(chrono::steady_clock::now() - _pauseStartTime).count();
+    //     _currentPause->duration = (long)chrono::duration_cast<std::chrono::seconds>(chrono::steady_clock::now() - _pauseStartTime).count();
 
-        if (replay != nullopt) {
-            replay->pauses.emplace_back(_currentPause.value());
-            _currentPause = nullopt;
-        }
-    }
+    //     if (replay != nullopt) {
+    //         replay->pauses.emplace_back(_currentPause.value());
+    //         _currentPause = nullopt;
+    //     }
+    // }
 
     MAKE_HOOK_MATCH(GameplayCoreInstallerInstall, &GameplayCoreInstaller::InstallBindings, void, GameplayCoreInstaller* installer) {
         GameplayCoreInstallerInstall(installer);
@@ -576,10 +585,10 @@ namespace ReplayRecorder {
         INSTALL_HOOK(ScoreSaberLogger, SpawnNote);
         INSTALL_HOOK(ScoreSaberLogger, SpawnObstacle);
         INSTALL_HOOK(ScoreSaberLogger, BeatMapStart);
-        INSTALL_HOOK(ScoreSaberLogger, LevelPause);
-        INSTALL_HOOK(ScoreSaberLogger, LevelUnpause);
+        // INSTALL_HOOK(ScoreSaberLogger, LevelPause);
+        // INSTALL_HOOK(ScoreSaberLogger, LevelUnpause);
         INSTALL_HOOK(ScoreSaberLogger, GameplayCoreInstallerInstall);
-        INSTALL_HOOK(ScoreSaberLogger, Tick);
+        // INSTALL_HOOK(ScoreSaberLogger, Tick);
         INSTALL_HOOK(ScoreSaberLogger, ComputeSwingRating);
         INSTALL_HOOK(ScoreSaberLogger, ProcessNewSwingData);
         INSTALL_HOOK(ScoreSaberLogger, PlayerHeightDetectorLateUpdate);
@@ -594,51 +603,3 @@ namespace ReplayRecorder {
         replayCallback = callback;
     }
 }
-
-//for ss
-
-std::string CreateScorePacket(GlobalNamespace::IDifficultyBeatmap* difficultyBeatmap, int rawScore,
-                                int modifiedScore, bool fullCombo, int badCutsCount, int missedCount, int maxCombo, float energy,
-                                GlobalNamespace::GameplayModifiers* gameplayModifiers)
-    {
-        auto previewBeatmapLevel = reinterpret_cast<IPreviewBeatmapLevel*>(difficultyBeatmap->get_level());
-
-        std::string levelHash = GetFormattedHash(previewBeatmapLevel->get_levelID());
-
-        std::string gameMode = "Solo" + difficultyBeatmap->get_parentDifficultyBeatmapSet()->get_beatmapCharacteristic()->serializedName;
-        int difficulty = BeatmapDifficultyMethods::DefaultRating(difficultyBeatmap->get_difficulty());
-
-        std::string songName = previewBeatmapLevel->get_songName();
-        std::string songSubName = previewBeatmapLevel->get_songSubName();
-        std::string songAuthorName = previewBeatmapLevel->get_songAuthorName();
-        std::string levelAuthorName = previewBeatmapLevel->get_levelAuthorName();
-        int bpm = previewBeatmapLevel->get_beatsPerMinute();
-
-        std::u16string playerName = ScoreSaber::Services::PlayerService::playerInfo.localPlayerData.name;
-        std::string playerId = ScoreSaber::Services::PlayerService::playerInfo.localPlayerData.id;
-
-        auto modifiers = GetModifierList(gameplayModifiers, energy);
-
-        // TODO go back to these versions after the unity upgrade (if it works then)
-        // std::string deviceHmd = string_format("standalone_hmd:(ovrplugin):%s(%d)", std::string(GlobalNamespace::OVRPlugin::GetSystemHeadsetType().i_Enum()->ToString()).c_str(), (int)GlobalNamespace::OVRPlugin::GetSystemHeadsetType());
-        // std::string deviceController = string_format("standalone_controller:(ovrplugin):%s(%d)", std::string(GlobalNamespace::OVRPlugin::GetActiveController().i_Enum()->ToString()).c_str(), (int)GlobalNamespace::OVRPlugin::GetActiveController());
-
-        std::string deviceHmd = string_format("standalone_hmd:(ovrplugin):%s(%d)", stringify_OVRPlugin_SystemHeadset(GlobalNamespace::OVRPlugin::GetSystemHeadsetType()).c_str(), (int)GlobalNamespace::OVRPlugin::GetSystemHeadsetType());
-        std::string deviceController = string_format("standalone_controller:(ovrplugin):%s(%d)", stringify_OVRPlugin_Controller(GlobalNamespace::OVRPlugin::GetActiveController()).c_str(), (int)GlobalNamespace::OVRPlugin::GetActiveController());
-
-        std::string infoHash = GetVersionHash();
-
-        ScoreSaberUploadData data(playerName, playerId, rawScore, levelHash, songName, songSubName, levelAuthorName, songAuthorName, bpm,
-                                  difficulty, infoHash, modifiers, gameMode, badCutsCount, missedCount, maxCombo, fullCombo, deviceHmd, deviceController, deviceController);
-
-        std::string uploadData = data.serialize();
-
-        std::string key = md5("f0b4a81c9bd3ded1081b365f7628781f-" + Session::GetSession.playerKey + "-" + PlayerController::currentPlayer.id + "-f0b4a81c9bd3ded1081b365f7628781f");
-
-        std::vector<unsigned char> keyBytes(key.begin(), key.end());
-        std::vector<unsigned char> uploadDataBytes(uploadData.begin(), uploadData.end());
-        std::vector<unsigned char> encrypted = Swap(uploadDataBytes, keyBytes);
-        std::string result = ConvertToHex(encrypted);
-        std::transform(result.begin(), result.end(), result.begin(), ::toupper);
-        return result;
-    }

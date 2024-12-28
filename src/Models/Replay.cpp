@@ -73,7 +73,7 @@ void Replay::Encode(string value, ofstream& stream) {
     stream.write(cstring, stringLength);
 }
 
-void Replay::Encode(ReplayInfo const &info, ofstream& stream) {
+void Replay::Encode(Metadata const &info, ofstream& stream) {
     Encode(info.version, stream);
     Encode(info.gameVersion, stream);
     Encode(info.timestamp, stream);
@@ -217,7 +217,7 @@ string Replay::DecodeString(ifstream& stream) {
 
 const int REPLAY_MAGIC_NUMBER = 0x442d3d69;
 
-std::optional<ReplayInfo> Replay::DecodeInfo(ifstream& stream) {
+std::optional<Metadata> Replay::DecodeInfo(ifstream& stream) {
     // Check magic number and version
     if (DecodeInt(stream) != REPLAY_MAGIC_NUMBER || DecodeChar(stream) != 1 || DecodeChar(stream) != 0) {
         return std::nullopt;
@@ -227,7 +227,7 @@ std::optional<ReplayInfo> Replay::DecodeInfo(ifstream& stream) {
     auto gameVersion = DecodeString(stream);
     auto timestamp = DecodeString(stream);
 
-    ReplayInfo info(version, gameVersion, timestamp);
+    Metadata info(version, gameVersion, timestamp);
 
     info.playerID = DecodeString(stream);
     info.playerName = DecodeString(stream);

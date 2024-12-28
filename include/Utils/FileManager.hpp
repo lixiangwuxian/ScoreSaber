@@ -13,6 +13,6 @@ private:
 public:
    static void EnsureReplaysFolderExists();
    static void WriteReplay(Replay const &replay);
-   static optional<ReplayInfo> ReadInfo(string replayPath);
+   static optional<Metadata> ReadInfo(string replayPath);
    static string ToFilePath(Replay const &replay);
 };

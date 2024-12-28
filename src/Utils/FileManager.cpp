@@ -20,7 +20,7 @@ void FileManager::WriteReplay(Replay const &replay) {
     stream.flush();
 }
 
-std::optional<ReplayInfo> FileManager::ReadInfo(string replayPath) {
+std::optional<Metadata> FileManager::ReadInfo(string replayPath) {
     ifstream stream(replayPath, ios::binary);
     return Replay::DecodeInfo(stream);
 }
