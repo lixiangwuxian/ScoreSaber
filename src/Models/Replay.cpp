@@ -7,9 +7,7 @@ enum struct StructType {
     info = 0,
     frames = 1,
     notes = 2,
-    walls = 3,
-    heights = 4,
-    pauses = 5
+    heights = 3
 };
 
 void Replay::Encode(ofstream& s) const {
@@ -17,7 +15,7 @@ void Replay::Encode(ofstream& s) const {
     Encode((int)0x442d3d69, s);
     Encode((char)1, s);
 
-    for (char a = 0; a < ((char)StructType::pauses) + 1; a++)
+    for (char a = 0; a < ((char)StructType::heights) + 1; a++)
     {
         Encode(a, s);
         StructType type = (StructType)a;
@@ -35,17 +33,9 @@ void Replay::Encode(ofstream& s) const {
             ScoreSaberLogger.info("Started encode notes");
                 Encode(notes, s);
                 break;
-            case StructType::walls:
-            ScoreSaberLogger.info("Started encode walls");
-                Encode(walls, s);
-                break;
             case StructType::heights:
             ScoreSaberLogger.info("Started encode heights");
                 Encode(heights, s);
-                break;
-            case StructType::pauses:
-            ScoreSaberLogger.info("Started encode pauses");
-                Encode(pauses, s);
                 break;
         }
     }
@@ -74,34 +64,34 @@ void Replay::Encode(string value, ofstream& stream) {
 }
 
 void Replay::Encode(Metadata const &info, ofstream& stream) {
-    Encode(info.version, stream);
-    Encode(info.gameVersion, stream);
-    Encode(info.timestamp, stream);
+    // Encode(info.version, stream);
+    // Encode(info.gameVersion, stream);
+    // Encode(info.timestamp, stream);
 
-    Encode(info.playerID, stream);
-    Encode(info.playerName, stream);
-    Encode(info.platform, stream);
+    // Encode(info.playerID, stream);
+    // Encode(info.playerName, stream);
+    // Encode(info.platform, stream);
 
-    Encode(info.trackingSystem, stream);
-    Encode(info.hmd, stream);
-    Encode(info.controller, stream);
+    // Encode(info.trackingSystem, stream);
+    // Encode(info.hmd, stream);
+    // Encode(info.controller, stream);
 
-    Encode(info.hash, stream);
-    Encode(info.songName, stream);
-    Encode(info.mapper, stream);
-    Encode(info.difficulty, stream);
+    // Encode(info.hash, stream);
+    // Encode(info.songName, stream);
+    // Encode(info.mapper, stream);
+    // Encode(info.difficulty, stream);
 
-    Encode(info.score, stream);
-    Encode(info.mode, stream);
-    Encode(info.environment, stream);
-    Encode(info.modifiers, stream);
-    Encode(info.jumpDistance, stream);
-    Encode(info.leftHanded, stream);
-    Encode(info.height, stream);
+    // Encode(info.score, stream);
+    // Encode(info.mode, stream);
+    // Encode(info.environment, stream);
+    // Encode(info.modifiers, stream);
+    // Encode(info.jumpDistance, stream);
+    // Encode(info.leftHanded, stream);
+    // Encode(info.height, stream);
 
-    Encode(info.startTime, stream);
-    Encode(info.failTime, stream);
-    Encode(info.speed, stream);
+    // Encode(info.startTime, stream);
+    // Encode(info.failTime, stream);
+    // Encode(info.speed, stream);
 }
 void Replay::Encode(Sombrero::FastVector3 const &vector, ofstream& stream) {
     Encode(vector.x, stream);
@@ -141,44 +131,33 @@ static float ApplyBool(float value, bool flag) {
 }
 
 void Replay::Encode(NoteEvent const &note, ofstream& stream) {
-    Encode(note.noteID, stream);
-    Encode(note.eventTime, stream);
-    Encode(note.spawnTime, stream);
-    Encode((int)note.eventType, stream);
-    if (note.eventType == NoteEventType::GOOD || note.eventType == NoteEventType::BAD) {
-        ReplayNoteCutInfo const& info = note.noteCutInfo;
-        Encode(info.speedOK, stream);
-        Encode(info.directionOK, stream);
-        Encode(info.saberTypeOK, stream);
-        Encode(info.wasCutTooSoon, stream);
-        Encode(ApplyBool(info.saberSpeed, info.cutDistanceToCenterPositive), stream);
-        Encode(info.saberDir, stream);
-        Encode(info.saberType, stream);
-        Encode(info.timeDeviation, stream);
-        Encode(info.cutDirDeviation, stream);
-        Encode(info.cutPoint, stream);
-        Encode(info.cutNormal, stream);
-        Encode(info.cutDistanceToCenter, stream);
-        Encode(info.cutAngle, stream);
-        Encode(info.beforeCutRating, stream);
-        Encode(info.afterCutRating, stream);
-    }
+    // Encode(note.noteID, stream);
+    // Encode(note.eventTime, stream);
+    // Encode(note.spawnTime, stream);
+    // Encode((int)note.eventType, stream);
+    // if (note.eventType == NoteEventType::GOOD || note.eventType == NoteEventType::BAD) {
+    //     ReplayNoteCutInfo const& info = note.noteCutInfo;
+    //     Encode(info.speedOK, stream);
+    //     Encode(info.directionOK, stream);
+    //     Encode(info.saberTypeOK, stream);
+    //     Encode(info.wasCutTooSoon, stream);
+    //     Encode(ApplyBool(info.saberSpeed, info.cutDistanceToCenterPositive), stream);
+    //     Encode(info.saberDir, stream);
+    //     Encode(info.saberType, stream);
+    //     Encode(info.timeDeviation, stream);
+    //     Encode(info.cutDirDeviation, stream);
+    //     Encode(info.cutPoint, stream);
+    //     Encode(info.cutNormal, stream);
+    //     Encode(info.cutDistanceToCenter, stream);
+    //     Encode(info.cutAngle, stream);
+    //     Encode(info.beforeCutRating, stream);
+    //     Encode(info.afterCutRating, stream);
+    // }
 }
-void Replay::Encode(WallEvent const &wall, ofstream& stream) {
-    Encode(wall.wallID, stream);
-    Encode(wall.energy, stream);
-    Encode(wall.time, stream);
-    Encode(wall.spawnTime, stream);
-}
-void Replay::Encode(AutomaticHeight const &height, ofstream& stream) {
+void Replay::Encode(HeightEvent const &height, ofstream& stream) {
     Encode(height.height, stream);
     Encode(height.time, stream);
 }
-void Replay::Encode(Pause const &pause, ofstream& stream) {
-    Encode(pause.duration, stream);
-    Encode(pause.time, stream);
-}
-
 
 char Replay::DecodeChar(ifstream& stream) {
     char value;
@@ -229,30 +208,30 @@ std::optional<Metadata> Replay::DecodeInfo(ifstream& stream) {
 
     Metadata info(version, gameVersion, timestamp);
 
-    info.playerID = DecodeString(stream);
-    info.playerName = DecodeString(stream);
-    info.platform = DecodeString(stream);
+    // info.playerID = DecodeString(stream);
+    // info.playerName = DecodeString(stream);
+    // info.platform = DecodeString(stream);
 
-    info.trackingSystem = DecodeString(stream);
-    info.hmd = DecodeString(stream);
-    info.controller = DecodeString(stream);
+    // info.trackingSystem = DecodeString(stream);
+    // info.hmd = DecodeString(stream);
+    // info.controller = DecodeString(stream);
 
-    info.hash = DecodeString(stream);
-    info.songName = DecodeString(stream);
-    info.mapper = DecodeString(stream);
-    info.difficulty = DecodeString(stream);
+    // info.hash = DecodeString(stream);
+    // info.songName = DecodeString(stream);
+    // info.mapper = DecodeString(stream);
+    // info.difficulty = DecodeString(stream);
 
-    info.score = DecodeInt(stream);
-    info.mode = DecodeString(stream);
-    info.environment = DecodeString(stream);
-    info.modifiers = DecodeString(stream);
-    info.jumpDistance = DecodeFloat(stream);
-    info.leftHanded = DecodeBool(stream);
-    info.height = DecodeFloat(stream);
+    // info.score = DecodeInt(stream);
+    // info.mode = DecodeString(stream);
+    // info.environment = DecodeString(stream);
+    // info.modifiers = DecodeString(stream);
+    // info.jumpDistance = DecodeFloat(stream);
+    // info.leftHanded = DecodeBool(stream);
+    // info.height = DecodeFloat(stream);
 
-    info.startTime = DecodeFloat(stream);
-    info.failTime = DecodeFloat(stream);
-    info.speed = DecodeFloat(stream);
+    // info.startTime = DecodeFloat(stream);
+    // info.failTime = DecodeFloat(stream);
+    // info.speed = DecodeFloat(stream);
 
     return info;
 }

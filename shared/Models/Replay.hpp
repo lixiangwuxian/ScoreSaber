@@ -13,39 +13,41 @@
 using namespace std;
 
 struct Metadata {
-    // string version;
-    // string gameVersion;
-    // string timestamp;
+    string version;
+    string gameVersion;
+    string timestamp;
 
 
-    // string playerID;
-    // string playerName;
-    // string platform;
+    string playerID;
+    string playerName;
+    string platform;
 
-    // string trackingSystem;
-    // string hmd;
-    // string controller;
+    string trackingSystem;
+    string hmd;
+    string controller;
 
-    // string hash;
-    // string songName;
-    // string mapper;
-    // string difficulty;
+    string hash;
+    string songName;
+    string mapper;
+    string difficulty;
 
-    // int score;
-    // string mode;
-    // string environment;
-    // string modifiers;
-    // float jumpDistance = 0;
-    // bool leftHanded = false;
-    // float height = 0;
+    int score;
+    string mode;
+    string environment;
+    string modifiers;
+    float jumpDistance = 0;
+    bool leftHanded = false;
+    float height = 0;
 
-    // float startTime = 0;
-    // float failTime = 0;
-    // float speed = 0;
+    float startTime = 0;
+    float failTime = 0;
+    float speed = 0;
 
     
     
-    Metadata(string version, string gameVersion, string timestamp) : Version(version), {}
+    Metadata(string version, string gameVersion, string timestamp) : Version(version) {
+        Version = version;
+    }
     
     std::string Version;
     std::string LevelID;
@@ -57,7 +59,7 @@ struct Metadata {
     bool LeftHanded;
     float InitialHeight;
     float RoomRotation;
-    VRPosition RoomCenter;
+    // VRPosition RoomCenter;
     float FailTime;
 };
 
@@ -107,6 +109,33 @@ enum struct NoteEventType {
     BOMB = 4
 };
 
+struct NoteID
+{
+    NoteID()=default;
+    NoteID(float Time, int LineLayer, int LineIndex, int ColorType, int CutDirection):Time(Time), LineLayer(LineLayer), LineIndex(LineIndex), ColorType(ColorType), CutDirection(CutDirection) {}
+    NoteID(float Time, int LineLayer, int LineIndex, int ColorType, int CutDirection, int GameplayType, int ScoringType, int CutDirectionAngleOffset):Time(Time), LineLayer(LineLayer), LineIndex(LineIndex), ColorType(ColorType), CutDirection(CutDirection), GameplayType(GameplayType), ScoringType(ScoringType), CutDirectionAngleOffset(CutDirectionAngleOffset) {}
+    float Time;
+    int LineLayer;
+    int LineIndex;
+    int ColorType;
+    int CutDirection;
+    std::optional<int> GameplayType;
+    std::optional<int> ScoringType;
+    std::optional<float> CutDirectionAngleOffset;
+};
+
+
+struct VRPosition
+{
+    VRPosition()=default;
+    VRPosition(float X, float Y, float Z):X(X), Y(Y), Z(Z) {}
+    VRPosition(UnityEngine::Vector3 vector):X(vector.x), Y(vector.y), Z(vector.z) {}
+    float X;
+    float Y;
+    float Z;
+};
+
+
 struct NoteEvent {
     NoteID TheNoteID;
     NoteEventType EventType; // GOOD, BAD, MISS
@@ -126,33 +155,15 @@ struct NoteEvent {
     float TimeSyncTimescale;
 };
 
-struct NoteID
-{
-    NoteID();
-    NoteID(float Time, int LineLayer, int LineIndex, int ColorType, int CutDirection);
-    NoteID(float Time, int LineLayer, int LineIndex, int ColorType, int CutDirection, int GameplayType, int ScoringType, int CutDirectionAngleOffset);
+struct EnergyEvent {
+    float Energy;
     float Time;
-    int LineLayer;
-    int LineIndex;
-    int ColorType;
-    int CutDirection;
-    std::optional<int> GameplayType;
-    std::optional<int> ScoringType;
-    std::optional<float> CutDirectionAngleOffset;
+
+    constexpr EnergyEvent(float Energy, float Time) : Energy(Energy), Time(Time) {}
 };
 
-struct VRPosition
-{
-    VRPosition();
-    VRPosition(float X, float Y, float Z);
-    VRPosition(UnityEngine::Vector3 vector);
-    float X;
-    float Y;
-    float Z;
-};
-
-struct AutomaticHeight {
-    constexpr AutomaticHeight(float height, float time) : height(height), time(time) {}
+struct HeightEvent {
+    constexpr HeightEvent(float height, float time) : height(height), time(time) {}
 
     float height;
     float time;
@@ -171,7 +182,7 @@ public:
     Metadata info;
     vector<Frame> frames;
     vector<NoteEvent> notes;
-    vector<AutomaticHeight> heights;
+    vector<HeightEvent> heights;
 private:
     static void Encode(char value, ofstream& stream);
     static void Encode(int value, ofstream& stream);
@@ -196,7 +207,7 @@ private:
     static void Encode(Sombrero::FastQuaternion const &quaternion, ofstream& stream);
     static void Encode(Frame const &frame, ofstream& stream);
     static void Encode(NoteEvent const &note, ofstream& stream);
-    static void Encode(AutomaticHeight const &height, ofstream& stream);
+    static void Encode(HeightEvent const &height, ofstream& stream);
 
     static char DecodeChar(ifstream& stream);
     static int DecodeInt(ifstream& stream);

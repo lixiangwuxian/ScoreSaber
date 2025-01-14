@@ -12,21 +12,21 @@
 void MapEnhancer::Enhance(Replay &replay)
 {
     Metadata& info = replay.info;
-    info.hash = regex_replace((string)beatmapLevel->levelID, basic_regex("custom_level_"), "");
-    info.songName = (string)beatmapLevel->songName;
-    info.mapper = (string)beatmapLevel->songAuthorName;
-    info.difficulty = DiffName(difficultyBeatmap.difficulty.value__);
+    // info.hash = regex_replace((string)beatmapLevel->levelID, basic_regex("custom_level_"), "");
+    // info.songName = (string)beatmapLevel->songName;
+    // info.mapper = (string)beatmapLevel->songAuthorName;
+    // info.difficulty = DiffName(difficultyBeatmap.difficulty.value__);
 
-    info.mode = (string)difficultyBeatmap.beatmapCharacteristic->serializedName;
-    info.environment = (string)environmentInfo->environmentName;
-    info.modifiers = Join(Modifiers());
-    info.leftHanded = playerSpecificSettings->leftHanded;
-    info.height = playerSpecificSettings->automaticPlayerHeight ? 0 : playerSpecificSettings->playerHeight;
+    // info.mode = (string)difficultyBeatmap.beatmapCharacteristic->serializedName;
+    // info.environment = (string)environmentInfo->environmentName;
+    // info.modifiers = Join(Modifiers());
+    // info.leftHanded = playerSpecificSettings->leftHanded;
+    // info.height = playerSpecificSettings->automaticPlayerHeight ? 0 : playerSpecificSettings->playerHeight;
 
     if (practiceSettings != NULL)
     {
-        info.startTime = practiceSettings->startSongTime;
-        info.speed = practiceSettings->songSpeedMul;
+        // info.startTime = practiceSettings->startSongTime;
+        // info.speed = practiceSettings->songSpeedMul;
     }
 }
 

@@ -2,6 +2,10 @@
 
 #include "shared/Models/Replay.hpp"
 #include "GlobalNamespace/LevelCompletionResults.hpp"
+#include "GlobalNamespace/NoteData.hpp"
+#include "GlobalNamespace/NoteCutInfo.hpp"
+#include "GlobalNamespace/GoodCutScoringElement.hpp"
+
 
 #include <string>
 #include <sstream>
@@ -77,9 +81,28 @@ private:
     float _time;
 };
 
+// class EnergyEventRecorder {
+//     std::vector<EnergyEvent> _energyKeyframes;
+// public:
+//     void GameEnergyCounter_gameEnergyDidChangeEvent(float energy);
+// };
+
+// class HeightEventRecorder {
+//     std::vector<HeightEvent> _heightKeyframes;
+// public:
+//     void HeightEventRecorder_heightDidChangeEvent(float newHeight);
+// };
+
+// class NoteEventRecorder {
+//     std::vector<NoteEvent> _noteKeyframes;
+//     std::map<NoteData*, NoteCutInfo> _collectedBadCutInfos;
+//     std::map<GoodCutScoringElement*, float> _scoringStartInfo;
+// };
+
 namespace ReplayRecorder {
     void StartRecording(
         function<void(void)> const &startedCallback, 
         function<void(Replay const &, PlayEndData, bool)> const &callback);
     static bool recording;
 }
+
